@@ -8,11 +8,20 @@ A hands-on workshop for learning mathematical optimization with [PySCIPOpt](http
 pip install pyscipopt
 ```
 
+On some Linux distributions (e.g. Debian/Ubuntu), installing packages globally with `pip` is restricted. If you get an `externally-managed-environment` error, create a virtual environment first. This is probably not required for most users (Windows/macOS).
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install pyscipopt
+```
+
 Verify installation:
 
 ```python
 from pyscipopt import Model
 m = Model()
+m.optimize()
 print("PySCIPOpt is ready!")
 ```
 
@@ -84,39 +93,3 @@ cd branch_and_price && python test_knapsack.py
 cd separator/subset_row && python test_subset_row.py
 ```
 
-## Slides
-
-Presentation slides are in LaTeX Beamer format:
-
-```bash
-cd part1/slides && pdflatex part1.tex
-cd part2/slides && pdflatex part2.tex
-```
-
-## File Structure
-
-```
-apdio-workshop-2026/
-├── README.md                          # This file
-├── part1/
-│   ├── README.md                      # Theory + exercises narrative
-│   ├── conftest.py                    # pytest configuration
-│   ├── slides/
-│   │   └── part1.tex                  # Beamer presentation
-│   ├── ex01_first_model/
-│   ├── ex02_solving/
-│   ├── ex03_transportation/
-│   ├── ex04_blending/
-│   ├── ex05_set_cover/
-│   ├── ex06_knapsack/
-│   ├── ex07_facility_location/
-│   └── ex08_graph_coloring/
-├── part2/
-│   ├── README.md                      # Narrative linking exercise dirs
-│   └── slides/
-│       └── part2.tex                  # Beamer presentation
-├── row_generation/                    # Part 2: TSP exercises
-├── branch_and_price/                  # Part 2: Bin packing B&P exercises
-└── separator/
-    └── subset_row/                    # Part 2: BPC exercises
-```
