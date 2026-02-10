@@ -115,16 +115,16 @@ By the end of Part~1 you will be able to:
 \begin{frame}[fragile]{Model Lifecycle}
 \begin{center}
 \begin{tikzpicture}[
-  step/.style={draw,rounded corners,minimum width=2.2cm,
+  stepbox/.style={draw,rounded corners,minimum width=2.2cm,
                minimum height=0.7cm,align=center,font=\small\bfseries,
                fill=blue!10},
   arr/.style={-{Stealth},thick,shorten >=2pt,shorten <=2pt},
 ]
-  \node[step] (create)  {Create Model};
-  \node[step,right=1.0cm of create]  (vars)  {Add Variables};
-  \node[step,right=1.0cm of vars]    (cons)  {Add Constraints};
-  \node[step,right=1.0cm of cons]    (opt)   {Optimize};
-  \node[step,right=1.0cm of opt]     (query) {Query Solution};
+  \node[stepbox] (create)  {Create Model};
+  \node[stepbox,right=1.0cm of create]  (vars)  {Add Variables};
+  \node[stepbox,right=1.0cm of vars]    (cons)  {Add Constraints};
+  \node[stepbox,right=1.0cm of cons]    (opt)   {Optimize};
+  \node[stepbox,right=1.0cm of opt]     (query) {Query Solution};
 
   \draw[arr] (create) -- (vars);
   \draw[arr] (vars)   -- (cons);
@@ -391,15 +391,55 @@ Implement the transportation problem:
 % Frame 14: Blending Problem
 % ---------------------------------------------------------
 \begin{frame}{Blending Problem}
-Combine raw materials to meet quality specifications at minimum cost.
+\begin{columns}[T]
+\begin{column}{0.42\textwidth}
+\begin{center}
+\begin{tikzpicture}[
+  raw/.style={rectangle,draw,rounded corners=2pt,minimum width=1.1cm,
+              minimum height=0.6cm,font=\scriptsize\bfseries},
+  mixer/.style={cylinder,draw,fill=gray!15,minimum width=1.2cm,
+                minimum height=1.2cm,shape border rotate=90,
+                font=\scriptsize\bfseries,aspect=0.4},
+  output/.style={rectangle,draw,rounded corners=4pt,fill=green!15,
+                 minimum width=1.3cm,minimum height=0.8cm,
+                 font=\scriptsize\bfseries},
+  arr/.style={-{Stealth},thick},
+]
+  % Raw materials
+  \node[raw,fill=blue!20]   (m1) at (0, 1.6) {$m_1$};
+  \node[raw,fill=red!20]    (m2) at (0, 0.5) {$m_2$};
+  \node[raw,fill=orange!20] (m3) at (0,-0.6) {$m_3$};
 
-\medskip
-\textbf{Sets:} materials $M$, quality attributes $Q$
+  \node[anchor=south,font=\scriptsize] at (0,2.0) {Raw Materials};
 
-\textbf{Parameters:} cost $c_m$, attribute content $a_{mq}$,
-bounds $[\ell_q, u_q]$, availability $b_m$
+  % Mixer
+  \node[mixer] (mix) at (2.4,0.5) {Mixer};
 
-\textbf{Variables:} $x_m \ge 0$ (amount of material $m$)
+  % Output
+  \node[output] (out) at (4.6,0.5) {Blend};
+
+  % Arrows with labels
+  \draw[arr,blue!60]   (m1.east) -- node[above,font=\tiny]{$x_1$} (mix.150);
+  \draw[arr,red!60]    (m2.east) -- node[above,font=\tiny]{$x_2$} (mix.west);
+  \draw[arr,orange!60] (m3.east) -- node[below,font=\tiny]{$x_3$} (mix.210);
+  \draw[arr,green!50!black,very thick] (mix.east) -- (out.west);
+
+  % Quality annotation
+  \node[below=0.3cm of out,font=\tiny,align=center,text=green!40!black]
+    {Quality\\$\ell_q \le \cdot \le u_q$};
+\end{tikzpicture}
+\end{center}
+\end{column}
+\begin{column}{0.58\textwidth}
+Combine raw materials to meet quality specs at minimum cost.
+
+\smallskip
+{\small\textbf{Sets:} materials $M$, quality attributes $Q$}
+
+{\small\textbf{Parameters:} cost $c_m$, content $a_{mq}$,
+bounds $[\ell_q, u_q]$, availability $b_m$}
+
+{\small\textbf{Variables:} $x_m \ge 0$ (amount of material $m$)}
 
 \begin{align*}
   \min \quad & \sum_{m \in M} c_m \, x_m \\
@@ -409,12 +449,9 @@ bounds $[\ell_q, u_q]$, availability $b_m$
     & 0 \le x_m \le b_m & \forall\, m \in M
 \end{align*}
 
-\medskip
-\textbf{Linearize} by multiplying through by $\sum_m x_m$:
-\[
-  \ell_q \sum_{m} x_m \;\le\; \sum_{m} a_{mq}\, x_m
-  \;\le\; u_q \sum_{m} x_m
-\]
+{\small\textbf{Linearize:} $\ell_q \!\sum_{m} x_m \le \sum_{m} a_{mq} x_m \le u_q \!\sum_{m} x_m$}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
@@ -439,12 +476,54 @@ Implement the blending problem:
 % Frame 16: Set Cover
 % ---------------------------------------------------------
 \begin{frame}{From LP to IP: Set Cover}
+\begin{columns}[T]
+\begin{column}{0.42\textwidth}
+\begin{center}
+\begin{tikzpicture}[
+  elem/.style={circle,fill=black,inner sep=1.5pt},
+  elabel/.style={font=\tiny,above=1pt},
+]
+  % Elements (dots)
+  \node[elem,label={[elabel]above:1}] (e1) at (0.4, 1.2) {};
+  \node[elem,label={[elabel]above:2}] (e2) at (1.3, 1.5) {};
+  \node[elem,label={[elabel]above:3}] (e3) at (2.3, 1.3) {};
+  \node[elem,label={[elabel]below:4}] (e4) at (0.7, 0.2) {};
+  \node[elem,label={[elabel]below:5}] (e5) at (1.8, 0.0) {};
+  \node[elem,label={[elabel]right:6}] (e6) at (3.0, 0.5) {};
+  \node[elem,label={[elabel]above:7}] (e7) at (3.2, 1.6) {};
+
+  % Sets as ellipses
+  \draw[thick,fill=blue!12,draw=blue!60,rounded corners]
+    (0.1,0.6) ellipse (0.9cm and 0.9cm);
+  \node[font=\scriptsize,blue!70] at (-0.4,0.0) {$S_1$};
+
+  \draw[thick,fill=red!12,draw=red!60,rounded corners]
+    (1.6,1.1) ellipse (1.1cm and 0.8cm);
+  \node[font=\scriptsize,red!70] at (1.6,1.9) {$S_2$};
+
+  \draw[thick,fill=green!12,draw=green!60!black,rounded corners]
+    (2.0,-0.1) ellipse (0.8cm and 0.6cm);
+  \node[font=\scriptsize,green!50!black] at (2.0,-0.7) {$S_3$};
+
+  \draw[thick,fill=orange!12,draw=orange!70,rounded corners]
+    (3.1,1.0) ellipse (0.6cm and 0.9cm);
+  \node[font=\scriptsize,orange!70] at (3.7,1.0) {$S_4$};
+
+  % Redraw elements on top
+  \foreach \e in {e1,e2,e3,e4,e5,e6,e7}
+    \fill (\e) circle(1.5pt);
+\end{tikzpicture}
+\end{center}
+\vspace{-2pt}
+{\centering\scriptsize Select fewest sets to cover all elements.\par}
+\end{column}
+\begin{column}{0.58\textwidth}
 \textbf{Given:} Universe $U = \{1,\dots,n\}$, subsets $S_1,\dots,S_m \subseteq U$,
 costs $c_j$.
 
 \textbf{Goal:} Select minimum-cost subsets that cover every element.
 
-\medskip
+\smallskip
 \textbf{Variables:} $x_j \in \{0,1\}$ (select subset $j$?)
 
 \begin{align*}
@@ -456,11 +535,13 @@ costs $c_j$.
       & \forall\, j
 \end{align*}
 
-\medskip
+\smallskip
 \begin{itemize}
   \item This is a \textbf{pure integer program} (all variables binary).
   \item LP relaxation gives a lower bound; SCIP uses branch-and-bound.
 \end{itemize}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
@@ -485,13 +566,55 @@ Implement the set cover problem:
 % Frame 18: Knapsack Problem
 % ---------------------------------------------------------
 \begin{frame}{Knapsack Problem}
+\begin{columns}[T]
+\begin{column}{0.43\textwidth}
+\begin{center}
+\begin{tikzpicture}[
+  item/.style={rectangle,draw,rounded corners=2pt,minimum width=0.9cm,
+               minimum height=0.7cm,font=\tiny,align=center},
+  arr/.style={-{Stealth},thick,dashed,gray},
+]
+  % Knapsack (bag)
+  \draw[thick,fill=brown!10,rounded corners=6pt]
+    (2.0,-0.2) rectangle (4.2,2.6);
+  \node[font=\scriptsize\bfseries,brown!60!black] at (3.1,2.85) {Knapsack};
+
+  % Capacity bar
+  \draw[thick,gray] (4.5,-0.2) -- (4.5,2.6);
+  \fill[red!20] (4.5,-0.2) rectangle (4.8,1.8);
+  \draw[thick] (4.5,-0.2) rectangle (4.8,2.6);
+  \draw[thick,red!60!black,{Stealth}-{Stealth}] (5.0,-0.2) -- node[right,font=\tiny]{$W$} (5.0,2.6);
+  \node[font=\tiny,red!60!black] at (4.65,2.0) {\rotatebox{90}{\textit{used}}};
+
+  % Items inside bag (selected)
+  \node[item,fill=blue!25]   at (2.7,0.4) {$v_1$\\$w_1$};
+  \node[item,fill=green!25]  at (3.5,0.4) {$v_3$\\$w_3$};
+  \node[item,fill=orange!25] at (3.1,1.3) {$v_4$\\$w_4$};
+
+  % Items outside (not selected)
+  \node[item,fill=red!20]    (out1) at (0.4,2.0) {$v_2$\\$w_2$};
+  \node[item,fill=purple!20] (out2) at (0.4,0.8) {$v_5$\\$w_5$};
+
+  % Cross marks on excluded items
+  \draw[red,thick] (out1.north west) -- (out1.south east);
+  \draw[red,thick] (out1.south west) -- (out1.north east);
+  \draw[red,thick] (out2.north west) -- (out2.south east);
+  \draw[red,thick] (out2.south west) -- (out2.north east);
+
+  % Labels
+  \node[font=\tiny,gray] at (0.4,0.0) {\textit{rejected}};
+  \node[font=\tiny,gray] at (3.1,-0.5) {\textit{selected}};
+\end{tikzpicture}
+\end{center}
+\end{column}
+\begin{column}{0.57\textwidth}
 \textbf{Classic 0--1 Knapsack:} select items to maximize value
 without exceeding capacity.
 
-\medskip
-\textbf{Applications:} budgeting, cargo loading, resource allocation.
+\smallskip
+{\small\textbf{Applications:} budgeting, cargo loading, resource allocation.}
 
-\medskip
+\smallskip
 \textbf{Variables:} $x_j \in \{0,1\}$ (take item $j$?)
 
 \begin{align*}
@@ -501,12 +624,14 @@ without exceeding capacity.
     & x_j \in \{0,1\} & \forall\, j
 \end{align*}
 
-where $v_j$ = value, $w_j$ = weight, $W$ = capacity.
+{\small where $v_j$ = value, $w_j$ = weight, $W$ = capacity.}
 
-\medskip
+\smallskip
 \begin{itemize}
   \item NP-hard in general; SCIP handles it efficiently via specialized techniques.
 \end{itemize}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
@@ -531,14 +656,59 @@ Implement the 0--1 knapsack problem:
 % Frame 20: Facility Location
 % ---------------------------------------------------------
 \begin{frame}{Facility Location}
+\begin{columns}[T]
+\begin{column}{0.40\textwidth}
+\begin{center}
+\begin{tikzpicture}[
+  fac/.style={rectangle,draw,minimum size=0.55cm,font=\scriptsize\bfseries,
+              thick},
+  cust/.style={circle,draw,fill=blue!15,minimum size=0.5cm,
+               font=\scriptsize\bfseries},
+  assign/.style={-{Stealth},thin,densely dashed},
+]
+  % Facilities (left column)
+  \node[fac,fill=green!30]  (f1) at (0, 2.2) {$F_1$};
+  \node[fac,fill=gray!15]   (f2) at (0, 1.0) {$F_2$};
+  \node[fac,fill=green!30]  (f3) at (0,-0.2) {$F_3$};
+
+  % Open/closed labels
+  \node[font=\tiny,green!50!black,left=2pt of f1] {open};
+  \node[font=\tiny,red!60!black,left=2pt of f2] {closed};
+  \node[font=\tiny,green!50!black,left=2pt of f3] {open};
+
+  % Customers (right column)
+  \node[cust] (c1) at (3.2, 2.6) {$c_1$};
+  \node[cust] (c2) at (3.2, 1.6) {$c_2$};
+  \node[cust] (c3) at (3.2, 0.6) {$c_3$};
+  \node[cust] (c4) at (3.2,-0.4) {$c_4$};
+
+  % Assignment edges (from open facilities only)
+  \draw[assign,green!50!black] (f1) -- (c1);
+  \draw[assign,green!50!black] (f1) -- (c2);
+  \draw[assign,green!50!black] (f3) -- (c3);
+  \draw[assign,green!50!black] (f3) -- (c4);
+
+  % Grey dashed from closed facility (potential)
+  \draw[assign,gray!40] (f2) -- (c2);
+  \draw[assign,gray!40] (f2) -- (c3);
+
+  % Legend
+  \node[fac,fill=green!30,minimum size=0.3cm] at (0.4,-1.1) {};
+  \node[font=\tiny,right] at (0.65,-1.1) {Open};
+  \node[fac,fill=gray!15,minimum size=0.3cm] at (2.0,-1.1) {};
+  \node[font=\tiny,right] at (2.25,-1.1) {Closed};
+\end{tikzpicture}
+\end{center}
+\end{column}
+\begin{column}{0.60\textwidth}
 \textbf{Decide} which facilities to open and how to assign customers.
 
-\medskip
-\textbf{Sets:} facilities $F$, customers $C$
+\smallskip
+{\small\textbf{Sets:} facilities $F$, customers $C$}
 
-\textbf{Parameters:} fixed cost $f_i$, assignment cost $t_{ij}$, demand $d_j$, capacity $q_i$
+{\small\textbf{Parameters:} fixed cost $f_i$, assignment cost $t_{ij}$, demand $d_j$, capacity $q_i$}
 
-\textbf{Variables:} $y_i \in \{0,1\}$ (open $i$?), \; $x_{ij} \ge 0$ (fraction served)
+{\small\textbf{Variables:} $y_i \in \{0,1\}$ (open $i$?), \; $x_{ij} \ge 0$ (fraction served)}
 
 \begin{align*}
   \min \quad & \sum_{i \in F} f_i\, y_i
@@ -554,6 +724,8 @@ Implement the 0--1 knapsack problem:
 \begin{itemize}
   \item The constraint $x_{ij} \le y_i$ \textbf{links} assignment to opening.
 \end{itemize}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
@@ -578,14 +750,53 @@ Implement the capacitated facility location problem:
 % Frame 22: Graph Coloring
 % ---------------------------------------------------------
 \begin{frame}{Graph Coloring}
+\begin{columns}[T]
+\begin{column}{0.40\textwidth}
+\begin{center}
+\begin{tikzpicture}[
+  vtx/.style={circle,draw,thick,minimum size=0.55cm,font=\scriptsize\bfseries,
+              inner sep=0pt},
+  edge/.style={thick},
+  scale=0.95,
+]
+  % Pentagon vertices
+  \node[vtx,fill=red!35]    (v1) at (90:1.6)  {1};
+  \node[vtx,fill=blue!35]   (v2) at (162:1.6) {2};
+  \node[vtx,fill=green!35]  (v3) at (234:1.6) {3};
+  \node[vtx,fill=red!35]    (v4) at (306:1.6) {4};
+  \node[vtx,fill=green!35]  (v5) at (18:1.6)  {5};
+
+  % Inner star vertex (center)
+  \node[vtx,fill=orange!40] (v6) at (0,0) {6};
+
+  % Outer edges (pentagon)
+  \draw[edge] (v1) -- (v2);
+  \draw[edge] (v2) -- (v3);
+  \draw[edge] (v3) -- (v4);
+  \draw[edge] (v4) -- (v5);
+  \draw[edge] (v5) -- (v1);
+
+  % Inner edges (star from center)
+  \draw[edge] (v6) -- (v1);
+  \draw[edge] (v6) -- (v2);
+  \draw[edge] (v6) -- (v3);
+  \draw[edge] (v6) -- (v4);
+  \draw[edge] (v6) -- (v5);
+
+  % Color legend
+  \node[font=\tiny,gray] at (0,-2.3) {4 colors --- is this optimal?};
+\end{tikzpicture}
+\end{center}
+\end{column}
+\begin{column}{0.60\textwidth}
 \textbf{Given:} undirected graph $G=(V,E)$, set of colors $K=\{1,\dots,k\}$.
 
 \textbf{Goal:} minimize the number of colors used such that
 no two adjacent vertices share a color.
 
-\medskip
-\textbf{Variables:} $x_{v,c} \in \{0,1\}$ (vertex $v$ gets color $c$?), \;
-$w_c \in \{0,1\}$ (color $c$ used?)
+\smallskip
+{\small\textbf{Variables:} $x_{v,c} \in \{0,1\}$ (vertex $v$ gets color $c$?), \;
+$w_c \in \{0,1\}$ (color $c$ used?)}
 
 \begin{align*}
   \min \quad & \sum_{c \in K} w_c \\
@@ -597,12 +808,11 @@ $w_c \in \{0,1\}$ (color $c$ used?)
     & x_{v,c},\, w_c \in \{0,1\}
 \end{align*}
 
-\medskip
-\begin{itemize}
-  \item \textbf{Symmetry:} any permutation of colors gives an equivalent
-        solution --- this makes MIP solving harder.
-  \item Break symmetry: $w_1 \ge w_2 \ge \cdots \ge w_k$.
-\end{itemize}
+{\small
+\textbf{Symmetry:} permuting colors $\Rightarrow$ equivalent solution.\\
+\textbf{Break:} $w_1 \ge w_2 \ge \cdots \ge w_k$.}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------

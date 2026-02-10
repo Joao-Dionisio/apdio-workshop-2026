@@ -3,6 +3,17 @@
 \usetheme[nogauge,amurmapleblue]{Amurmaple}
 
 \usepackage{todonotes}
+\usepackage{listings}
+
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  showstringspaces=false,
+  frame=single,
+  numbers=none,
+  breaklines=true
+}
 
 \newcommand{\plugin}[1]{\texttt{#1}}
 
@@ -44,12 +55,24 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{SCIP is Easy to Use}
+\begin{frame}[fragile]{SCIP is Easy to Use}
   \begin{itemize}
   \item executable can read many popular file formats (mps, lp, etc.)
   \item modeling problems via SCIP's interfaces is very easy
   \end{itemize}
-  \missingfigure{Add some Python code here.}
+  \begin{lstlisting}
+from pyscipopt import Model
+
+model = Model()
+
+x = model.addVar("x", vtype="C", lb=0)
+y = model.addVar("y", vtype="I", lb=0)
+
+model.addCons(x + 2*y <= 10)
+model.setObjective(x + y, "maximize")
+
+model.optimize()
+  \end{lstlisting}
 \end{frame}
 
 \sepframe[title={Branch-and-Price},image={\includegraphics[width=6cm]{scip-bap.png}}]
@@ -87,7 +110,7 @@
   \end{itemize}
 
   \vfill
-  
+
   SCIP naturally supports these features by
   \begin{itemize}
   \item plugin for computing custom bound (\plugin{relaxator})
@@ -108,7 +131,7 @@
 
   \vfill
 
-  SCIP naturally supports these featurs by
+  SCIP naturally supports these features by
   \begin{itemize}
   \item plugin for custom cutting planes (\plugin{separator})
   \item automatic embedding in branch-and-bound, including cut storage and selection
@@ -133,7 +156,7 @@
 
   \vfill
 
-  SCIP naturally supports these featurs by
+  SCIP naturally supports these features by
   \begin{itemize}
   \item plugin for propagation methods (\plugin{propagator})
   \item automatic embedding in branch-and-bound
@@ -145,7 +168,7 @@
     \end{itemize}
   \end{itemize}
 
-  \vfill  
+  \vfill
 \end{frame}
 
 \section{Presolving}
@@ -158,7 +181,7 @@
 
   \vfill
 
-  SCIP naturally supports these featurs by
+  SCIP naturally supports these features by
   \begin{itemize}
   \item plugin for presolving methods (\plugin{presolver})
   \item synchronization with other presolving routines
@@ -183,7 +206,7 @@
 
   \vfill
 
-  SCIP naturally supports these featurs by
+  SCIP naturally supports these features by
   \begin{itemize}
   \item plugin for heuristics (\plugin{heuristic})
   \item automatically called during solving process
@@ -209,7 +232,7 @@
 
   \vfill
 
-  SCIP naturally supports these featurs by
+  SCIP naturally supports these features by
   \begin{itemize}
   \item plugin for branching rules (\plugin{branching rule})
   \item automatic embedding in branch-and-bound
@@ -234,7 +257,7 @@
 
   \vfill
 
-  SCIP naturally supports these featurs by
+  SCIP naturally supports these features by
   \begin{itemize}
   \item plugin for custom Benders decomposition (\plugin{benders})
   \item plugin for custom Benders cuts (\plugin{benderscut})
@@ -256,7 +279,7 @@
 
   \vfill
 
-  SCIP naturally supports these featurs by
+  SCIP naturally supports these features by
   \begin{itemize}
   \item plugin for custom constraints (\plugin{constraint handler})
   \item features
@@ -271,6 +294,89 @@
   \vfill
 \end{frame}
 
+\section{Event Handling}
+
+\begin{frame}{Event Handler}
+  required functionality
+  \begin{itemize}
+  \item react to events during solving (new incumbent, node solved, LP solved, etc.)
+  \end{itemize}
+
+  \vfill
+
+  SCIP naturally supports these features by
+  \begin{itemize}
+  \item plugin for event handling (\plugin{event handler})
+  \item wide range of events (new best solution, node processing, variable changes)
+  \item lightweight mechanism for monitoring and reacting
+  \end{itemize}
+
+  \vfill
+\end{frame}
+
+\section{Node Selection}
+
+\begin{frame}{Node Selector}
+  required functionality
+  \begin{itemize}
+  \item custom strategy for selecting the next node in the branch-and-bound tree
+  \end{itemize}
+
+  \vfill
+
+  SCIP naturally supports these features by
+  \begin{itemize}
+  \item plugin for node selection (\plugin{node selector})
+  \item access to all open nodes and their bounds
+  \item supports best-first, depth-first, or custom strategies
+  \end{itemize}
+
+  \vfill
+\end{frame}
+
+\section{Custom Display}
+
+\begin{frame}{Table / Display}
+  required functionality
+  \begin{itemize}
+  \item custom output during solving process
+  \item monitoring solver progress
+  \end{itemize}
+
+  \vfill
+
+  SCIP naturally supports these features by
+  \begin{itemize}
+  \item plugin for custom display columns (\plugin{display})
+  \item automatic integration with solver output
+  \item full control of display frequency
+  \end{itemize}
+
+  \vfill
+\end{frame}
+
+\section{Plugin Architecture}
+
+\begin{frame}{Plugin Architecture}
+  \begin{center}
+    \begin{tabular}{l l}
+      \plugin{pricer}             & column generation \\
+      \plugin{relaxator}          & custom bounds \\
+      \plugin{separator}          & cutting planes \\
+      \plugin{propagator}         & variable bound propagation \\
+      \plugin{presolver}          & presolving reductions \\
+      \plugin{heuristic}          & primal heuristics \\
+      \plugin{branching rule}     & branching decisions \\
+      \plugin{benders}            & Benders decomposition \\
+      \plugin{benderscut}         & Benders cuts \\
+      \plugin{constraint handler} & custom constraints \\
+      \plugin{event handler}      & event handling \\
+      \plugin{node selector}      & node selection strategy \\
+      \plugin{display}            & custom solver output \\
+    \end{tabular}
+  \end{center}
+\end{frame}
+
 \begin{frame}
   You wonder how to solve mixed-integer (nonlinear) programs?
 
@@ -280,22 +386,6 @@
     \flushright \LARGE \textbf{Let's SCIP it!}
   }
 \end{frame}
-
-% \begin{frame}{}
-%   required functionality
-%   \begin{itemize}
-%   \item 
-%   \end{itemize}
-
-%   \vfill
-
-%   SCIP naturally supports these featurs by
-%   \begin{itemize}
-%   \item 
-%   \end{itemize}
-
-%   \vfill
-% \end{frame}
 
 \end{document}
 

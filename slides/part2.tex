@@ -5,7 +5,7 @@
 
 \usepackage{amsmath, amssymb}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta, positioning}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, fit, decorations.pathreplacing, calc}
 \usepackage{booktabs}
 \usepackage{listings}
 
@@ -74,6 +74,8 @@
 % Frame 3: TSP Problem Statement
 % ---------------------------------------------------------
 \begin{frame}{Traveling Salesman Problem (TSP)}
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
 \textbf{Given:} $n$ cities, pairwise distances $d_{ij}$
 
 \textbf{Find:} shortest tour visiting each city exactly once, returning to start
@@ -88,12 +90,48 @@
       \item Edge formulation + SECs (exponential constraints, strong LP)
     \end{enumerate}
 \end{itemize}
+\end{column}
+\begin{column}{0.42\textwidth}
+\centering
+\begin{tikzpicture}[
+  city/.style={circle, draw, fill=blue!60, inner sep=0pt,
+               minimum size=8pt, font=\scriptsize},
+  tour/.style={very thick, red!70!black}
+]
+  % City positions
+  \node[city, label={[font=\scriptsize]above:$1$}]   (c1) at (0, 1.6)  {};
+  \node[city, label={[font=\scriptsize]right:$2$}]    (c2) at (1.4, 0.8) {};
+  \node[city, label={[font=\scriptsize]right:$3$}]    (c3) at (1.1,-0.7) {};
+  \node[city, label={[font=\scriptsize]left:$4$}]     (c4) at (-0.6,-1.0) {};
+  \node[city, label={[font=\scriptsize]left:$5$}]     (c5) at (-1.3, 0.5) {};
+
+  % Tour edges (cycle)
+  \draw[tour] (c1) -- (c2);
+  \draw[tour] (c2) -- (c3);
+  \draw[tour] (c3) -- (c4);
+  \draw[tour] (c4) -- (c5);
+  \draw[tour] (c5) -- (c1);
+
+  % Dashed non-tour edges (a few)
+  \draw[thin, dashed, gray!50] (c1) -- (c3);
+  \draw[thin, dashed, gray!50] (c1) -- (c4);
+  \draw[thin, dashed, gray!50] (c2) -- (c4);
+  \draw[thin, dashed, gray!50] (c2) -- (c5);
+  \draw[thin, dashed, gray!50] (c3) -- (c5);
+\end{tikzpicture}
+
+\smallskip
+{\scriptsize\color{red!70!black} Optimal tour shown in red}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
 % Frame 4: MTZ Formulation
 % ---------------------------------------------------------
 \begin{frame}{MTZ Formulation}
+\begin{columns}[T]
+\begin{column}{0.62\textwidth}
 \textbf{Variables:} $x_{ij} \in \{0,1\}$ (directed edges), $u_i \in \mathbb{R}$ (positions)
 
 \begin{align*}
@@ -109,6 +147,36 @@
   \item $O(n^2)$ variables and constraints --- no plugins needed
   \item LP relaxation is \textbf{very weak}
 \end{itemize}
+\end{column}
+\begin{column}{0.35\textwidth}
+\centering
+\begin{tikzpicture}[
+  city/.style={circle, draw, fill=blue!60, inner sep=0pt,
+               minimum size=10pt, font=\scriptsize\bfseries, text=white},
+  arc/.style={-{Stealth[length=5pt]}, very thick, orange!80!black}
+]
+  \node[city] (c0) at (0, 1.5)   {0};
+  \node[city] (c1) at (1.5, 0.7) {1};
+  \node[city] (c2) at (1.2,-0.8) {2};
+  \node[city] (c3) at (-0.8,-0.5){3};
+
+  % Directed tour
+  \draw[arc] (c0) -- (c1);
+  \draw[arc] (c1) -- (c2);
+  \draw[arc] (c2) -- (c3);
+  \draw[arc] (c3) -- (c0);
+
+  % Position labels u_i
+  \node[font=\scriptsize, color=red!70!black] at (-0.5, 1.8)  {$u_0{=}0$};
+  \node[font=\scriptsize, color=red!70!black] at (2.1, 1.0)   {$u_1{=}1$};
+  \node[font=\scriptsize, color=red!70!black] at (1.8, -1.1)  {$u_2{=}2$};
+  \node[font=\scriptsize, color=red!70!black] at (-1.5, -0.8) {$u_3{=}3$};
+\end{tikzpicture}
+
+\smallskip
+{\scriptsize $u_i$ values enforce a\\ single directed tour}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
@@ -128,6 +196,8 @@ Study the MTZ formulation as a baseline before implementing row generation.
 % Frame 6: Edge Formulation with SECs
 % ---------------------------------------------------------
 \begin{frame}{Edge Formulation with SECs}
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
 \textbf{Variables:} $x_e \in \{0,1\}$ for each undirected edge $e$
 
 \begin{align*}
@@ -135,8 +205,9 @@ Study the MTZ formulation as a baseline before implementing row generation.
   \text{s.t.} \quad
     & \sum_{e \in \delta(v)} x_e = 2 && \forall\, v \in V
       \quad \text{(degree)} \\
-    & \sum_{e \in E(S)} x_e \le |S| - 1 && \forall\, S \subset V,\; 2 \le |S| \le n{-}1
-      \quad \text{(SECs)} \\
+    & \sum_{e \in E(S)} x_e \le |S| - 1 && \forall\, S \subset V \\
+    & \quad 2 \le |S| \le n{-}1
+      && \text{(SECs)} \\
     & x_e \in \{0,1\}
 \end{align*}
 
@@ -145,6 +216,43 @@ Study the MTZ formulation as a baseline before implementing row generation.
   \item \textbf{Much stronger} LP relaxation than MTZ
   \item Cannot add all upfront $\Rightarrow$ \textbf{row generation}
 \end{itemize}
+\end{column}
+\begin{column}{0.42\textwidth}
+\centering
+\vspace{0.3cm}
+\begin{tikzpicture}[
+  city/.style={circle, draw, fill=blue!60, inner sep=0pt,
+               minimum size=7pt},
+  subtour/.style={very thick}
+]
+  % Subtour 1 (left triangle) -- red
+  \node[city] (a1) at (0, 1.2)  {};
+  \node[city] (a2) at (0.9, 0)  {};
+  \node[city] (a3) at (-0.9, 0) {};
+  \draw[subtour, red!70!black] (a1) -- (a2) -- (a3) -- (a1);
+
+  % Subtour 2 (right triangle) -- green
+  \node[city] (b1) at (2.8, 1.2) {};
+  \node[city] (b2) at (3.7, 0)   {};
+  \node[city] (b3) at (1.9, 0)   {};
+  \draw[subtour, green!60!black] (b1) -- (b2) -- (b3) -- (b1);
+
+  % Dashed box around subtour 1
+  \node[draw, dashed, red!70!black, rounded corners, fit=(a1)(a2)(a3),
+        inner sep=5pt, label={[font=\scriptsize,red!70!black]below:$S_1$}] {};
+
+  % Dashed box around subtour 2
+  \node[draw, dashed, green!60!black, rounded corners, fit=(b1)(b2)(b3),
+        inner sep=5pt, label={[font=\scriptsize,green!60!black]below:$S_2$}] {};
+
+  % No connection between the two groups
+  \node[font=\small\bfseries, red!60!black] at (1.4, -1.3)
+    {Subtour violation!};
+  \node[font=\scriptsize] at (1.4, -1.8)
+    {Degree = 2 but not connected};
+\end{tikzpicture}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
@@ -233,6 +341,8 @@ Implement \texttt{conscheck} and \texttt{consenfolp} callbacks.
 % Frame 10: Cutting Stock / Bin Packing
 % ---------------------------------------------------------
 \begin{frame}{Bin Packing Problem}
+\begin{columns}[T]
+\begin{column}{0.52\textwidth}
 \textbf{Given:} items with sizes $s_i$, bins with capacity $C$
 
 \textbf{Goal:} pack all items using the fewest bins
@@ -246,6 +356,54 @@ Implement \texttt{conscheck} and \texttt{consenfolp} callbacks.
       \item Extended (pattern variables) --- column generation
     \end{enumerate}
 \end{itemize}
+\end{column}
+\begin{column}{0.45\textwidth}
+\centering
+\begin{tikzpicture}[
+  bin/.style={draw, thick, minimum width=1.2cm},
+  item/.style={draw, minimum width=1cm, font=\scriptsize\bfseries,
+               align=center}
+]
+  % Capacity line height
+  \def\caph{3.2}
+
+  % Bin 1
+  \draw[thick] (0,0) -- (0,\caph) (1.2,0) -- (1.2,\caph);
+  \draw[thick] (0,0) -- (1.2,0);
+  \fill[red!40] (0.1,0) rectangle (1.1, 1.2);
+  \node[font=\scriptsize\bfseries] at (0.6, 0.6) {$a$};
+  \fill[blue!40] (0.1,1.2) rectangle (1.1, 2.6);
+  \node[font=\scriptsize\bfseries] at (0.6, 1.9) {$b$};
+  \draw[dashed, gray] (0, \caph) -- (1.2, \caph);
+  \node[font=\scriptsize] at (0.6, -0.3) {Bin 1};
+
+  % Bin 2
+  \draw[thick] (1.8,0) -- (1.8,\caph) (3.0,0) -- (3.0,\caph);
+  \draw[thick] (1.8,0) -- (3.0,0);
+  \fill[green!40] (1.9,0) rectangle (2.9, 0.8);
+  \node[font=\scriptsize\bfseries] at (2.4, 0.4) {$c$};
+  \fill[orange!40] (1.9,0.8) rectangle (2.9, 2.0);
+  \node[font=\scriptsize\bfseries] at (2.4, 1.4) {$d$};
+  \fill[purple!30] (1.9,2.0) rectangle (2.9, 2.8);
+  \node[font=\scriptsize\bfseries] at (2.4, 2.4) {$e$};
+  \draw[dashed, gray] (1.8, \caph) -- (3.0, \caph);
+  \node[font=\scriptsize] at (2.4, -0.3) {Bin 2};
+
+  % Bin 3
+  \draw[thick] (3.6,0) -- (3.6,\caph) (4.8,0) -- (4.8,\caph);
+  \draw[thick] (3.6,0) -- (4.8,0);
+  \fill[yellow!50] (3.7,0) rectangle (4.7, 1.8);
+  \node[font=\scriptsize\bfseries] at (4.2, 0.9) {$f$};
+  \fill[cyan!40] (3.7,1.8) rectangle (4.7, 2.5);
+  \node[font=\scriptsize\bfseries] at (4.2, 2.15) {$g$};
+  \draw[dashed, gray] (3.6, \caph) -- (4.8, \caph);
+  \node[font=\scriptsize] at (4.2, -0.3) {Bin 3};
+
+  % Capacity label
+  \node[font=\scriptsize, gray] at (5.3, \caph) {$C$};
+\end{tikzpicture}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
@@ -263,6 +421,52 @@ $y_b \in \{0,1\}$ (bin $b$ used)
     & x_{ib}, y_b \in \{0,1\}
 \end{align*}
 
+\begin{center}
+\begin{tikzpicture}[
+  item/.style={draw, minimum width=0.7cm, font=\scriptsize\bfseries, align=center}
+]
+  % Bin A (left)
+  \draw[thick] (0,0) -- (0,1.6) (1.0,0) -- (1.0,1.6);
+  \draw[thick] (0,0) -- (1.0,0);
+  \fill[red!40] (0.05,0) rectangle (0.95, 0.7);
+  \node[font=\scriptsize\bfseries] at (0.5, 0.35) {$a$};
+  \fill[blue!40] (0.05,0.7) rectangle (0.95, 1.4);
+  \node[font=\scriptsize\bfseries] at (0.5, 1.05) {$b$};
+  \node[font=\scriptsize] at (0.5, -0.3) {Bin 1};
+
+  % Bin B (left)
+  \draw[thick] (1.4,0) -- (1.4,1.6) (2.4,0) -- (2.4,1.6);
+  \draw[thick] (1.4,0) -- (2.4,0);
+  \fill[green!40] (1.45,0) rectangle (2.35, 0.9);
+  \node[font=\scriptsize\bfseries] at (1.9, 0.45) {$c$};
+  \node[font=\scriptsize] at (1.9, -0.3) {Bin 2};
+
+  % Equivalence symbol
+  \node[font=\Large\bfseries] at (3.3, 0.7) {$\equiv$};
+
+  % Bin A (right -- swapped)
+  \draw[thick] (4.2,0) -- (4.2,1.6) (5.2,0) -- (5.2,1.6);
+  \draw[thick] (4.2,0) -- (5.2,0);
+  \fill[green!40] (4.25,0) rectangle (5.15, 0.9);
+  \node[font=\scriptsize\bfseries] at (4.7, 0.45) {$c$};
+  \node[font=\scriptsize] at (4.7, -0.3) {Bin 1};
+
+  % Bin B (right -- swapped)
+  \draw[thick] (5.6,0) -- (5.6,1.6) (6.6,0) -- (6.6,1.6);
+  \draw[thick] (5.6,0) -- (6.6,0);
+  \fill[red!40] (5.65,0) rectangle (6.55, 0.7);
+  \node[font=\scriptsize\bfseries] at (6.1, 0.35) {$a$};
+  \fill[blue!40] (5.65,0.7) rectangle (6.55, 1.4);
+  \node[font=\scriptsize\bfseries] at (6.1, 1.05) {$b$};
+  \node[font=\scriptsize] at (6.1, -0.3) {Bin 2};
+
+  % Annotation
+  \node[font=\scriptsize, text=red!70!black] at (3.3, -0.7)
+    {Same solution, different indices!};
+\end{tikzpicture}
+\end{center}
+
+\vspace{-0.2cm}
 \begin{itemize}
   \item \textbf{Enormous symmetry}: permuting bin indices $\Rightarrow$ equivalent solutions
   \item \textbf{Weak LP relaxation}: impractical for large instances
@@ -412,9 +616,61 @@ $\Rightarrow$ \textbf{Barely restrictive}
 
 \bigskip
 \begin{center}
-Result: \textbf{highly unbalanced} branch-and-bound tree
+\begin{tikzpicture}[
+  nd/.style={circle, draw, fill=blue!15, inner sep=0pt,
+             minimum size=14pt, font=\scriptsize},
+  lbl/.style={font=\scriptsize, midway},
+  edge/.style={thick},
+  level distance=0.9cm,
+  sibling distance=1.2cm
+]
+  % Root
+  \node[nd] (root) at (0,0) {};
 
-$\Rightarrow$ Very slow convergence
+  % Left child: z_p = 1 (deep skinny branch)
+  \node[nd, fill=green!25] (l1) at (-2.2, -0.9) {};
+  \draw[edge] (root) -- (l1) node[lbl, left, pos=0.4] {$z_p{=}1$};
+
+  % Left subtree - pruned quickly
+  \node[nd, fill=green!25] (l2) at (-2.2, -1.8) {};
+  \draw[edge] (l1) -- (l2);
+  \node[font=\scriptsize, green!50!black] at (-2.2, -2.3) {pruned};
+
+  % Right child: z_p = 0 (deep unbalanced)
+  \node[nd, fill=red!20] (r1) at (1.8, -0.9) {};
+  \draw[edge] (root) -- (r1) node[lbl, right, pos=0.4] {$z_p{=}0$};
+
+  % Right subtree - keeps going deep
+  \node[nd, fill=red!20] (r2) at (1.0, -1.8) {};
+  \node[nd, fill=red!20] (r3) at (2.6, -1.8) {};
+  \draw[edge] (r1) -- (r2);
+  \draw[edge] (r1) -- (r3);
+
+  \node[nd, fill=red!20] (r4) at (0.5, -2.7) {};
+  \node[nd, fill=red!20] (r5) at (1.5, -2.7) {};
+  \draw[edge] (r2) -- (r4);
+  \draw[edge] (r2) -- (r5);
+
+  \node[nd, fill=red!20] (r6) at (2.1, -2.7) {};
+  \node[nd, fill=red!20] (r7) at (3.1, -2.7) {};
+  \draw[edge] (r3) -- (r6);
+  \draw[edge] (r3) -- (r7);
+
+  % Dots indicating more
+  \node[font=\scriptsize] at (0.5, -3.2) {$\vdots$};
+  \node[font=\scriptsize] at (1.5, -3.2) {$\vdots$};
+  \node[font=\scriptsize] at (2.1, -3.2) {$\vdots$};
+  \node[font=\scriptsize] at (3.1, -3.2) {$\vdots$};
+
+  % Labels
+  \node[font=\scriptsize, green!50!black, align=center] at (-3.5, -1.3)
+    {tight\\bound};
+  \node[font=\scriptsize, red!60!black, align=center] at (4.2, -1.3)
+    {barely\\changed};
+\end{tikzpicture}
+
+\smallskip
+Result: \textbf{highly unbalanced} tree $\Rightarrow$ very slow convergence
 \end{center}
 \end{frame}
 
@@ -438,7 +694,9 @@ Items $i$ and $j$ must be in \textbf{different} bins.
 \end{column}
 \end{columns}
 
-\bigskip
+\medskip
+\begin{columns}[T]
+\begin{column}{0.50\textwidth}
 \textbf{How to find a pair:}
 \begin{itemize}
   \item Compute implicit pair variable: $x_{ij} = \sum_{p:\, i \in p,\, j \in p} z_p$
@@ -447,6 +705,66 @@ Items $i$ and $j$ must be in \textbf{different} bins.
 
 \medskip
 $\Rightarrow$ Much more \textbf{balanced} search tree
+\end{column}
+\begin{column}{0.47\textwidth}
+\centering
+\begin{tikzpicture}[
+  nd/.style={circle, draw, fill=blue!20, inner sep=0pt,
+             minimum size=14pt, font=\scriptsize},
+  edge/.style={thick},
+  lbl/.style={font=\scriptsize, midway}
+]
+  % Root
+  \node[nd] (root) at (0,0) {};
+  \node[font=\scriptsize, above=2pt] at (root) {$0 < x_{ij} < 1$};
+
+  % Left: Together
+  \node[nd, fill=green!25] (l1) at (-1.3, -1.0) {};
+  \draw[edge] (root) -- (l1)
+    node[lbl, left, pos=0.5] {\color{green!50!black}same};
+
+  % Right: Apart
+  \node[nd, fill=orange!25] (r1) at (1.3, -1.0) {};
+  \draw[edge] (root) -- (r1)
+    node[lbl, right, pos=0.5] {\color{orange!70!black}diff};
+
+  % Left subtree
+  \node[nd, fill=green!25] (l2) at (-1.9, -2.0) {};
+  \node[nd, fill=green!25] (l3) at (-0.7, -2.0) {};
+  \draw[edge] (l1) -- (l2);
+  \draw[edge] (l1) -- (l3);
+
+  % Right subtree
+  \node[nd, fill=orange!25] (r2) at (0.7, -2.0) {};
+  \node[nd, fill=orange!25] (r3) at (1.9, -2.0) {};
+  \draw[edge] (r1) -- (r2);
+  \draw[edge] (r1) -- (r3);
+
+  % Leaf level
+  \node[nd, fill=green!15] (l4) at (-2.2, -3.0) {};
+  \node[nd, fill=green!15] (l5) at (-1.6, -3.0) {};
+  \node[nd, fill=green!15] (l6) at (-1.0, -3.0) {};
+  \node[nd, fill=green!15] (l7) at (-0.4, -3.0) {};
+  \draw[edge] (l2) -- (l4);
+  \draw[edge] (l2) -- (l5);
+  \draw[edge] (l3) -- (l6);
+  \draw[edge] (l3) -- (l7);
+
+  \node[nd, fill=orange!15] (r4) at (0.4, -3.0) {};
+  \node[nd, fill=orange!15] (r5) at (1.0, -3.0) {};
+  \node[nd, fill=orange!15] (r6) at (1.6, -3.0) {};
+  \node[nd, fill=orange!15] (r7) at (2.2, -3.0) {};
+  \draw[edge] (r2) -- (r4);
+  \draw[edge] (r2) -- (r5);
+  \draw[edge] (r3) -- (r6);
+  \draw[edge] (r3) -- (r7);
+
+  % Label
+  \node[font=\scriptsize\bfseries, blue!70!black] at (0, -3.6)
+    {Balanced tree};
+\end{tikzpicture}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
