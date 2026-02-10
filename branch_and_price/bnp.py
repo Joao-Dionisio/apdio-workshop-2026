@@ -6,11 +6,12 @@ from pricer import KnapsackPricer
 from ryan_foster import RyanFoster
 
 
-def extended_binpacking(sizes: List[int], capacity: int):
+def extended_binpacking(sizes: List[int], capacity: int, separator=None):
     model = Model("Extended Binpacking")
 
     model.setPresolve(SCIP_PARAMSETTING.OFF)
-    model.setSeparating(SCIP_PARAMSETTING.OFF)
+    if separator is None:
+        model.setSeparating(SCIP_PARAMSETTING.OFF)
     model.setHeuristics(SCIP_PARAMSETTING.OFF)
     model.setObjIntegral()
     model.setParam("display/freq", 1) # show the output log after each node
@@ -28,7 +29,12 @@ def extended_binpacking(sizes: List[int], capacity: int):
     branching_rule = RyanFoster()
     eventhdlr = RyanFosterBranchingEventhdlr(branching_rule.branching_decisions)
     pricer = KnapsackPricer(sizes, capacity, constraints,
-                            branching_rule.branching_decisions)
+                            branching_rule.branching_decisions,
+                            separator=separator)
+
+    if separator is not None:
+        model.includeSepa(separator, "SubsetRow", "Subset row cuts",
+                          priority=1000, freq=1)
 
     model.includeEventhdlr(eventhdlr, "Ryan Foster Branching Event Handler", "")
     model.includePricer(pricer, "KnapsackPricer",

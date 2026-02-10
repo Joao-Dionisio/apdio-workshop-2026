@@ -29,12 +29,13 @@ def plot_dual_values(duals, filename=None):
 
 
 class KnapsackPricer(Pricer):
-    def __init__(self, sizes, capacity, constraints, branching_decisions, *args, **kwargs):
+    def __init__(self, sizes, capacity, constraints, branching_decisions, separator=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sizes = sizes
         self.capacity = capacity
         self.constraints = constraints
         self.branching_decisions = branching_decisions
+        self.separator = separator
         self.i = 0
         self.duals_at_node = defaultdict(lambda: {i: [] for i in range(len(constraints))})
         self.printed = False
@@ -82,12 +83,29 @@ class KnapsackPricer(Pricer):
         else:
             stable_dual_sol = dual_sol
 
+        # Extract subset row cut duals if separator is active
+        subset_row_cuts = None
+        if self.separator is not None and self.separator.cuts:
+            subset_row_cuts = []
+            for cons, triple in self.separator.cuts:
+                try:
+                    tcons = self.model.getTransformedCons(cons)
+                    if farkas:
+                        dual = self.model.getDualfarkasLinear(tcons)
+                    else:
+                        dual = self.model.getDualsolLinear(tcons)
+                    subset_row_cuts.append((triple, dual))
+                except Exception:
+                    pass
+
         min_red_cost, pattern = pricing_solver(self.sizes, self.capacity, stable_dual_sol,
-                                               branching_decisions["together"], branching_decisions["apart"])
+                                               branching_decisions["together"], branching_decisions["apart"],
+                                               subset_row_cuts=subset_row_cuts)
         if min_red_cost > 1e-6:  # misprice
             print("!! misprice!", min_red_cost)
             min_red_cost, pattern = pricing_solver(self.sizes, self.capacity, dual_sol,
-                                                   branching_decisions["together"], branching_decisions["apart"])
+                                                   branching_decisions["together"], branching_decisions["apart"],
+                                                   subset_row_cuts=subset_row_cuts)
 
         if farkas:
             min_red_cost -= 1  # in farkas' pricing the objective fn. coefficient is 0
@@ -98,6 +116,17 @@ class KnapsackPricer(Pricer):
                 item_constraint = self.constraints[item]
                 item_constraint = self.model.getTransformedCons(item_constraint)
                 self.model.addConsCoeff(item_constraint, new_var, 1)
+
+            # Add coefficients to subset row cuts for the new column
+            if self.separator is not None:
+                pattern_set = set(pattern)
+                for cons, triple in self.separator.cuts:
+                    if len(pattern_set.intersection(triple)) >= 2:
+                        try:
+                            tcons = self.model.getTransformedCons(cons)
+                            self.model.addConsCoeff(tcons, new_var, 1)
+                        except Exception:
+                            pass
 
         return {
             'result': SCIP_RESULT.SUCCESS,

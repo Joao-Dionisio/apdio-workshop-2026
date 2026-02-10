@@ -188,3 +188,40 @@ Having a constraint stipulating that two items must be packed in the same bin is
 The benefit of doing this instead is that we reduce the size of the pricing problem by one variable and one constraint per together constraint, which might provide a marginal benefit.
 
 Implement this and remember to recover the solution in terms of the original items.
+
+## Section 4. Branch-Price-and-Cut
+
+Branch-and-price can be strengthened by adding cutting planes to the master problem. This combination is called **branch-price-and-cut** (BPC). The key idea is that cuts tighten the LP relaxation at each node, potentially reducing the number of branching decisions needed.
+
+### Subset Row Inequalities
+
+A particularly effective family of cuts for set partitioning problems are **subset row inequalities** (Jepsen et al., 2008). For a triple of items $S = \{i, j, k\}$, in any feasible integer solution, at most one bin can contain 2 or more items from $S$. This gives us:
+
+$$\sum_{p : |p \cap S| \geq 2} \lambda_p \leq 1$$
+
+These cuts are easy to separate (enumerate triples, check the LP value) and can significantly tighten the LP bound.
+
+### Impact on Pricing
+
+Subset row cuts are "non-robust": their duals do not decompose into per-item contributions. For a cut on triple $S$ with dual $\mu_S \leq 0$, a pattern $p$ incurs a penalty of $\mu_S$ when $|p \cap S| \geq 2$. In the knapsack pricing problem, this is modeled with a binary penalty variable $z_S$:
+
+$$z_S \geq x_i + x_j + x_k - 1$$
+
+with objective coefficient $\mu_S$. Since $\mu_S \leq 0$, the solver sets $z_S = 0$ when possible, penalizing patterns that cover 2+ items from any active cut.
+
+Additionally, when the pricer generates a new column, it must add the correct coefficient to all active subset row constraints (1 if the pattern covers 2+ items from the triple, 0 otherwise).
+
+#### Exercise 5: Subset Row Separator
+
+**Your task:** Implement the `sepaexeclp` method in `separator/subset_row/subset_row.py`. The separator should:
+1. Parse variable names to determine which items each pattern covers
+2. For each triple of items, compute the LHS of the subset row inequality
+3. If violated, add the cut as a modifiable constraint (so the pricer can extend it)
+
+#### Exercise 6: Pricing with Subset Row Cuts
+
+**Your task:** Implement `solve_knapsack_with_subset_row_cuts` in `pricing_knapsack.py`. This extends the constrained knapsack solver to handle subset row cut duals by adding penalty variables.
+
+The wiring in `pricer.py` and `bnp.py` is already provided: the pricer extracts dual values of active cuts and passes them to the pricing solver, and adds coefficients to cut constraints for new columns.
+
+You can test your implementation by running `test_bpc.py` in `branch_and_price/` or `test_subset_row.py` in `separator/subset_row/`.
