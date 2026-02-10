@@ -63,16 +63,6 @@ Covers row generation, column generation, branch-and-price, and branch-price-and
 
 The Part 2 README and slides provide the narrative arc connecting these exercises.
 
-## Schedule
-
-| Block | Content | Duration |
-|-------|---------|----------|
-| Part 1 — Lecture | Slides: modeling basics | 30 min |
-| Part 1 — Hands-on | Exercises 1–8 | 90 min |
-| Break | | 15 min |
-| Part 2 — Lecture | Slides: advanced techniques | 45 min |
-| Part 2 — Hands-on | Row generation + B&P exercises | 90 min |
-
 ## Running Tests
 
 ```bash
