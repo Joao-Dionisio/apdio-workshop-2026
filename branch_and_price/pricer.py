@@ -1,4 +1,3 @@
-import math
 from pyscipopt import Pricer, SCIP_RESULT
 from pricing_knapsack import pricing_solver
 from collections import defaultdict

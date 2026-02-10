@@ -1,5 +1,5 @@
 ## Introduction
-This section is dedicated to implementing a branch-and-price algorithm in PySCIPOpt. We will use the well-known [bin packing problem](https://www.wikiwand.com/en/articles/Bin_packing_problem) as an example. If you need a refresher, you can also go over the Bin packing exercises in the [modeling section](../../01_modeling/README.md). Bin packing is a combinatorial optimization problem where a finite number of items of different sizes must be packed into bins or containers each with a fixed capacity. The goal is to minimize the number of bins used. The problem is NP-hard and has many applications in logistics and resource allocation.
+This section is dedicated to implementing a branch-and-price algorithm in PySCIPOpt. We will use the well-known [bin packing problem](https://www.wikiwand.com/en/articles/Bin_packing_problem) as an example. If you need a refresher, you can also go over the Bin packing exercises in the [modeling section](../part1/README.md). Bin packing is a combinatorial optimization problem where a finite number of items of different sizes must be packed into bins or containers each with a fixed capacity. The goal is to minimize the number of bins used. The problem is NP-hard and has many applications in logistics and resource allocation.
 
 The first two chapters will give a light overview of bin packing, both its compact and extended formulations. Implementation exercises start in Chapter 3.
 
@@ -17,7 +17,7 @@ Assuming an upper bound on the number of bins (e.g., one per item), we can formu
 $$
 \begin{align*}
     \min_{x,y} & \quad \sum_{b \in \mathcal{B}} y_b \\
-    \textrm{subject to} & \quad sum_{b \in \mathcal{B}} x_{ib} = 1, \quad & \forall i \in \mathcal{I} \\
+    \textrm{subject to} & \quad \sum_{b \in \mathcal{B}} x_{ib} = 1, \quad & \forall i \in \mathcal{I} \\
                         & \quad \sum_{i \in \mathcal{I}} s_ix_{ib} \leq Cy_b, \quad & \forall b \in \mathcal{B}\\
                         & \quad x_{ib} \in \{0,1\}, \quad & \forall i \in \mathcal{I} \, \forall b \in \mathcal{B}\\
                         & \quad y_b \in \{0,1\}, \quad &\forall b \in \mathcal{B}
@@ -41,7 +41,7 @@ $$
 
 where $\mathcal{P}$ is the set of all possible packings of items into bins.
 
-This formulation has one problem. The size of the problem grows exponentially with the number of items. Only instances with a small number of items can be even loaded in memory. Therefore, we attempt to solve it using a branch-and-price algorithm. This formulation and the general structure required for solving this problem can be found in [scipack/bnp.py](scipack/bnp.py) (but again, it's missing some code snippets you must add).
+This formulation has one problem. The size of the problem grows exponentially with the number of items. Only instances with a small number of items can be even loaded in memory. Therefore, we attempt to solve it using a branch-and-price algorithm. This formulation and the general structure required for solving this problem can be found in [bnp.py](bnp.py) (but again, it's missing some code snippets you must add).
 
 ## Section 3. Branch-and-Price Algorithm
 In this section, we will first discuss how to solve the linear relaxation of the problem using column generation. Then, we will discuss how to handle branching decisions and infeasibility.
@@ -84,10 +84,10 @@ Running the test validates the correctness of the code of this particular exerci
 
 #### Exercise 1: Pricing
 
-**Your task:** Implement the knapsack pricing problem solver (by implementing a MIP) `solve_knapsack` in `knapsack.py`.
-To check if your implementation is correct you can run the `test_knapsack.py` file. Make sure to return a tuple where the first entry is the optimal solution value, and the second is a list containing the indices of the items that were chosen. 
+**Your task:** Implement the knapsack pricing problem solver (by implementing a MIP) `solve_knapsack` in `pricing_knapsack.py`.
+To check if your implementation is correct you can run the `test_pricing_knapsack.py` file. Make sure to return a tuple where the first entry is the optimal solution value, and the second is a list containing the indices of the items that were chosen. 
 
-SCIP can handle pricing internally with the `pricer` plugin. You can see the basic infrastructure in `pricer.py`. The pricer gets the dual information from the RMP (with `getDualsolLinear`), feeds it into the pricing problem (`pricing_solver`), and decides whether to add the resulting column or not (when checking `if min_redcost < 0`). For the curious, you can see more details in [here](https://www.scipopt.org/doc/html/PRICER.php).
+SCIP can handle pricing internally with the `pricer` plugin. You can see the basic infrastructure in `pricer.py`. The pricer gets the dual information from the RMP (with `getDualsolLinear`), feeds it into the pricing problem (`pricing_solver`), and decides whether to add the resulting column or not (when checking `if min_red_cost < 0`). For the curious, you can see more details in [here](https://www.scipopt.org/doc/html/PRICER.php).
 
 
 ### 3.2 Branching
@@ -124,7 +124,7 @@ You can test your implementation by running the `test_fractional_pairs.py` file.
 **Your task:** Fill in the missing pieces in `ryan_foster.py` (marked with `?`) that save the branching decisions at the child nodes. Recall that the child nodes need to respect the branching decisions of the parent (saved at `parent_together` and `parent_apart`) and add the new pair (`chosen_pair`) either to the together set, or to the apart set.
 
 #### Exercise 4: Handling Branching Decisions in Pricing
-**Your task:** Enforce the branching decisions in the pricing problem by implementing the `solve_knapsack_with_constraints` function in `knapsack.py`. You can start
+**Your task:** Enforce the branching decisions in the pricing problem by implementing the `solve_knapsack_with_constraints` function in `pricing_knapsack.py`. You can start
 by copying the `solve_knapsack` function and modifying it by adding the necessary constraints. 
 Please note that the apart and together constraints don't forbid both items being absent from the packing.
 You can test your implementation by running the `test_knapsack_with_constraints.py` file.
@@ -132,11 +132,11 @@ You can test your implementation by running the `test_knapsack_with_constraints.
 The pricing problem does not have information regarding the branching decisions unless explicitly told. Using Ryan-Foster as an example, it might happen that the parent node decided that items $i_1, i_2$ must be kept apart, but the pricing problem does not know this and might generate a packing containing both items. To ensure proper branching, we need to force the prior branching decisions into the pricing problem.
 
 
-### 3.2 Final step
+### 3.3 Final step
 Now that we have implemented the pricing problem, the branching rule, and handled infeasibility, you have successfully implemented a full branch-and-price algorithm. Congrats!
 You can test your implementation by running the `test_bnp.py` file.
 
-### 3.3 Improving vanilla Branch-and-Price
+### 3.4 Improving vanilla Branch-and-Price
 There are many more tricks to make your Branch-and-Price code faster and more robust. The following is a collection of self-paced exercises that ask you to implement some of these tricks. You may complete them in any order you'd like.
 
 <!-- #### Bonus Exercise: Using integrality
@@ -146,7 +146,7 @@ As the objective function of the RMP always takes integer values, you can inform
 
 > For this bonus exercise, we suggest using the instance with 200 items and 100 capacity.
 
-Column-generation can suffer from convergence issues. One of the most famous is known as the *yo-yo* effect, where the dual values change drastically from one iteration to the other. This is undesirable, since #todo
+Column-generation can suffer from convergence issues. One of the most famous is known as the *yo-yo* effect, where the dual values change drastically from one iteration to the other. This is undesirable, since it prevents the pricing problem from converging to the optimal dual solution efficiently.
 
 Your first task is to plot the evolution of the dual values and see their behavior at the root node.
 

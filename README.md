@@ -79,7 +79,7 @@ python ex08_graph_coloring/test_graph_coloring.py
 
 # Part 2 (exercises in existing directories)
 cd row_generation && python test_subtour.py
-cd branch_and_price && python test_knapsack.py
+cd branch_and_price && python test_pricing_knapsack.py
 cd separator/subset_row && python test_subset_row.py
 ```
 
