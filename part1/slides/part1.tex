@@ -1,0 +1,655 @@
+% ---------------------------------------------------------
+% PySCIPOpt Workshop -- Part 1: Modeling Basics
+% Compiles with: pdflatex part1.tex
+% ---------------------------------------------------------
+\documentclass[aspectratio=169,10pt]{beamer}
+
+\usetheme{Madrid}
+\usecolortheme{beaver}
+
+% ---- packages -------------------------------------------
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit}
+\usepackage{listings}
+\usepackage{booktabs}
+
+% ---- listings style for Python --------------------------
+\lstdefinestyle{pyStyle}{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue!80!black}\bfseries,
+  commentstyle=\color{green!50!black}\itshape,
+  stringstyle=\color{red!70!black},
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  framerule=0.4pt,
+  backgroundcolor=\color{gray!5},
+  xleftmargin=4pt,
+  xrightmargin=4pt,
+  aboveskip=6pt,
+  belowskip=4pt,
+  morekeywords={Model,addVar,addCons,optimize,getVal,getObjVal,
+                 getStatus,setMinimize,setMaximize,quicksum,
+                 hideOutput,printStatistics},
+}
+\lstset{style=pyStyle}
+
+% ---- metadata -------------------------------------------
+\title{PySCIPOpt Workshop}
+\subtitle{Part 1: Modeling Basics}
+\author{SCIP Workshop}
+\date{}
+
+% =========================================================
+\begin{document}
+
+% ---------------------------------------------------------
+% Frame 1: Title
+% ---------------------------------------------------------
+\begin{frame}
+\titlepage
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 2: Objectives
+% ---------------------------------------------------------
+\begin{frame}{Objectives}
+By the end of Part~1 you will be able to:
+\begin{itemize}
+  \item Formulate \textbf{Linear Programs (LP)}, \textbf{Integer Programs (IP)},
+        and \textbf{Mixed-Integer Programs (MIP)} in PySCIPOpt.
+  \item Translate a mathematical model into Python code.
+  \item Solve classical optimization problems:
+    \begin{itemize}
+      \item Transportation, Blending, Set Cover,
+      \item Knapsack, Facility Location, Graph Coloring.
+    \end{itemize}
+  \item Extract solutions and solver statistics.
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 3: What is SCIP / PySCIPOpt
+% ---------------------------------------------------------
+\begin{frame}{What is SCIP / PySCIPOpt?}
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
+  \textbf{SCIP} --- \emph{Solving Constraint Integer Programs}
+  \begin{itemize}
+    \item One of the fastest non-commercial MIP solvers.
+    \item Supports LP, MIP, MINLP, CIP.
+    \item Open-source (Apache 2.0 license).
+    \item Highly extensible plugin architecture.
+  \end{itemize}
+
+  \medskip
+  \textbf{PySCIPOpt} --- Python interface to SCIP
+  \begin{itemize}
+    \item Pythonic API for model building.
+    \item Access to advanced features: callbacks, heuristics, separators, etc.
+    \item Install: \texttt{pip install pyscipopt}
+  \end{itemize}
+\end{column}
+\begin{column}{0.4\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[
+    box/.style={draw,rounded corners,minimum width=3cm,
+                minimum height=0.8cm,align=center,font=\small},
+  ]
+    \node[box,fill=blue!15]  (py)   {Python / PySCIPOpt};
+    \node[box,fill=green!15, below=0.6cm of py]  (scip) {SCIP Core};
+    \node[box,fill=orange!15,below=0.6cm of scip](lp)   {LP Solver (SoPlex)};
+    \draw[-{Stealth},thick] (py)   -- (scip);
+    \draw[-{Stealth},thick] (scip) -- (lp);
+  \end{tikzpicture}
+  \end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 4: Model Lifecycle
+% ---------------------------------------------------------
+\begin{frame}[fragile]{Model Lifecycle}
+\begin{center}
+\begin{tikzpicture}[
+  step/.style={draw,rounded corners,minimum width=2.2cm,
+               minimum height=0.7cm,align=center,font=\small\bfseries,
+               fill=blue!10},
+  arr/.style={-{Stealth},thick,shorten >=2pt,shorten <=2pt},
+]
+  \node[step] (create)  {Create Model};
+  \node[step,right=1.0cm of create]  (vars)  {Add Variables};
+  \node[step,right=1.0cm of vars]    (cons)  {Add Constraints};
+  \node[step,right=1.0cm of cons]    (opt)   {Optimize};
+  \node[step,right=1.0cm of opt]     (query) {Query Solution};
+
+  \draw[arr] (create) -- (vars);
+  \draw[arr] (vars)   -- (cons);
+  \draw[arr] (cons)   -- (opt);
+  \draw[arr] (opt)    -- (query);
+\end{tikzpicture}
+\end{center}
+
+\medskip
+\begin{lstlisting}
+from pyscipopt import Model
+
+model = Model("my_model")     # 1. Create
+x = model.addVar(...)         # 2. Variables
+model.addCons(...)            # 3. Constraints
+model.optimize()              # 4. Optimize
+print(model.getVal(x))        # 5. Query
+\end{lstlisting}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 5: Variables
+% ---------------------------------------------------------
+\begin{frame}[fragile]{Variables}
+\texttt{model.addVar(name, vtype, lb, ub, obj)}
+\medskip
+\begin{table}
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{vtype} & \textbf{Domain} & \textbf{Typical use} \\
+\midrule
+\texttt{"C"} & Continuous ($\mathbb{R}$) & Quantities, flows \\
+\texttt{"B"} & Binary ($\{0,1\}$) & Yes/no decisions \\
+\texttt{"I"} & Integer ($\mathbb{Z}$) & Counts \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\medskip
+\begin{lstlisting}
+# Binary variable with objective coefficient 3
+x = model.addVar(name="x", vtype="B", obj=3)
+
+# Continuous variable in [0, 10]
+y = model.addVar(name="y", vtype="C", lb=0, ub=10)
+
+# Integer variable, default bounds [0, +inf)
+z = model.addVar(name="z", vtype="I", obj=-2)
+\end{lstlisting}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 6: Constraints
+% ---------------------------------------------------------
+\begin{frame}[fragile]{Constraints}
+\texttt{model.addCons(expression, name)}
+
+\medskip
+Use \texttt{quicksum()} for efficient summation over index sets.
+
+\begin{lstlisting}
+from pyscipopt import quicksum
+
+# Single constraint
+model.addCons(x + 2*y <= 10, name="capacity")
+
+# Indexed family of constraints
+for j in customers:
+    model.addCons(
+        quicksum(x[i,j] for i in suppliers) == demand[j],
+        name=f"demand_{j}"
+    )
+
+# quicksum is preferred over Python's sum() for performance
+model.addCons(quicksum(c[i]*x[i] for i in I) <= b)
+\end{lstlisting}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 7: Objective
+% ---------------------------------------------------------
+\begin{frame}[fragile]{Objective Function}
+Two ways to set the objective:
+
+\medskip
+\textbf{Option A:} Via \texttt{obj} parameter in \texttt{addVar}
+\begin{lstlisting}
+x = model.addVar(name="x", vtype="B", obj=3)  # coeff = 3
+y = model.addVar(name="y", vtype="B", obj=2)  # coeff = 2
+model.setMaximize()  # max 3x + 2y
+\end{lstlisting}
+
+\medskip
+\textbf{Option B:} Via \texttt{setObjective}
+\begin{lstlisting}
+model.setObjective(
+    quicksum(cost[i,j] * x[i,j] for i in I for j in J),
+    sense="minimize"
+)
+\end{lstlisting}
+
+\medskip
+Convenience methods:
+\begin{itemize}
+  \item \texttt{model.setMinimize()} / \texttt{model.setMaximize()}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 8: Exercise 1
+% ---------------------------------------------------------
+\begin{frame}{Exercise 1: First Model}
+\begin{block}{Task}
+Build and print the following model (do \textbf{not} solve yet):
+\begin{align*}
+  \max \quad & 3x + 2y \\
+  \text{s.t.} \quad & x + y \le 1 \\
+  & 2x + y \le 2 \\
+  & x, y \in \{0, 1\}
+\end{align*}
+\end{block}
+\begin{itemize}
+  \item File: \texttt{ex01\_first\_model/first\_model.py}
+  \item Test: \texttt{python ex01\_first\_model/test\_first\_model.py}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 9: Solving
+% ---------------------------------------------------------
+\begin{frame}[fragile]{Solving and Querying}
+\begin{lstlisting}
+model.hideOutput()        # suppress solver log (optional)
+model.optimize()          # solve the model
+
+status = model.getStatus()    # "optimal", "infeasible", ...
+obj    = model.getObjVal()    # objective value
+val_x  = model.getVal(x)     # value of variable x
+\end{lstlisting}
+
+\medskip
+Common status strings:
+\begin{table}
+\centering\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Status} & \textbf{Meaning} \\
+\midrule
+\texttt{"optimal"}    & Optimal solution found \\
+\texttt{"infeasible"} & No feasible solution exists \\
+\texttt{"unbounded"}  & Objective is unbounded \\
+\texttt{"timelimit"}  & Time limit reached (may have incumbent) \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 10: Exercise 2
+% ---------------------------------------------------------
+\begin{frame}{Exercise 2: Solving}
+\begin{block}{Task}
+Solve the model from Exercise~1 and extract:
+\begin{itemize}
+  \item Optimal status, objective value, variable values.
+  \item Solver statistics (number of nodes, LP iterations).
+\end{itemize}
+\end{block}
+\begin{itemize}
+  \item File: \texttt{ex02\_solving/solving.py}
+  \item Test: \texttt{python ex02\_solving/test\_solving.py}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 11: Transportation Problem
+% ---------------------------------------------------------
+\begin{frame}{Transportation Problem}
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+\begin{center}
+\begin{tikzpicture}[
+  sup/.style={circle,draw,fill=blue!15,minimum size=0.7cm,
+              font=\scriptsize\bfseries},
+  cus/.style={circle,draw,fill=red!15,minimum size=0.7cm,
+              font=\scriptsize\bfseries},
+  every edge/.style={draw,-{Stealth},thin},
+]
+  \node[sup] (s1) at (0, 1.5) {$S_1$};
+  \node[sup] (s2) at (0, 0)   {$S_2$};
+  \node[cus] (c1) at (3, 2.2) {$C_1$};
+  \node[cus] (c2) at (3, 0.8) {$C_2$};
+  \node[cus] (c3) at (3,-0.6) {$C_3$};
+
+  \foreach \s in {s1,s2}
+    \foreach \c in {c1,c2,c3}
+      \draw[->] (\s) -- (\c);
+\end{tikzpicture}
+\end{center}
+\end{column}
+\begin{column}{0.55\textwidth}
+\textbf{Sets:} suppliers $I$, customers $J$
+
+\textbf{Parameters:} supply $s_i$, demand $d_j$, cost $c_{ij}$
+
+\textbf{Variables:} $x_{ij} \ge 0$ (flow from $i$ to $j$)
+
+\begin{align*}
+  \min \quad & \sum_{i \in I}\sum_{j \in J} c_{ij}\, x_{ij} \\
+  \text{s.t.} \quad
+    & \sum_{j \in J} x_{ij} \le s_i  & \forall\, i \in I \\
+    & \sum_{i \in I} x_{ij} \ge d_j  & \forall\, j \in J \\
+    & x_{ij} \ge 0
+\end{align*}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 12: Data in Python
+% ---------------------------------------------------------
+\begin{frame}[fragile]{Data in Python --- Dictionaries and Loops}
+\begin{lstlisting}
+# Data as dictionaries
+supply   = {"S1": 100, "S2": 150}
+demand   = {"C1": 80, "C2": 90, "C3": 70}
+cost     = {("S1","C1"): 4, ("S1","C2"): 6, ("S1","C3"): 9,
+            ("S2","C1"): 5, ("S2","C2"): 3, ("S2","C3"): 7}
+
+# Variables via nested comprehension
+x = {(i,j): model.addVar(name=f"x_{i}_{j}", vtype="C")
+     for i in supply for j in demand}
+
+# Constraints via loops
+for i in supply:
+    model.addCons(
+        quicksum(x[i,j] for j in demand) <= supply[i])
+for j in demand:
+    model.addCons(
+        quicksum(x[i,j] for i in supply) >= demand[j])
+\end{lstlisting}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 13: Exercise 3
+% ---------------------------------------------------------
+\begin{frame}{Exercise 3: Transportation}
+\begin{block}{Task}
+Implement the transportation problem:
+\begin{itemize}
+  \item Read data from provided dictionaries.
+  \item Build variables, supply/demand constraints, minimize cost.
+  \item Print optimal shipment plan.
+\end{itemize}
+\end{block}
+\begin{itemize}
+  \item File: \texttt{ex03\_transportation/transportation.py}
+  \item Test: \texttt{python ex03\_transportation/test\_transportation.py}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 14: Blending Problem
+% ---------------------------------------------------------
+\begin{frame}{Blending Problem}
+Combine raw materials to meet quality specifications at minimum cost.
+
+\medskip
+\textbf{Sets:} materials $M$, quality attributes $Q$
+
+\textbf{Parameters:} cost $c_m$, attribute content $a_{mq}$,
+bounds $[\ell_q, u_q]$, availability $b_m$
+
+\textbf{Variables:} $x_m \ge 0$ (amount of material $m$)
+
+\begin{align*}
+  \min \quad & \sum_{m \in M} c_m \, x_m \\
+  \text{s.t.} \quad
+    & \ell_q \le \frac{\sum_{m} a_{mq}\, x_m}{\sum_{m} x_m} \le u_q
+      & \forall\, q \in Q \\
+    & 0 \le x_m \le b_m & \forall\, m \in M
+\end{align*}
+
+\medskip
+\textbf{Linearize} by multiplying through by $\sum_m x_m$:
+\[
+  \ell_q \sum_{m} x_m \;\le\; \sum_{m} a_{mq}\, x_m
+  \;\le\; u_q \sum_{m} x_m
+\]
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 15: Exercise 4
+% ---------------------------------------------------------
+\begin{frame}{Exercise 4: Blending}
+\begin{block}{Task}
+Implement the blending problem:
+\begin{itemize}
+  \item Model quality bounds as linear constraints (after linearization).
+  \item Handle material availability limits.
+  \item Minimize total cost.
+\end{itemize}
+\end{block}
+\begin{itemize}
+  \item File: \texttt{ex04\_blending/blending.py}
+  \item Test: \texttt{python ex04\_blending/test\_blending.py}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 16: Set Cover
+% ---------------------------------------------------------
+\begin{frame}{From LP to IP: Set Cover}
+\textbf{Given:} Universe $U = \{1,\dots,n\}$, subsets $S_1,\dots,S_m \subseteq U$,
+costs $c_j$.
+
+\textbf{Goal:} Select minimum-cost subsets that cover every element.
+
+\medskip
+\textbf{Variables:} $x_j \in \{0,1\}$ (select subset $j$?)
+
+\begin{align*}
+  \min \quad & \sum_{j=1}^{m} c_j \, x_j \\
+  \text{s.t.} \quad
+    & \sum_{j:\, i \in S_j} x_j \ge 1
+      & \forall\, i \in U \\
+    & x_j \in \{0,1\}
+      & \forall\, j
+\end{align*}
+
+\medskip
+\begin{itemize}
+  \item This is a \textbf{pure integer program} (all variables binary).
+  \item LP relaxation gives a lower bound; SCIP uses branch-and-bound.
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 17: Exercise 5
+% ---------------------------------------------------------
+\begin{frame}{Exercise 5: Set Cover}
+\begin{block}{Task}
+Implement the set cover problem:
+\begin{itemize}
+  \item Define binary variables for each subset.
+  \item Add covering constraints for each element.
+  \item Minimize total cost.
+\end{itemize}
+\end{block}
+\begin{itemize}
+  \item File: \texttt{ex05\_set\_cover/set\_cover.py}
+  \item Test: \texttt{python ex05\_set\_cover/test\_set\_cover.py}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 18: Knapsack Problem
+% ---------------------------------------------------------
+\begin{frame}{Knapsack Problem}
+\textbf{Classic 0--1 Knapsack:} select items to maximize value
+without exceeding capacity.
+
+\medskip
+\textbf{Applications:} budgeting, cargo loading, resource allocation.
+
+\medskip
+\textbf{Variables:} $x_j \in \{0,1\}$ (take item $j$?)
+
+\begin{align*}
+  \max \quad & \sum_{j=1}^{n} v_j \, x_j \\
+  \text{s.t.} \quad
+    & \sum_{j=1}^{n} w_j \, x_j \le W \\
+    & x_j \in \{0,1\} & \forall\, j
+\end{align*}
+
+where $v_j$ = value, $w_j$ = weight, $W$ = capacity.
+
+\medskip
+\begin{itemize}
+  \item NP-hard in general; SCIP handles it efficiently via specialized techniques.
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 19: Exercise 6
+% ---------------------------------------------------------
+\begin{frame}{Exercise 6: Knapsack}
+\begin{block}{Task}
+Implement the 0--1 knapsack problem:
+\begin{itemize}
+  \item Create binary variables for each item.
+  \item Add the capacity constraint.
+  \item Maximize total value and report selected items.
+\end{itemize}
+\end{block}
+\begin{itemize}
+  \item File: \texttt{ex06\_knapsack/knapsack.py}
+  \item Test: \texttt{python ex06\_knapsack/test\_knapsack.py}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 20: Facility Location
+% ---------------------------------------------------------
+\begin{frame}{Facility Location}
+\textbf{Decide} which facilities to open and how to assign customers.
+
+\medskip
+\textbf{Sets:} facilities $F$, customers $C$
+
+\textbf{Parameters:} fixed cost $f_i$, assignment cost $t_{ij}$, demand $d_j$, capacity $q_i$
+
+\textbf{Variables:} $y_i \in \{0,1\}$ (open $i$?), \; $x_{ij} \ge 0$ (fraction served)
+
+\begin{align*}
+  \min \quad & \sum_{i \in F} f_i\, y_i
+    + \sum_{i \in F}\sum_{j \in C} t_{ij}\, x_{ij} \\
+  \text{s.t.} \quad
+    & \sum_{i \in F} x_{ij} = 1
+      & \forall\, j \in C \\
+    & \sum_{j \in C} d_j\, x_{ij} \le q_i\, y_i
+      & \forall\, i \in F \\
+    & x_{ij} \ge 0,\; y_i \in \{0,1\}
+\end{align*}
+
+\begin{itemize}
+  \item The constraint $x_{ij} \le y_i$ \textbf{links} assignment to opening.
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 21: Exercise 7
+% ---------------------------------------------------------
+\begin{frame}{Exercise 7: Facility Location}
+\begin{block}{Task}
+Implement the capacitated facility location problem:
+\begin{itemize}
+  \item Binary variables for facility opening decisions.
+  \item Continuous variables for customer assignments.
+  \item Linking and demand constraints.
+\end{itemize}
+\end{block}
+\begin{itemize}
+  \item File: \texttt{ex07\_facility\_location/facility\_location.py}
+  \item Test: \texttt{python ex07\_facility\_location/test\_facility\_location.py}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 22: Graph Coloring
+% ---------------------------------------------------------
+\begin{frame}{Graph Coloring}
+\textbf{Given:} undirected graph $G=(V,E)$, set of colors $K=\{1,\dots,k\}$.
+
+\textbf{Goal:} minimize the number of colors used such that
+no two adjacent vertices share a color.
+
+\medskip
+\textbf{Variables:} $x_{v,c} \in \{0,1\}$ (vertex $v$ gets color $c$?), \;
+$w_c \in \{0,1\}$ (color $c$ used?)
+
+\begin{align*}
+  \min \quad & \sum_{c \in K} w_c \\
+  \text{s.t.} \quad
+    & \sum_{c \in K} x_{v,c} = 1
+      & \forall\, v \in V \\
+    & x_{u,c} + x_{v,c} \le w_c
+      & \forall\, (u,v) \in E,\; c \in K \\
+    & x_{v,c},\, w_c \in \{0,1\}
+\end{align*}
+
+\medskip
+\begin{itemize}
+  \item \textbf{Symmetry:} any permutation of colors gives an equivalent
+        solution --- this makes MIP solving harder.
+  \item Break symmetry: $w_1 \ge w_2 \ge \cdots \ge w_k$.
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 23: Exercise 8
+% ---------------------------------------------------------
+\begin{frame}{Exercise 8: Graph Coloring}
+\begin{block}{Task}
+Implement the graph coloring formulation:
+\begin{itemize}
+  \item Assignment and conflict constraints.
+  \item Minimize number of colors.
+  \item Add symmetry-breaking constraints.
+\end{itemize}
+\end{block}
+\begin{itemize}
+  \item File: \texttt{ex08\_graph\_coloring/graph\_coloring.py}
+  \item Test: \texttt{python ex08\_graph\_coloring/test\_graph\_coloring.py}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 24: Wrap-up
+% ---------------------------------------------------------
+\begin{frame}{Part 1 --- Wrap-up}
+\textbf{What we covered:}
+\begin{itemize}
+  \item The PySCIPOpt modeling lifecycle: variables, constraints, objective.
+  \item Solving and querying solutions and statistics.
+  \item Classical LP/IP/MIP formulations:
+    \begin{itemize}
+      \item Transportation (LP)
+      \item Blending (LP)
+      \item Set Cover (IP)
+      \item Knapsack (IP)
+      \item Facility Location (MIP)
+      \item Graph Coloring (IP)
+    \end{itemize}
+\end{itemize}
+
+\medskip
+\begin{block}{Up next --- Part 2: Advanced Topics}
+\begin{itemize}
+  \item Row generation (cutting planes, lazy constraints)
+  \item Column generation
+  \item Branch-and-Price
+\end{itemize}
+\end{block}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+texput.*
+
+# Generated PDFs (slides)
+part1/slides/*.pdf
+part2/slides/*.pdf
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
