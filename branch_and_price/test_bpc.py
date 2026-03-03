@@ -27,6 +27,21 @@ def test_bpc():
     print(f"PASS: test_bpc (obj={model.getObjVal()}, cuts={len(separator.cuts)})")
 
 
+def test_bpc_different_seed():
+    """BPC on a different small instance."""
+    capacity = 100
+    sizes = random_bin_packing_instance(20, capacity, seed=42)
+
+    separator = SubsetRowSeparator(len(sizes))
+    model, *_ = extended_binpacking(sizes, capacity, separator=separator)
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    assert model.getObjVal() >= 1, f"Expected at least 1 bin, got {model.getObjVal()}"
+    print(f"PASS: test_bpc_different_seed (obj={model.getObjVal()}, cuts={len(separator.cuts)})")
+
+
 if __name__ == "__main__":
     test_bpc()
+    test_bpc_different_seed()
     print("BPC test passed!")

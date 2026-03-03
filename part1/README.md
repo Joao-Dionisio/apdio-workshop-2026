@@ -259,57 +259,6 @@ Return the model (not yet optimized), a dictionary `x` mapping `(v, k)` to its b
 
 **Test:** `python ex08_graph_coloring/test_graph_coloring.py`
 
-## Verification Checklist
-
-Use the following checklist to track your progress:
-
-- [ ] 1. **First Model** -- `python ex01_first_model/test_first_model.py`
-- [ ] 2. **Solve and Report** -- `python ex02_solving/test_solving.py`
-- [ ] 3. **Transportation** -- `python ex03_transportation/test_transportation.py`
-- [ ] 4. **Blending** -- `python ex04_blending/test_blending.py`
-- [ ] 5. **Set Cover** -- `python ex05_set_cover/test_set_cover.py`
-- [ ] 6. **Knapsack** -- `python ex06_knapsack/test_knapsack.py`
-- [ ] 7. **Facility Location** -- `python ex07_facility_location/test_facility_location.py`
-- [ ] 8. **Graph Coloring** -- `python ex08_graph_coloring/test_graph_coloring.py`
-
-## File Structure
-
-```
-part1/
-├── README.md
-├── slides/
-├── ex01_first_model/
-│   ├── first_model.py
-│   └── test_first_model.py
-├── ex02_solving/
-│   ├── solving.py
-│   └── test_solving.py
-├── ex03_transportation/
-│   ├── generator.py
-│   ├── transportation.py
-│   └── test_transportation.py
-├── ex04_blending/
-│   ├── generator.py
-│   ├── blending.py
-│   └── test_blending.py
-├── ex05_set_cover/
-│   ├── generator.py
-│   ├── set_cover.py
-│   └── test_set_cover.py
-├── ex06_knapsack/
-│   ├── generator.py
-│   ├── knapsack.py
-│   └── test_knapsack.py
-├── ex07_facility_location/
-│   ├── generator.py
-│   ├── facility_location.py
-│   └── test_facility_location.py
-└── ex08_graph_coloring/
-    ├── generator.py
-    ├── graph_coloring.py
-    └── test_graph_coloring.py
-```
-
 ---
 
-Once all exercises pass, proceed to **Part 2** for advanced topics including custom plugins, cutting planes, heuristics, and branch-and-price.
+Once all exercises pass, proceed to **Part 2** for advanced topics: row generation, column generation, branch-and-price, and branch-price-and-cut.

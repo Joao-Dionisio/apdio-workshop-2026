@@ -47,10 +47,10 @@
 \lstset{style=pyStyle}
 
 % ---- metadata -------------------------------------------
-\title{PySCIPOpt Workshop}
+\title{SCIP Workshop}
 \subtitle{Part 1: Modeling Basics}
-\author{SCIP Workshop}
-\date{}
+\author{João Dionísio}
+\date{March 20th, 2026}
 \titlegraphic{%
   \includegraphics[height=1.2cm]{sciplogo.png}\hspace{1.5cm}%
   \includegraphics[height=1.2cm]{uporto_logo.jpg}\hspace{1.5cm}%
@@ -93,7 +93,7 @@ By the end of Part~1 you will be able to:
 \begin{column}{0.55\textwidth}
   \textbf{SCIP} --- \emph{Solving Constraint Integer Programs}
   \begin{itemize}
-    \item One of the fastest non-commercial MIP solvers.
+    \item The fastest academic MINLP solver.
     \item Supports LP, MIP, MINLP, CIP.
     \item Open-source (Apache 2.0 license).
     \item Highly extensible plugin architecture.
@@ -102,8 +102,6 @@ By the end of Part~1 you will be able to:
   \medskip
   \textbf{PySCIPOpt} --- Python interface to SCIP
   \begin{itemize}
-    \item Pythonic API for model building.
-    \item Access to advanced features: callbacks, heuristics, separators, etc.
     \item Install: \texttt{pip install pyscipopt}
   \end{itemize}
 \end{column}
@@ -198,11 +196,7 @@ z = model.addVar(name="z", vtype="I", obj=-2)
 \begin{frame}[fragile]{Constraints}
 \texttt{model.addCons(expression, name)}
 
-\medskip
-Use \texttt{quicksum()} for efficient summation over index sets.
-
 \begin{lstlisting}
-from pyscipopt import quicksum
 
 # Single constraint
 model.addCons(x + 2*y <= 10, name="capacity")
@@ -210,12 +204,11 @@ model.addCons(x + 2*y <= 10, name="capacity")
 # Indexed family of constraints
 for j in customers:
     model.addCons(
-        quicksum(x[i,j] for i in suppliers) == demand[j],
+        sum(x[i,j] for i in suppliers) == demand[j],
         name=f"demand_{j}"
     )
 
-# quicksum is preferred over Python's sum() for performance
-model.addCons(quicksum(c[i]*x[i] for i in I) <= b)
+model.addCons(sum(c[i]*x[i] for i in I) <= b)
 \end{lstlisting}
 \end{frame}
 
@@ -223,21 +216,11 @@ model.addCons(quicksum(c[i]*x[i] for i in I) <= b)
 % Frame 7: Objective
 % ---------------------------------------------------------
 \begin{frame}[fragile]{Objective Function}
-Two ways to set the objective:
 
-\medskip
-\textbf{Option A:} Via \texttt{obj} parameter in \texttt{addVar}
-\begin{lstlisting}
-x = model.addVar(name="x", vtype="B", obj=3)  # coeff = 3
-y = model.addVar(name="y", vtype="B", obj=2)  # coeff = 2
-model.setMaximize()  # max 3x + 2y
-\end{lstlisting}
-
-\medskip
-\textbf{Option B:} Via \texttt{setObjective}
+\texttt{setObjective}
 \begin{lstlisting}
 model.setObjective(
-    quicksum(cost[i,j] * x[i,j] for i in I for j in J),
+    sum(cost[i,j] * x[i,j] for i in I for j in J),
     sense="minimize"
 )
 \end{lstlisting}
@@ -254,7 +237,7 @@ Convenience methods:
 % ---------------------------------------------------------
 \begin{frame}{Exercise 1: First Model}
 \begin{block}{Task}
-Build and print the following model (do \textbf{not} solve yet):
+Build the following model:
 \begin{align*}
   \max \quad & 3x + 2y \\
   \text{s.t.} \quad & x + y \le 1 \\
@@ -446,7 +429,7 @@ Implement the transportation problem:
 \end{center}
 \end{column}
 \begin{column}{0.58\textwidth}
-Combine raw materials to meet quality specs at minimum cost.
+Combine raw materials to meet quality specifications at minimum cost.
 
 \smallskip
 {\small\textbf{Sets:} materials $M$, quality attributes $Q$}
@@ -476,7 +459,7 @@ bounds $[\ell_q, u_q]$, availability $b_m$}
 \begin{block}{Task}
 Implement the blending problem:
 \begin{itemize}
-  \item Model quality bounds as linear constraints (after linearization).
+  \item Model quality bounds as linear constraints.
   \item Handle material availability limits.
   \item Minimize total cost.
 \end{itemize}
@@ -495,44 +478,39 @@ Implement the blending problem:
 \begin{column}{0.42\textwidth}
 \begin{center}
 \begin{tikzpicture}
-  % Set 1: large red horizontal ellipse at top
-  \fill[red!25, fill opacity=0.6]
-    (1.6, 2.5) ellipse (1.7 and 0.85);
-  \draw[red!70!black, line width=1.2pt]
-    (1.6, 2.5) ellipse (1.7 and 0.85);
-  \node[font=\large\bfseries] at (2.1, 2.7) {1};
+  % --- Sets (ellipses drawn first, elements on top) ---
+  % S1 = elements {a,b,d}
+  \fill[red!20, fill opacity=0.5] (0.7, 1.8) ellipse (0.9 and 0.8);
+  \draw[red!70!black, thick] (0.7, 1.8) ellipse (0.9 and 0.8);
+  % S2 = elements {b,c,e}
+  \fill[blue!20, fill opacity=0.5] (1.9, 1.8) ellipse (0.9 and 0.8);
+  \draw[blue!70!black, thick] (1.9, 1.8) ellipse (0.9 and 0.8);
+  % S3 = elements {d,f}
+  \fill[green!20, fill opacity=0.5] (1.0, 0.8) ellipse (0.55 and 0.65);
+  \draw[green!60!black, thick] (1.0, 0.8) ellipse (0.55 and 0.65);
+  % S4 = elements {e,f,g}
+  \fill[violet!20, fill opacity=0.5] (1.9, 0.7) ellipse (0.8 and 0.85);
+  \draw[violet!70!black, thick] (1.9, 0.7) ellipse (0.8 and 0.85);
+  % S5 = elements {c,g}
+  \fill[orange!20, fill opacity=0.5] (2.45, 1.25) ellipse (0.4 and 1.0);
+  \draw[orange!70!black, thick] (2.45, 1.25) ellipse (0.4 and 1.0);
 
-  % Set 2: blue tilted ellipse on left
-  \fill[blue!20, fill opacity=0.5, rotate around={-65:(0.3,1.5)}]
-    (0.3, 1.5) ellipse (0.65 and 1.5);
-  \draw[blue!80!black, line width=1.2pt, rotate around={-65:(0.3,1.5)}]
-    (0.3, 1.5) ellipse (0.65 and 1.5);
-  \node[font=\large\bfseries] at (-0.1, 2.1) {2};
+  % --- Set labels (outside their ellipses) ---
+  \node[font=\footnotesize\bfseries, red!70!black] at (-0.15, 2.45) {$S_1$};
+  \node[font=\footnotesize\bfseries, blue!70!black] at (2.7, 2.5) {$S_2$};
+  \node[font=\footnotesize\bfseries, green!60!black] at (0.35, 0.25) {$S_3$};
+  \node[font=\footnotesize\bfseries, violet!70!black] at (2.55, -0.1) {$S_4$};
+  \node[font=\footnotesize\bfseries, orange!70!black] at (3.0, 1.25) {$S_5$};
 
-  % Set 3: green tilted ellipse on right
-  \fill[green!15, fill opacity=0.5, rotate around={-25:(2.4,1.3)}]
-    (2.4, 1.3) ellipse (0.6 and 1.1);
-  \draw[green!50!black, line width=1.2pt, rotate around={-25:(2.4,1.3)}]
-    (2.4, 1.3) ellipse (0.6 and 1.1);
-  \node[font=\large\bfseries] at (2.7, 1.7) {3};
-
-  % Set 4: purple small ellipse in center
-  \fill[violet!30, fill opacity=0.5]
-    (1.2, 0.6) ellipse (0.5 and 0.4);
-  \draw[violet, line width=1.2pt]
-    (1.2, 0.6) ellipse (0.5 and 0.4);
-  \node[font=\large\bfseries] at (1.2, 0.6) {4};
-
-  % Set 5: magenta vertical ellipse at bottom
-  \fill[magenta!20, fill opacity=0.5]
-    (1.4, -0.5) ellipse (0.75 and 1.2);
-  \draw[magenta!70!black, line width=1.2pt]
-    (1.4, -0.5) ellipse (0.75 and 1.2);
-  \node[font=\large\bfseries] at (1.4, -1.0) {5};
+  % --- Universe elements (dots) ---
+  \foreach \pos in {(0.2,2.0), (1.3,2.2), (2.5,2.0),
+                    (0.7,1.2), (1.9,1.3),
+                    (1.3,0.4), (2.4,0.5)}
+    \fill[black] \pos circle (2pt);
 \end{tikzpicture}
 \end{center}
 \vspace{-2pt}
-{\centering\scriptsize Select fewest sets to cover all elements.\par}
+{\centering\scriptsize Select cheapest combination of sets to cover all elements.\par}
 \end{column}
 \begin{column}{0.58\textwidth}
 \textbf{Given:} Universe $U = \{1,\dots,n\}$, subsets $S_1,\dots,S_m \subseteq U$,
@@ -643,10 +621,6 @@ without exceeding capacity.
 
 {\small where $v_j$ = value, $w_j$ = weight, $W$ = capacity.}
 
-\smallskip
-\begin{itemize}
-  \item NP-hard in general; SCIP handles it efficiently via specialized techniques.
-\end{itemize}
 \end{column}
 \end{columns}
 \end{frame}

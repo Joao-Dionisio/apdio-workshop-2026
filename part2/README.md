@@ -289,20 +289,6 @@ See [`../branch_and_price/README.md`](../branch_and_price/README.md) for detaile
 
 ---
 
-## Verification Checklist
-
-- [ ] **Reference**: `cd ../row_generation && python compact_mtz.py` runs successfully
-- [ ] **Exercise 1**: `cd ../row_generation && python test_subtour.py` passes
-- [ ] **Exercise 2**: `cd ../row_generation && python test_tsp.py` passes
-- [ ] **Exercise 3**: `cd ../branch_and_price && python test_pricing_knapsack.py` passes
-- [ ] **Exercise 4**: `cd ../branch_and_price && python test_fractional_pairs.py` passes
-- [ ] **Exercise 5**: Branching decisions correctly propagated (verified via Exercise 6)
-- [ ] **Exercise 6**: `cd ../branch_and_price && python test_knapsack_with_constraints.py` passes
-- [ ] **Exercise 7**: `cd ../separator/subset_row && python test_subset_row.py` passes
-- [ ] **Integration**: `cd ../branch_and_price && python test_bnp.py` passes
-
----
-
 ## References
 
 - Miller, Tucker, Zemlin (1960). "Integer Programming Formulation of Traveling Salesman Problems." *Journal of the ACM*.

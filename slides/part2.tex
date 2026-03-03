@@ -33,9 +33,9 @@
   morekeywords={Model, quicksum, Pricer, Branchrule, Conshdlr, Sepa}
 }
 
-\title{PySCIPOpt Workshop}
+\title{SCIP Workshop}
 \subtitle{Part 2: Advanced Techniques}
-\author{PySCIPOpt Workshop}
+\author{João Dionísio}
 \date{}
 \titlegraphic{%
   \includegraphics[height=1.2cm]{sciplogo.png}\hspace{1.5cm}%
@@ -271,8 +271,6 @@ Study the MTZ formulation as a baseline before implementing row generation.
   % No connection between the two groups
   \node[font=\small\bfseries, red!60!black] at (1.4, -1.4)
     {Subtour violation!};
-  \node[font=\scriptsize] at (1.4, -1.9)
-    {Degree $= 2$ but not connected};
 \end{tikzpicture}
 \end{column}
 \end{columns}
@@ -732,61 +730,7 @@ $\Rightarrow$ Much more \textbf{balanced} search tree
 \end{column}
 \begin{column}{0.47\textwidth}
 \centering
-\begin{tikzpicture}[
-  nd/.style={circle, draw, fill=blue!20, inner sep=0pt,
-             minimum size=14pt, font=\scriptsize},
-  edge/.style={thick},
-  lbl/.style={font=\scriptsize, midway}
-]
-  % Root
-  \node[nd] (root) at (0,0) {};
-  \node[font=\scriptsize, above=2pt] at (root) {$0 < x_{ij} < 1$};
-
-  % Left: Together
-  \node[nd, fill=green!25] (l1) at (-1.3, -1.0) {};
-  \draw[edge] (root) -- (l1)
-    node[lbl, left, pos=0.5] {\color{green!50!black}same};
-
-  % Right: Apart
-  \node[nd, fill=orange!25] (r1) at (1.3, -1.0) {};
-  \draw[edge] (root) -- (r1)
-    node[lbl, right, pos=0.5] {\color{orange!70!black}diff};
-
-  % Left subtree
-  \node[nd, fill=green!25] (l2) at (-1.9, -2.0) {};
-  \node[nd, fill=green!25] (l3) at (-0.7, -2.0) {};
-  \draw[edge] (l1) -- (l2);
-  \draw[edge] (l1) -- (l3);
-
-  % Right subtree
-  \node[nd, fill=orange!25] (r2) at (0.7, -2.0) {};
-  \node[nd, fill=orange!25] (r3) at (1.9, -2.0) {};
-  \draw[edge] (r1) -- (r2);
-  \draw[edge] (r1) -- (r3);
-
-  % Leaf level
-  \node[nd, fill=green!15] (l4) at (-2.2, -3.0) {};
-  \node[nd, fill=green!15] (l5) at (-1.6, -3.0) {};
-  \node[nd, fill=green!15] (l6) at (-1.0, -3.0) {};
-  \node[nd, fill=green!15] (l7) at (-0.4, -3.0) {};
-  \draw[edge] (l2) -- (l4);
-  \draw[edge] (l2) -- (l5);
-  \draw[edge] (l3) -- (l6);
-  \draw[edge] (l3) -- (l7);
-
-  \node[nd, fill=orange!15] (r4) at (0.4, -3.0) {};
-  \node[nd, fill=orange!15] (r5) at (1.0, -3.0) {};
-  \node[nd, fill=orange!15] (r6) at (1.6, -3.0) {};
-  \node[nd, fill=orange!15] (r7) at (2.2, -3.0) {};
-  \draw[edge] (r2) -- (r4);
-  \draw[edge] (r2) -- (r5);
-  \draw[edge] (r3) -- (r6);
-  \draw[edge] (r3) -- (r7);
-
-  % Label
-  \node[font=\scriptsize\bfseries, blue!70!black] at (0, -3.6)
-    {Balanced tree};
-\end{tikzpicture}
+\includegraphics[width=\linewidth]{ryan_foster.png}
 \end{column}
 \end{columns}
 \end{frame}

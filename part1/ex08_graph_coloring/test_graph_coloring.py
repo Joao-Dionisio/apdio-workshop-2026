@@ -86,6 +86,66 @@ def test_petersen_graph():
     print("PASS: test_petersen_graph")
 
 
+def test_complete_graph_k4():
+    """K4 (complete graph on 4 nodes) needs exactly 4 colors."""
+    n_nodes = 4
+    edges = [(i, j) for i in range(4) for j in range(i + 1, 4)]
+    max_colors = 4
+
+    model, x, w = graph_coloring(n_nodes, edges, max_colors)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    assert abs(model.getObjVal() - 4.0) < 1e-4, (
+        f"Expected chromatic number 4 for K4, got {model.getObjVal()}"
+    )
+    print("PASS: test_complete_graph_k4")
+
+
+def test_generated_sparse():
+    """Solve a randomly generated sparse graph."""
+    from generator import random_graph_coloring_instance
+
+    n_nodes, edges = random_graph_coloring_instance(8, edge_prob=0.3, seed=42)
+    max_colors = n_nodes
+
+    model, x, w = graph_coloring(n_nodes, edges, max_colors)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+
+    # Verify no adjacent nodes share a color
+    coloring = {}
+    for v in range(n_nodes):
+        for k in range(max_colors):
+            if model.getVal(x[v, k]) > 0.5:
+                coloring[v] = k
+                break
+    for u, v in edges:
+        assert coloring[u] != coloring[v], (
+            f"Adjacent nodes {u} and {v} both have color {coloring[u]}"
+        )
+    print("PASS: test_generated_sparse")
+
+
+def test_generated_dense():
+    """Solve a randomly generated dense graph."""
+    from generator import random_graph_coloring_instance
+
+    n_nodes, edges = random_graph_coloring_instance(6, edge_prob=0.6, seed=99)
+    max_colors = n_nodes
+
+    model, x, w = graph_coloring(n_nodes, edges, max_colors)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    assert model.getObjVal() >= 1, "Should need at least 1 color"
+    print("PASS: test_generated_dense")
+
+
 if __name__ == "__main__":
     print("Running graph coloring tests...\n")
 
@@ -94,6 +154,9 @@ if __name__ == "__main__":
         test_bipartite,
         test_no_adjacent_share_color,
         test_petersen_graph,
+        test_complete_graph_k4,
+        test_generated_sparse,
+        test_generated_dense,
     ]
 
     passed = 0

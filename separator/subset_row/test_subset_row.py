@@ -47,7 +47,21 @@ def test_bpc_matches_bnp():
     print(f"PASS: test_bpc_matches_bnp (B&P={obj_bnp}, BPC={obj_bpc}, cuts={len(separator.cuts)})")
 
 
+def test_bpc_different_seed():
+    """BPC on another random instance."""
+    capacity = 100
+    sizes = random_bin_packing_instance(15, capacity, seed=7)
+
+    separator = SubsetRowSeparator(len(sizes))
+    model, *_ = extended_binpacking(sizes, capacity, separator=separator)
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    print(f"PASS: test_bpc_different_seed (obj={model.getObjVal()}, cuts={len(separator.cuts)})")
+
+
 if __name__ == "__main__":
     test_bpc_small()
     test_bpc_matches_bnp()
+    test_bpc_different_seed()
     print("All subset row tests passed!")

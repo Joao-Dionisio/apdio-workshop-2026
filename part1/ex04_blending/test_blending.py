@@ -76,6 +76,42 @@ def test_generated_instance():
     print("PASS: test_generated_instance")
 
 
+def test_generated_many_materials():
+    """Solve a generated instance with more materials and quality dimensions."""
+    from generator import random_blending_instance
+
+    data = random_blending_instance(6, 3, seed=99)
+    costs, availability, qualities, qlb, qub, total = data
+    model, x = blending(costs, availability, qualities, qlb, qub, total)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+
+    # Verify production target met
+    n_materials = len(costs)
+    total_produced = sum(model.getVal(x[i]) for i in range(n_materials))
+    assert abs(total_produced - total) < 1e-4, (
+        f"Total production {total_produced} != target {total}"
+    )
+    print("PASS: test_generated_many_materials")
+
+
+def test_generated_single_quality():
+    """Solve a generated instance with a single quality dimension."""
+    from generator import random_blending_instance
+
+    data = random_blending_instance(3, 1, seed=7)
+    costs, availability, qualities, qlb, qub, total = data
+    model, x = blending(costs, availability, qualities, qlb, qub, total)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    assert model.getObjVal() >= 0, "Objective should be non-negative"
+    print("PASS: test_generated_single_quality")
+
+
 if __name__ == "__main__":
     print("Running blending tests...\n")
 
@@ -83,6 +119,8 @@ if __name__ == "__main__":
         test_small_instance,
         test_quality_bounds_met,
         test_generated_instance,
+        test_generated_many_materials,
+        test_generated_single_quality,
     ]
 
     passed = 0

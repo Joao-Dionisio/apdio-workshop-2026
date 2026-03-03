@@ -78,6 +78,44 @@ def test_generated_instance():
     print("PASS: test_generated_instance")
 
 
+def test_generated_larger():
+    """Solve a larger generated instance (20 elements, 15 subsets)."""
+    from generator import random_set_cover_instance
+
+    universe, subsets, costs = random_set_cover_instance(20, 15, seed=99)
+    model, y = set_cover(universe, subsets, costs)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+
+    selected = [j for j in range(len(subsets)) if model.getVal(y[j]) > 0.5]
+    covered = set()
+    for j in selected:
+        covered |= subsets[j]
+    assert covered == universe, "Not all elements covered"
+    print("PASS: test_generated_larger")
+
+
+def test_generated_many_subsets():
+    """Solve an instance with many subsets relative to universe size."""
+    from generator import random_set_cover_instance
+
+    universe, subsets, costs = random_set_cover_instance(8, 20, seed=7)
+    model, y = set_cover(universe, subsets, costs)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+
+    selected = [j for j in range(len(subsets)) if model.getVal(y[j]) > 0.5]
+    covered = set()
+    for j in selected:
+        covered |= subsets[j]
+    assert covered == universe, "Not all elements covered"
+    print("PASS: test_generated_many_subsets")
+
+
 if __name__ == "__main__":
     print("Running set cover tests...\n")
 
@@ -85,6 +123,8 @@ if __name__ == "__main__":
         test_small_instance,
         test_all_elements_covered,
         test_generated_instance,
+        test_generated_larger,
+        test_generated_many_subsets,
     ]
 
     passed = 0

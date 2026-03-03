@@ -200,21 +200,6 @@ Beyond SECs, other cuts can strengthen the LP:
 
 ---
 
-## File Structure
-
-```
-row_generation/
-├── README.md              # This file
-├── generator.py           # Random TSP instance generator
-├── compact_mtz.py         # MTZ formulation (reference)
-├── subtour.py             # Exercise 1: Subtour detection
-├── conshdlr_subtour.py    # Exercise 2: Constraint handler
-├── tsp.py                 # Main TSP model with row generation
-├── main.py                # Entry point
-├── test_subtour.py        # Tests for Exercise 1
-└── test_tsp.py            # Integration tests
-```
-
 ## Quick Start
 
 ```bash
@@ -228,13 +213,6 @@ python main.py --cities 15
 python main.py --compact --cities 20 --seed 42
 python main.py --cities 20 --seed 42
 ```
-
-## Verification Checklist
-
-1. [ ] `python compact_mtz.py` runs successfully
-2. [ ] After Exercise 1: `python test_subtour.py` passes
-3. [ ] After Exercise 2: `python test_tsp.py` passes
-4. [ ] Both methods give same optimal value on same instance
 
 ---
 

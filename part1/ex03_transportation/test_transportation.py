@@ -81,6 +81,39 @@ def test_generated_instance():
     print("PASS: test_generated_instance")
 
 
+def test_generated_larger():
+    """Solve a larger generated instance (5 suppliers, 8 customers)."""
+    from generator import random_transportation_instance
+
+    supply, demand, costs = random_transportation_instance(5, 8, seed=99)
+    model, x = transportation(supply, demand, costs)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+
+    # Verify all demand is met
+    n_suppliers, n_customers = len(supply), len(demand)
+    for j in range(n_customers):
+        received = sum(model.getVal(x[i, j]) for i in range(n_suppliers))
+        assert received >= demand[j] - 1e-6, f"Customer {j} demand not met"
+    print("PASS: test_generated_larger")
+
+
+def test_generated_unbalanced():
+    """Solve an instance with few suppliers and many customers."""
+    from generator import random_transportation_instance
+
+    supply, demand, costs = random_transportation_instance(2, 6, seed=7)
+    model, x = transportation(supply, demand, costs)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    assert model.getObjVal() >= 0, "Objective should be non-negative"
+    print("PASS: test_generated_unbalanced")
+
+
 if __name__ == "__main__":
     print("Running transportation tests...\n")
 
@@ -89,6 +122,8 @@ if __name__ == "__main__":
         test_supply_constraints,
         test_demand_constraints,
         test_generated_instance,
+        test_generated_larger,
+        test_generated_unbalanced,
     ]
 
     passed = 0

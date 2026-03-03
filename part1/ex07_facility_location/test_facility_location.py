@@ -92,6 +92,41 @@ def test_generated_instance():
     print("PASS: test_generated_instance")
 
 
+def test_generated_larger():
+    """Solve a larger generated instance (6 facilities, 10 customers)."""
+    from generator import random_facility_location_instance
+
+    fixed_costs, conn_costs = random_facility_location_instance(6, 10, seed=99)
+    model, y, x = facility_location(fixed_costs, conn_costs)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+
+    # Verify all customers served
+    n_facilities, n_customers = len(fixed_costs), len(conn_costs[0])
+    for j in range(n_customers):
+        total_assigned = sum(model.getVal(x[i, j]) for i in range(n_facilities))
+        assert abs(total_assigned - 1.0) < 1e-6, (
+            f"Customer {j} assignment = {total_assigned}, expected 1.0"
+        )
+    print("PASS: test_generated_larger")
+
+
+def test_generated_many_facilities():
+    """Solve an instance with many facilities and few customers."""
+    from generator import random_facility_location_instance
+
+    fixed_costs, conn_costs = random_facility_location_instance(8, 5, seed=7)
+    model, y, x = facility_location(fixed_costs, conn_costs)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    assert model.getObjVal() >= 0, "Objective should be non-negative"
+    print("PASS: test_generated_many_facilities")
+
+
 if __name__ == "__main__":
     print("Running facility location tests...\n")
 
@@ -100,6 +135,8 @@ if __name__ == "__main__":
         test_linking_constraints,
         test_all_customers_served,
         test_generated_instance,
+        test_generated_larger,
+        test_generated_many_facilities,
     ]
 
     passed = 0

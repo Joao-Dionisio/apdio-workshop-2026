@@ -79,6 +79,40 @@ def test_generated_instance():
     print("PASS: test_generated_instance")
 
 
+def test_generated_larger():
+    """Solve a larger generated instance (20 items)."""
+    from generator import random_knapsack_instance
+
+    weights, values, capacity = random_knapsack_instance(20, seed=99)
+    model, x = knapsack(weights, values, capacity)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+
+    total_weight = sum(
+        weights[i] * model.getVal(x[i]) for i in range(20)
+    )
+    assert total_weight <= capacity + 1e-6, (
+        f"Weight {total_weight} exceeds capacity {capacity}"
+    )
+    print("PASS: test_generated_larger")
+
+
+def test_generated_medium():
+    """Solve a medium generated instance (15 items)."""
+    from generator import random_knapsack_instance
+
+    weights, values, capacity = random_knapsack_instance(15, seed=7)
+    model, x = knapsack(weights, values, capacity)
+    model.hideOutput()
+    model.optimize()
+
+    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    assert model.getObjVal() >= 0, "Objective should be non-negative"
+    print("PASS: test_generated_medium")
+
+
 if __name__ == "__main__":
     print("Running knapsack tests...\n")
 
@@ -87,6 +121,8 @@ if __name__ == "__main__":
         test_capacity_respected,
         test_classic_instance,
         test_generated_instance,
+        test_generated_larger,
+        test_generated_medium,
     ]
 
     passed = 0
