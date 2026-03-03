@@ -1,13 +1,24 @@
 \documentclass[aspectratio=169]{beamer}
 
 \usetheme{Madrid}
-\usecolortheme{beaver}
+
+% ---- SCIP blue color scheme --------------------------------
+\definecolor{scipblue}{RGB}{30,60,190}
+\setbeamercolor{structure}{fg=scipblue}
+\setbeamercolor{palette primary}{bg=scipblue, fg=white}
+\setbeamercolor{palette secondary}{bg=scipblue!85!black, fg=white}
+\setbeamercolor{palette tertiary}{bg=scipblue!70!black, fg=white}
+\setbeamercolor{palette quaternary}{bg=scipblue, fg=white}
+\setbeamercolor{frametitle}{bg=scipblue!10, fg=scipblue}
+\setbeamercolor{title}{fg=white, bg=scipblue}
+\setbeamercolor{item}{fg=scipblue}
 
 \usepackage{amsmath, amssymb}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta, positioning, shapes.geometric, fit, decorations.pathreplacing, calc}
 \usepackage{booktabs}
 \usepackage{listings}
+\usepackage{hyperref}
 
 \lstset{
   language=Python,
@@ -26,6 +37,11 @@
 \subtitle{Part 2: Advanced Techniques}
 \author{PySCIPOpt Workshop}
 \date{}
+\titlegraphic{%
+  \includegraphics[height=1.2cm]{sciplogo.png}\hspace{1.5cm}%
+  \includegraphics[height=1.2cm]{uporto_logo.jpg}\hspace{1.5cm}%
+  \includegraphics[height=1.2cm]{apdio_logo.png}%
+}
 
 \begin{document}
 
@@ -42,22 +58,28 @@
 \begin{frame}{Roadmap}
 \begin{center}
 \begin{tikzpicture}[
-  box/.style={draw, rounded corners, fill=blue!10, minimum width=3cm,
-              minimum height=0.8cm, font=\small\bfseries},
+  box/.style={draw, rounded corners, fill=blue!10,
+              minimum height=0.75cm, font=\small\bfseries, inner xsep=6pt},
   arr/.style={-{Stealth}, thick}
 ]
-  \node[box] (tsp)  at (0, 0)   {TSP};
-  \node[box] (row)  at (4, 0)   {Row Generation};
-  \node[box] (bpp)  at (8, 0)   {Bin Packing};
-  \node[box] (cg)   at (0,-1.8) {Column Gen.};
-  \node[box] (bp)   at (4,-1.8) {Branch-and-Price};
-  \node[box] (bpc)  at (8,-1.8) {Branch-Price-Cut};
+  % Top track: row generation (adding constraints)
+  \node[box, fill=orange!10] (tsp) at (0, 0)   {TSP};
+  \node[box, fill=orange!10] (row) at (3.2, 0)  {Row Generation};
+  \draw[arr] (tsp) -- (row);
 
-  \draw[arr] (tsp)  -- (row);
-  \draw[arr] (row)  -- (bpp);
-  \draw[arr] (bpp)  -- (cg);
-  \draw[arr] (cg)   -- (bp);
-  \draw[arr] (bp)   -- (bpc);
+  % Bottom track: column generation (adding variables)
+  \node[box] (bpp) at (0, -1.8)   {Bin Packing};
+  \node[box] (cg)  at (3.2, -1.8) {Col.\ Gen.};
+  \node[box] (bp)  at (6.0, -1.8) {B\&P};
+  \node[box] (bpc) at (8.3, -1.8) {BPC};
+
+  \draw[arr] (bpp) -- (cg);
+  \draw[arr] (cg)  -- (bp);
+  \draw[arr] (bp)  -- (bpc);
+
+  % Transition arrow from top track to bottom track
+  \draw[arr, densely dashed, gray]
+    (row.south) -- ++(0,-0.4) -| (bpp.north);
 \end{tikzpicture}
 \end{center}
 
@@ -225,31 +247,32 @@ Study the MTZ formulation as a baseline before implementing row generation.
                minimum size=7pt},
   subtour/.style={very thick}
 ]
-  % Subtour 1 (left triangle) -- red
+  % Subtour 1 (left triangle, 3 cities) -- red
   \node[city] (a1) at (0, 1.2)  {};
   \node[city] (a2) at (0.9, 0)  {};
   \node[city] (a3) at (-0.9, 0) {};
   \draw[subtour, red!70!black] (a1) -- (a2) -- (a3) -- (a1);
 
-  % Subtour 2 (right triangle) -- green
-  \node[city] (b1) at (2.8, 1.2) {};
-  \node[city] (b2) at (3.7, 0)   {};
-  \node[city] (b3) at (1.9, 0)   {};
-  \draw[subtour, green!60!black] (b1) -- (b2) -- (b3) -- (b1);
+  % Subtour 2 (right quadrilateral, 4 cities) -- also red
+  \node[city] (b1) at (2.0, 1.2) {};
+  \node[city] (b2) at (3.6, 0.9) {};
+  \node[city] (b3) at (3.4, -0.1) {};
+  \node[city] (b4) at (1.9, -0.1) {};
+  \draw[subtour, red!70!black] (b1) -- (b2) -- (b3) -- (b4) -- (b1);
 
   % Dashed box around subtour 1
   \node[draw, dashed, red!70!black, rounded corners, fit=(a1)(a2)(a3),
         inner sep=5pt, label={[font=\scriptsize,red!70!black]below:$S_1$}] {};
 
   % Dashed box around subtour 2
-  \node[draw, dashed, green!60!black, rounded corners, fit=(b1)(b2)(b3),
-        inner sep=5pt, label={[font=\scriptsize,green!60!black]below:$S_2$}] {};
+  \node[draw, dashed, red!70!black, rounded corners, fit=(b1)(b2)(b3)(b4),
+        inner sep=5pt, label={[font=\scriptsize,red!70!black]below:$S_2$}] {};
 
   % No connection between the two groups
-  \node[font=\small\bfseries, red!60!black] at (1.4, -1.3)
+  \node[font=\small\bfseries, red!60!black] at (1.4, -1.4)
     {Subtour violation!};
-  \node[font=\scriptsize] at (1.4, -1.8)
-    {Degree = 2 but not connected};
+  \node[font=\scriptsize] at (1.4, -1.9)
+    {Degree $= 2$ but not connected};
 \end{tikzpicture}
 \end{column}
 \end{columns}
@@ -261,19 +284,20 @@ Study the MTZ formulation as a baseline before implementing row generation.
 \begin{frame}{Row Generation Paradigm}
 \begin{center}
 \begin{tikzpicture}[
-  box/.style={draw, rounded corners, fill=blue!10, minimum width=3.5cm,
-              minimum height=0.7cm, font=\small},
-  arr/.style={-{Stealth}, thick}
+  box/.style={draw, rounded corners, fill=blue!10,
+              minimum height=0.8cm, font=\small, inner xsep=8pt},
+  arr/.style={-{Stealth}, thick},
+  lbl/.style={font=\scriptsize, fill=white, inner sep=1pt}
 ]
-  \node[box] (solve)   at (0, 0)    {1. Solve LP (degree only)};
-  \node[box] (check)   at (0,-1.5)  {2. Check for subtours};
-  \node[box] (add)     at (5,-1.5)  {3. Add violated SECs};
-  \node[box] (opt)     at (5, 0)    {4. Optimal!};
+  \node[box] (solve) at (0, 0)      {Solve LP};
+  \node[box] (check) at (4, 0)      {Check subtours};
+  \node[box] (opt)   at (8, 0)      {Optimal!};
+  \node[box] (add)   at (4, -1.6)   {Add violated SECs};
 
   \draw[arr] (solve) -- (check);
-  \draw[arr] (check) -- node[below, font=\scriptsize] {violations found} (add);
-  \draw[arr] (add)   -- node[right, font=\scriptsize] {re-solve} (solve);
-  \draw[arr] (check) -- node[above, font=\scriptsize, sloped] {no violations} (opt);
+  \draw[arr] (check) -- node[lbl, above] {no violations} (opt);
+  \draw[arr] (check) -- node[lbl, right] {found} (add);
+  \draw[arr] (add.west) -| node[pos=0.25, lbl, below] {re-solve} (solve.south);
 \end{tikzpicture}
 \end{center}
 

@@ -3,7 +3,7 @@ from typing import List
 from pyscipopt import Model
 
 
-def pricing_solver(sizes: List[int], capacity: int, dual_solution: dict[float], together: set[tuple[int, int]],
+def pricing_solver(sizes: List[int], capacity: int, dual_solution: dict[int, float], together: set[tuple[int, int]],
                    apart: set[tuple[int, int]], subset_row_cuts=None) -> tuple[float, List[int]]:
     """
     Solve the pricing problem for the knapsack problem (with branching constraints)
@@ -11,9 +11,9 @@ def pricing_solver(sizes: List[int], capacity: int, dual_solution: dict[float], 
     Parameters:
     sizes: List[int] - the sizes of the items
     capacity: int - the capacity of the knapsack
-    dual_solution: dict[float] - the dual solution of the linear relaxation
-    together: set[tuple[int]] - the pairs of items that must be together
-    apart: set[tuple[int]] - the pairs of items that must be apart
+    dual_solution: dict[int, float] - the dual solution of the linear relaxation
+    together: set[tuple[int, int]] - the pairs of items that must be together
+    apart: set[tuple[int, int]] - the pairs of items that must be apart
     subset_row_cuts: list of (triple, dual_value) for active subset row cuts, or None
 
     Returns:
@@ -73,8 +73,8 @@ def solve_knapsack_with_constraints(
     sizes: List[int] - the sizes of the items
     values: List[float] - the values of the items
     capacity: int - the capacity of the knapsack
-    together: set[tuple[int]] - the pairs of items that must be together
-    apart: set[tuple[int]] - the pairs of items that must be apart
+    together: set[tuple[int, int]] - the pairs of items that must be together
+    apart: set[tuple[int, int]] - the pairs of items that must be apart
 
     Returns:
     tuple[float, List[int]] - the optimal value and the packing of the items

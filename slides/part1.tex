@@ -5,7 +5,17 @@
 \documentclass[aspectratio=169,10pt]{beamer}
 
 \usetheme{Madrid}
-\usecolortheme{beaver}
+
+% ---- SCIP blue color scheme --------------------------------
+\definecolor{scipblue}{RGB}{30,60,190}
+\setbeamercolor{structure}{fg=scipblue}
+\setbeamercolor{palette primary}{bg=scipblue, fg=white}
+\setbeamercolor{palette secondary}{bg=scipblue!85!black, fg=white}
+\setbeamercolor{palette tertiary}{bg=scipblue!70!black, fg=white}
+\setbeamercolor{palette quaternary}{bg=scipblue, fg=white}
+\setbeamercolor{frametitle}{bg=scipblue!10, fg=scipblue}
+\setbeamercolor{title}{fg=white, bg=scipblue}
+\setbeamercolor{item}{fg=scipblue}
 
 % ---- packages -------------------------------------------
 \usepackage{amsmath,amssymb}
@@ -41,6 +51,11 @@
 \subtitle{Part 1: Modeling Basics}
 \author{SCIP Workshop}
 \date{}
+\titlegraphic{%
+  \includegraphics[height=1.2cm]{sciplogo.png}\hspace{1.5cm}%
+  \includegraphics[height=1.2cm]{uporto_logo.jpg}\hspace{1.5cm}%
+  \includegraphics[height=1.2cm]{apdio_logo.png}%
+}
 
 % =========================================================
 \begin{document}
@@ -479,39 +494,41 @@ Implement the blending problem:
 \begin{columns}[T]
 \begin{column}{0.42\textwidth}
 \begin{center}
-\begin{tikzpicture}[
-  elem/.style={circle,fill=black,inner sep=1.5pt},
-  elabel/.style={font=\tiny,above=1pt},
-]
-  % Elements (dots)
-  \node[elem,label={[elabel]above:1}] (e1) at (0.4, 1.2) {};
-  \node[elem,label={[elabel]above:2}] (e2) at (1.3, 1.5) {};
-  \node[elem,label={[elabel]above:3}] (e3) at (2.3, 1.3) {};
-  \node[elem,label={[elabel]below:4}] (e4) at (0.7, 0.2) {};
-  \node[elem,label={[elabel]below:5}] (e5) at (1.8, 0.0) {};
-  \node[elem,label={[elabel]right:6}] (e6) at (3.0, 0.5) {};
-  \node[elem,label={[elabel]above:7}] (e7) at (3.2, 1.6) {};
+\begin{tikzpicture}
+  % Set 1: large red horizontal ellipse at top
+  \fill[red!25, fill opacity=0.6]
+    (1.6, 2.5) ellipse (1.7 and 0.85);
+  \draw[red!70!black, line width=1.2pt]
+    (1.6, 2.5) ellipse (1.7 and 0.85);
+  \node[font=\large\bfseries] at (2.1, 2.7) {1};
 
-  % Sets as ellipses
-  \draw[thick,fill=blue!12,draw=blue!60,rounded corners]
-    (0.1,0.6) ellipse (0.9cm and 0.9cm);
-  \node[font=\scriptsize,blue!70] at (-0.4,0.0) {$S_1$};
+  % Set 2: blue tilted ellipse on left
+  \fill[blue!20, fill opacity=0.5, rotate around={-65:(0.3,1.5)}]
+    (0.3, 1.5) ellipse (0.65 and 1.5);
+  \draw[blue!80!black, line width=1.2pt, rotate around={-65:(0.3,1.5)}]
+    (0.3, 1.5) ellipse (0.65 and 1.5);
+  \node[font=\large\bfseries] at (-0.1, 2.1) {2};
 
-  \draw[thick,fill=red!12,draw=red!60,rounded corners]
-    (1.6,1.1) ellipse (1.1cm and 0.8cm);
-  \node[font=\scriptsize,red!70] at (1.6,1.9) {$S_2$};
+  % Set 3: green tilted ellipse on right
+  \fill[green!15, fill opacity=0.5, rotate around={-25:(2.4,1.3)}]
+    (2.4, 1.3) ellipse (0.6 and 1.1);
+  \draw[green!50!black, line width=1.2pt, rotate around={-25:(2.4,1.3)}]
+    (2.4, 1.3) ellipse (0.6 and 1.1);
+  \node[font=\large\bfseries] at (2.7, 1.7) {3};
 
-  \draw[thick,fill=green!12,draw=green!60!black,rounded corners]
-    (2.0,-0.1) ellipse (0.8cm and 0.6cm);
-  \node[font=\scriptsize,green!50!black] at (2.0,-0.7) {$S_3$};
+  % Set 4: purple small ellipse in center
+  \fill[violet!30, fill opacity=0.5]
+    (1.2, 0.6) ellipse (0.5 and 0.4);
+  \draw[violet, line width=1.2pt]
+    (1.2, 0.6) ellipse (0.5 and 0.4);
+  \node[font=\large\bfseries] at (1.2, 0.6) {4};
 
-  \draw[thick,fill=orange!12,draw=orange!70,rounded corners]
-    (3.1,1.0) ellipse (0.6cm and 0.9cm);
-  \node[font=\scriptsize,orange!70] at (3.7,1.0) {$S_4$};
-
-  % Redraw elements on top
-  \foreach \e in {e1,e2,e3,e4,e5,e6,e7}
-    \fill (\e) circle(1.5pt);
+  % Set 5: magenta vertical ellipse at bottom
+  \fill[magenta!20, fill opacity=0.5]
+    (1.4, -0.5) ellipse (0.75 and 1.2);
+  \draw[magenta!70!black, line width=1.2pt]
+    (1.4, -0.5) ellipse (0.75 and 1.2);
+  \node[font=\large\bfseries] at (1.4, -1.0) {5};
 \end{tikzpicture}
 \end{center}
 \vspace{-2pt}

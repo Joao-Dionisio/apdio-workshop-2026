@@ -15,7 +15,7 @@ The constraint handler pattern allows SCIP to solve the TSP without
 enumerating all 2^n SECs upfront.
 """
 
-from pyscipopt import Conshdlr, SCIP_RESULT
+from pyscipopt import Conshdlr, SCIP_RESULT, quicksum
 
 from subtour import find_subtours
 

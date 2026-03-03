@@ -26,7 +26,6 @@ class RyanFoster(Branchrule):
             (eval(var.name.replace("t_", "")), val) for var, val in zip(lpcands, lpcandssol)
         ]
 
-        # TODO (Exercise 2: choose a fractional pair to branch on)
         chosen_pair = choose_fractional_pair(patterns_with_vals)
 
         parent_together = set()
@@ -41,18 +40,21 @@ class RyanFoster(Branchrule):
         # Left subproblem: enforce that pair is in the same bin
         left_node = self.model.createChild(0, 0)
 
-        self.branching_decisions[left_node.getNumber()] = {
-            "together": parent_together.union({chosen_pair}),
-            "apart": parent_apart
-        }
-
         # Right subproblem: enforce that pair is in different bins
         right_node = self.model.createChild(0, 0)
 
-        self.branching_decisions[right_node.getNumber()] = {
-            "together": parent_together,
-            "apart": parent_apart.union({chosen_pair})
-        }
+        raise NotImplementedError(
+            "Complete the following: what should be the value of together and apart "
+            "for each child node?"
+        )
+        # self.branching_decisions[left_node.getNumber()] = {
+        #     "together": ?,
+        #     "apart": ?
+        # }
+        # self.branching_decisions[right_node.getNumber()] = {
+        #     "together": ?,
+        #     "apart": ?
+        # }
 
         return {"result": SCIP_RESULT.BRANCHED}
 
@@ -68,18 +70,7 @@ def all_fractional_pairs(patterns_with_vals: List[tuple[List[int], float]]) -> L
     List[tuple[int, int]] - a list of pairs of items that are fractional in the LP solution
     """
 
-    pairs = {}
-    for pattern, val in patterns_with_vals:
-        for i in range(len(pattern)):
-            for j in range(i + 1, len(pattern)):
-                if pattern[i] < pattern[j]:
-                    tuple = (pattern[i], pattern[j])
-                    if tuple not in pairs:
-                        pairs[tuple] = val
-                    else:
-                        pairs[tuple] += val
-
-    return [pair for pair, val in pairs.items() if 1e-6 < val < 1 - 1e-6]
+    raise NotImplementedError("Implement this function")
 
 
 def choose_fractional_pair(patterns_with_vals: List[tuple[List[int], float]]) -> tuple[int, int]:
