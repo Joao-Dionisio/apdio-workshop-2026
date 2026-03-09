@@ -27,9 +27,6 @@ def first_model():
         model: A PySCIPOpt Model (not yet optimized).
         x: The binary variable x.
         y: The binary variable y.
-
-    Raises:
-        NotImplementedError: This is Exercise 1 — implement the model.
     """
     # =========================================================================
     # EXERCISE 1: Build your first PySCIPOpt model

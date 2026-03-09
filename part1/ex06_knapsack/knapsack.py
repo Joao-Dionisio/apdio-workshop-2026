@@ -28,9 +28,6 @@ def knapsack(weights, values, capacity):
     Returns:
         model: A PySCIPOpt Model (not yet optimized).
         x: Dict mapping item index i to binary variable.
-
-    Raises:
-        NotImplementedError: This is Exercise 6 — implement the model.
     """
     # =========================================================================
     # EXERCISE 6: Build a 0-1 knapsack IP

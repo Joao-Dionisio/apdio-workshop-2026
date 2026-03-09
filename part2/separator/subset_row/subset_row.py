@@ -48,9 +48,6 @@ class SubsetRowSeparator(Sepa):
         Returns:
             {"result": SCIP_RESULT.SEPARATED} if cuts were added
             {"result": SCIP_RESULT.DIDNOTFIND} otherwise
-
-        Raises:
-            NotImplementedError: This is the BPC exercise.
         """
         # =====================================================================
         # EXERCISE: Implement subset row separation

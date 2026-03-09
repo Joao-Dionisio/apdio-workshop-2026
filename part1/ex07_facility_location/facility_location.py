@@ -31,9 +31,6 @@ def facility_location(fixed_costs, connection_costs):
         model: A PySCIPOpt Model (not yet optimized).
         y: Dict mapping facility index i to binary variable (open/close).
         x: Dict mapping (i, j) to continuous variable (assignment fraction).
-
-    Raises:
-        NotImplementedError: This is Exercise 7 — implement the model.
     """
     m = len(fixed_costs)
     n = len(connection_costs[0])
@@ -55,9 +52,7 @@ def facility_location(fixed_costs, connection_costs):
     # Step 5: Linking constraints — can only assign to open facilities
     #         x[i, j] <= y[i]     for all i, j
     #
-    # Step 6: Set objective to minimize
-    #
-    # Step 7: Return model, y, x
+    # Step 6: Return model, y, x
     #
     # =========================================================================
 

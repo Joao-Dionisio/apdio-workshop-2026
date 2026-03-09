@@ -25,9 +25,6 @@ def solve_and_report(model):
             "variables": dict  — mapping variable name -> value
             "n_nodes":   int   — number of B&B nodes explored
             "time":      float — solving time in seconds
-
-    Raises:
-        NotImplementedError: This is Exercise 2 — implement the function.
     """
     # =========================================================================
     # EXERCISE 2: Solve and inspect a model

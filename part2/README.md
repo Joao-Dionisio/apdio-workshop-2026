@@ -4,7 +4,7 @@
 
 Part 2 covers advanced techniques for solving mixed-integer programs with SCIP: **row generation** (cutting planes), **column generation**, **branch-and-price**, and **branch-price-and-cut**. These methods go beyond standard branch-and-bound by dynamically adding constraints or variables during the solve, enabling us to tackle formulations that would otherwise be too large to handle.
 
-All exercises live in existing directories outside this workshop folder:
+All exercises live in subdirectories of this folder:
 
 - `row_generation/` -- TSP with compact and row-generation formulations
 - `branch_and_price/` -- Bin packing with column generation and Ryan-Foster branching
@@ -33,10 +33,10 @@ The MTZ formulation has $O(n^2)$ variables and constraints -- no special plugins
 
 ### Reference: Compact MTZ
 
-The MTZ formulation is already implemented in [`../row_generation/compact_mtz.py`](../row_generation/compact_mtz.py). Study it to understand the baseline before moving to row generation.
+The MTZ formulation is already implemented in [`row_generation/compact_mtz.py`](row_generation/compact_mtz.py). Study it to understand the baseline before moving to row generation.
 
 ```bash
-cd ../row_generation && python compact_mtz.py
+cd row_generation && python compact_mtz.py
 ```
 
 ---
@@ -86,23 +86,23 @@ The interaction between SCIP and the constraint handler looks like this:
 
 ### Exercise 1: Subtour Detection
 
-Implement `find_subtours()` in [`../row_generation/subtour.py`](../row_generation/subtour.py). Given a set of selected edges and the number of nodes, find all connected components. If there is more than one component, each one is a subtour.
+Implement `find_subtours()` in [`row_generation/subtour.py`](row_generation/subtour.py). Given a set of selected edges and the number of nodes, find all connected components. If there is more than one component, each one is a subtour.
 
 **Hints:** Build an adjacency list from the edge set, then use DFS/BFS or Union-Find to identify connected components.
 
 ```bash
-cd ../row_generation && python test_subtour.py
+cd row_generation && python test_subtour.py
 ```
 
 ### Exercise 2: Constraint Handler
 
-Complete the `conscheck` and `consenfolp` callbacks in [`../row_generation/conshdlr_subtour.py`](../row_generation/conshdlr_subtour.py).
+Complete the `conscheck` and `consenfolp` callbacks in [`row_generation/conshdlr_subtour.py`](row_generation/conshdlr_subtour.py).
 
 - **`conscheck`**: Extract selected edges from the solution, call `find_subtours()`, return `FEASIBLE` or `INFEASIBLE`.
 - **`consenfolp`**: Get LP values, find subtours among edges with $x_e > 0.5$, and for each subtour $S$ add the SEC $\sum_{e \in E(S)} x_e \leq |S| - 1$. Return `CONSADDED` if any constraint was added.
 
 ```bash
-cd ../row_generation && python test_tsp.py
+cd row_generation && python test_tsp.py
 ```
 
 ---
@@ -126,7 +126,7 @@ This formulation is straightforward but suffers from **enormous symmetry** (perm
 
 ### Reference
 
-See the compact formulation in [`../branch_and_price/compact.py`](../branch_and_price/compact.py).
+See the compact formulation in [`branch_and_price/compact.py`](branch_and_price/compact.py).
 
 ---
 
@@ -172,14 +172,14 @@ In SCIP, column generation is handled by the **pricer** plugin. The key callback
 - `pricerredcost`: Called at each LP iteration to generate columns with negative reduced cost.
 - `pricerfarkas`: Called when the RMP is infeasible to generate columns that restore feasibility.
 
-See the pricer infrastructure in [`../branch_and_price/pricer.py`](../branch_and_price/pricer.py).
+See the pricer infrastructure in [`branch_and_price/pricer.py`](branch_and_price/pricer.py).
 
 ### Exercise 3: Knapsack Pricing
 
-Implement `solve_knapsack()` in [`../branch_and_price/pricing_knapsack.py`](../branch_and_price/pricing_knapsack.py). Build a MIP that solves the 0-1 knapsack problem and return a tuple `(optimal_value, list_of_selected_items)`.
+Implement `solve_knapsack()` in [`branch_and_price/pricing_knapsack.py`](branch_and_price/pricing_knapsack.py). Build a MIP that solves the 0-1 knapsack problem and return a tuple `(optimal_value, list_of_selected_items)`.
 
 ```bash
-cd ../branch_and_price && python test_pricing_knapsack.py
+cd branch_and_price && python test_pricing_knapsack.py
 ```
 
 ---
@@ -215,28 +215,28 @@ These constraints are added directly to the knapsack pricing problem.
 
 ### Exercise 4: Fractional Pairs
 
-Implement `all_fractional_pairs()` in [`../branch_and_price/ryan_foster.py`](../branch_and_price/ryan_foster.py). Given the current LP solution (patterns and their values), compute the implicit pair values and return all pairs whose value is fractional.
+Implement `all_fractional_pairs()` in [`branch_and_price/ryan_foster.py`](branch_and_price/ryan_foster.py). Given the current LP solution (patterns and their values), compute the implicit pair values and return all pairs whose value is fractional.
 
 ```bash
-cd ../branch_and_price && python test_fractional_pairs.py
+cd branch_and_price && python test_fractional_pairs.py
 ```
 
 ### Exercise 5: Branching Decisions
 
-Complete the child-node creation logic in [`../branch_and_price/ryan_foster.py`](../branch_and_price/ryan_foster.py). Each child node must inherit the branching decisions of its parent and add the chosen pair to either the "together" set or the "apart" set.
+Complete the child-node creation logic in [`branch_and_price/ryan_foster.py`](branch_and_price/ryan_foster.py). Each child node must inherit the branching decisions of its parent and add the chosen pair to either the "together" set or the "apart" set.
 
 ### Exercise 6: Constrained Pricing
 
-Implement `solve_knapsack_with_constraints()` in [`../branch_and_price/pricing_knapsack.py`](../branch_and_price/pricing_knapsack.py). Extend your knapsack solver to enforce the together and apart constraints from Ryan-Foster branching. Remember: apart constraints forbid both items being selected, but they do not forbid both being absent.
+Implement `solve_knapsack_with_constraints()` in [`branch_and_price/pricing_knapsack.py`](branch_and_price/pricing_knapsack.py). Extend your knapsack solver to enforce the together and apart constraints from Ryan-Foster branching. Remember: apart constraints forbid both items being selected, but they do not forbid both being absent.
 
 ```bash
-cd ../branch_and_price && python test_knapsack_with_constraints.py
+cd branch_and_price && python test_knapsack_with_constraints.py
 ```
 
 After completing Exercises 3--6, you can run the full branch-and-price algorithm:
 
 ```bash
-cd ../branch_and_price && python test_bnp.py
+cd branch_and_price && python test_bnp.py
 ```
 
 ---
@@ -265,10 +265,10 @@ In SCIP, cutting planes are managed by the **separator** plugin. The key callbac
 
 ### Exercise 7: Subset-Row Separator
 
-Implement the subset-row separator in [`../separator/subset_row/subset_row.py`](../separator/subset_row/subset_row.py). Enumerate triples of fractional LP variables and add a cut when their values sum to more than 1.
+Implement the subset-row separator in [`separator/subset_row/subset_row.py`](separator/subset_row/subset_row.py). Enumerate triples of fractional LP variables and add a cut when their values sum to more than 1.
 
 ```bash
-cd ../separator/subset_row && python test_subset_row.py
+cd separator/subset_row && python test_subset_row.py
 ```
 
 ---
@@ -285,7 +285,7 @@ The `branch_and_price` directory contains several self-paced bonus exercises for
 - **Lagrangian Bound**: Compute and return a Lagrangian lower bound from the pricer to help SCIP prune the search tree.
 - **Removing Together Constraints**: Replace together-branching constraints by merging items, reducing the pricing problem size.
 
-See [`../branch_and_price/README.md`](../branch_and_price/README.md) for detailed descriptions of each bonus exercise.
+See [`branch_and_price/README.md`](branch_and_price/README.md) for detailed descriptions of each bonus exercise.
 
 ---
 

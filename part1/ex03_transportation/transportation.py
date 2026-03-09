@@ -30,9 +30,6 @@ def transportation(supply, demand, costs):
     Returns:
         model: A PySCIPOpt Model (not yet optimized).
         x: Dict mapping (i, j) to continuous shipping variables.
-
-    Raises:
-        NotImplementedError: This is Exercise 3 — implement the model.
     """
     # =========================================================================
     # EXERCISE 3: Build a transportation LP
@@ -50,9 +47,7 @@ def transportation(supply, demand, costs):
     # Step 4: Add demand constraints — each customer receives at least demand[j]
     #         sum_i x[i,j] >= demand[j]   for all j
     #
-    # Step 5: Set objective to minimize
-    #
-    # Step 6: Return model, x
+    # Step 5: Return model, x
     #
     # =========================================================================
 

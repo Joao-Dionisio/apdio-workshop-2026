@@ -21,6 +21,4 @@ def transportation(supply, demand, costs):
     for j in range(n):
         model.addCons(quicksum(x[i, j] for i in range(m)) >= demand[j])
 
-    model.setMinimize()
-
     return model, x

@@ -38,9 +38,6 @@ def blending(costs, availability, qualities, quality_lb, quality_ub,
     Returns:
         model: A PySCIPOpt Model (not yet optimized).
         x: Dict mapping material index i to continuous variable.
-
-    Raises:
-        NotImplementedError: This is Exercise 4 — implement the model.
     """
     # =========================================================================
     # EXERCISE 4: Build a blending LP
@@ -58,9 +55,7 @@ def blending(costs, availability, qualities, quality_lb, quality_ub,
     #         Lower: sum_i qualities[i][q] * x[i] >= quality_lb[q] * T
     #         Upper: sum_i qualities[i][q] * x[i] <= quality_ub[q] * T
     #
-    # Step 5: Set objective to minimize
-    #
-    # Step 6: Return model, x
+    # Step 5: Return model, x
     #
     # =========================================================================
 

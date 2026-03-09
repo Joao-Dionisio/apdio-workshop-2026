@@ -26,6 +26,4 @@ def facility_location(fixed_costs, connection_costs):
         for j in range(n):
             model.addCons(x[i, j] <= y[i])
 
-    model.setMinimize()
-
     return model, y, x

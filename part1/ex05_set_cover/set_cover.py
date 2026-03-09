@@ -27,9 +27,6 @@ def set_cover(universe, subsets, costs):
     Returns:
         model: A PySCIPOpt Model (not yet optimized).
         y: Dict mapping subset index j to binary variable.
-
-    Raises:
-        NotImplementedError: This is Exercise 5 — implement the model.
     """
     # =========================================================================
     # EXERCISE 5: Build a set cover IP
@@ -42,9 +39,7 @@ def set_cover(universe, subsets, costs):
     # Step 3: For each element e in the universe, add a covering constraint:
     #         sum of y[j] for all j where e is in subsets[j] >= 1
     #
-    # Step 4: Set objective to minimize
-    #
-    # Step 5: Return model, y
+    # Step 4: Return model, y
     #
     # =========================================================================
 

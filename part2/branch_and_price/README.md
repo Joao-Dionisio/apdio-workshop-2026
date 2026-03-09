@@ -213,7 +213,7 @@ Additionally, when the pricer generates a new column, it must add the correct co
 
 #### Exercise 5: Subset Row Separator
 
-**Your task:** Implement the `sepaexeclp` method in `separator/subset_row/subset_row.py`. The separator should:
+**Your task:** Implement the `sepaexeclp` method in `../separator/subset_row/subset_row.py`. The separator should:
 1. Parse variable names to determine which items each pattern covers
 2. For each triple of items, compute the LHS of the subset row inequality
 3. If violated, add the cut as a modifiable constraint (so the pricer can extend it)
@@ -224,4 +224,4 @@ Additionally, when the pricer generates a new column, it must add the correct co
 
 The wiring in `pricer.py` and `bnp.py` is already provided: the pricer extracts dual values of active cuts and passes them to the pricing solver, and adds coefficients to cut constraints for new columns.
 
-You can test your implementation by running `test_bpc.py` in `branch_and_price/` or `test_subset_row.py` in `separator/subset_row/`.
+You can test your implementation by running `test_bpc.py` in `branch_and_price/` or `test_subset_row.py` in `../separator/subset_row/`.

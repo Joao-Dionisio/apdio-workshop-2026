@@ -27,6 +27,4 @@ def blending(costs, availability, qualities, quality_lb, quality_ub,
             <= quality_ub[q] * total_production
         )
 
-    model.setMinimize()
-
     return model, x

@@ -25,6 +25,4 @@ def graph_coloring(n_nodes, edges, max_colors):
     for k in range(max_colors - 1):
         model.addCons(w[k] >= w[k + 1])
 
-    model.setMinimize()
-
     return model, x, w

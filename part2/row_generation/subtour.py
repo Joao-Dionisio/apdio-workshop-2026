@@ -38,9 +38,6 @@ def find_subtours(selected_edges, n_nodes):
 
         >>> find_subtours([(0,1), (1,2), (2,3), (3,0)], 4)
         []  # Single tour through all 4 nodes
-
-    Raises:
-        NotImplementedError: This is Exercise 1 - implement subtour detection.
     """
     # =========================================================================
     # EXERCISE 1: Implement subtour detection

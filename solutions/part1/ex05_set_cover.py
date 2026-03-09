@@ -15,6 +15,4 @@ def set_cover(universe, subsets, costs):
             quicksum(y[j] for j in range(len(subsets)) if e in subsets[j]) >= 1
         )
 
-    model.setMinimize()
-
     return model, y

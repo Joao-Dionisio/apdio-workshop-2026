@@ -5,7 +5,7 @@ A hands-on workshop for learning mathematical optimization with [PySCIPOpt](http
 ## Setup
 
 ```bash
-pip install pyscipopt
+python -m pip install pyscipopt
 ```
 
 On some Linux distributions (e.g. Debian/Ubuntu), installing packages globally with `pip` is restricted. If you get an `externally-managed-environment` error, create a virtual environment first. This is probably not required for most users (Windows/macOS).
@@ -13,7 +13,7 @@ On some Linux distributions (e.g. Debian/Ubuntu), installing packages globally w
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install pyscipopt
+python -m pip install pyscipopt
 ```
 
 Verify installation:
@@ -46,7 +46,7 @@ All exercises are in `part1/`. Each has a stub file (with `NotImplementedError`)
 
 ```bash
 cd part1
-pytest  # all tests SKIP until exercises are implemented
+python -m pytest  # all tests SKIP until exercises are implemented
 ```
 
 ### Part 2: Advanced Techniques
@@ -55,11 +55,11 @@ Covers row generation, column generation, branch-and-price, and branch-price-and
 
 | Topic | Exercises in |
 |-------|-------------|
-| TSP compact formulation | `row_generation/` |
-| Subtour elimination & constraint handlers | `row_generation/` |
-| Bin packing column generation | `branch_and_price/` |
-| Ryan-Foster branching | `branch_and_price/` |
-| Branch-price-and-cut | `separator/subset_row/` |
+| TSP compact formulation | `part2/row_generation/` |
+| Subtour elimination & constraint handlers | `part2/row_generation/` |
+| Bin packing column generation | `part2/branch_and_price/` |
+| Ryan-Foster branching | `part2/branch_and_price/` |
+| Branch-price-and-cut | `part2/separator/subset_row/` |
 
 The Part 2 README and slides provide the narrative arc connecting these exercises.
 
@@ -78,8 +78,8 @@ python ex07_facility_location/test_facility_location.py
 python ex08_graph_coloring/test_graph_coloring.py
 
 # Part 2 (exercises in existing directories)
-cd row_generation && python test_subtour.py
-cd branch_and_price && python test_pricing_knapsack.py
-cd separator/subset_row && python test_subset_row.py
+cd part2/row_generation && python test_subtour.py
+cd part2/branch_and_price && python test_pricing_knapsack.py
+cd part2/separator/subset_row && python test_subset_row.py
 ```
 

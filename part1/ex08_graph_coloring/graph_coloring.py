@@ -34,9 +34,6 @@ def graph_coloring(n_nodes, edges, max_colors):
         model: A PySCIPOpt Model (not yet optimized).
         x: Dict mapping (v, k) to binary variable (node v gets color k).
         w: Dict mapping color k to binary variable (color k is used).
-
-    Raises:
-        NotImplementedError: This is Exercise 8 — implement the model.
     """
     # =========================================================================
     # EXERCISE 8: Build a graph coloring IP
@@ -60,9 +57,7 @@ def graph_coloring(n_nodes, edges, max_colors):
     # Step 6: (Optional) Symmetry breaking — order colors:
     #         w[k] >= w[k+1]   for all k
     #
-    # Step 7: Set objective to minimize
-    #
-    # Step 8: Return model, x, w
+    # Step 7: Return model, x, w
     #
     # =========================================================================
 
