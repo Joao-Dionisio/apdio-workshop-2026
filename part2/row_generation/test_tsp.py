@@ -147,7 +147,7 @@ if __name__ == "__main__":
             passed += 1
         except NotImplementedError as e:
             print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      Hint: Complete Exercises 1 and 2 first.")
+            print(f"      Hint: Complete Exercises 0, 1, and 2 first.")
             failed += 1
         except AssertionError as e:
             print(f"FAIL: {test.__name__}")
@@ -164,4 +164,4 @@ if __name__ == "__main__":
     if failed == 0:
         print("\nAll tests passed! Row generation is working correctly.")
     else:
-        print("\nSome tests failed. Make sure Exercises 1 and 2 are complete.")
+        print("\nSome tests failed. Make sure Exercises 0, 1, and 2 are complete.")

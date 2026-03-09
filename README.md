@@ -59,7 +59,7 @@ Covers row generation, column generation, branch-and-price, and branch-price-and
 | Subtour elimination & constraint handlers | `part2/row_generation/` |
 | Bin packing column generation | `part2/branch_and_price/` |
 | Ryan-Foster branching | `part2/branch_and_price/` |
-| Branch-price-and-cut | `part2/separator/subset_row/` |
+| Branch-price-and-cut | `part2/branch_and_price/` |
 
 The Part 2 README and slides provide the narrative arc connecting these exercises.
 
@@ -80,6 +80,6 @@ python ex08_graph_coloring/test_graph_coloring.py
 # Part 2 (exercises in existing directories)
 cd part2/row_generation && python test_subtour.py
 cd part2/branch_and_price && python test_pricing_knapsack.py
-cd part2/separator/subset_row && python test_subset_row.py
+cd part2/branch_and_price && python test_bpc.py
 ```
 

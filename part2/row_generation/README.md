@@ -10,7 +10,7 @@ For symmetric TSP: $d_{ij} = d_{ji}$ (undirected edges).
 
 ---
 
-## 1. Compact MTZ Formulation
+## Exercise 0: Compact MTZ Formulation
 
 The Miller-Tucker-Zemlin (MTZ) formulation uses position variables to eliminate subtours with a polynomial number of constraints.
 
@@ -35,6 +35,17 @@ $$
 - **Polynomial size**: $O(n^2)$ variables and constraints
 - **Weak LP relaxation**: The LP bound is typically far from optimal
 - **Easy to implement**: No special callbacks needed
+
+Complete `tsp_mtz()` in `compact_mtz.py`:
+
+```python
+def tsp_mtz(distances):
+    """
+    Build the directed MTZ formulation with binary x[i,j],
+    continuous position u[i], degree constraints, and MTZ SECs.
+    """
+    # Your implementation here
+```
 
 ### Usage
 ```bash
@@ -175,6 +186,23 @@ python test_tsp.py
 │  4. Repeat until optimal tour found                     │
 └─────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Exercise 3: Computational Experiments
+
+Now that both formulations work, compare them experimentally. Complete `experiments.py`:
+
+```bash
+python experiments.py
+```
+
+Solve the same TSP instances with MTZ and row generation across increasing sizes. Print a comparison table with solving time, B&B nodes, and LP bound.
+
+**Questions to answer:**
+- How does the LP relaxation bound compare between the two formulations?
+- At what instance size does the difference in B&B nodes become significant?
+- Which formulation is faster for small instances? For large instances?
 
 ---
 

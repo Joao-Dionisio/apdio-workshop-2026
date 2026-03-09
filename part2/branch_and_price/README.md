@@ -5,6 +5,8 @@ The first two chapters will give a light overview of bin packing, both its compa
 
 If you try to run the branch-and-price code, you will encounter errors. That is because some code is missing and must be implemented by you. The error messages tell you what you should do. Eg: "The knapsack solver is not implemented yet" implies that you should implement the knapsack solver.
 
+> **Good to know:** For a comprehensive reference on branch-and-price, see [*Branch-and-Price*](https://link.springer.com/book/10.1007/978-3-031-96917-1) (Springer, 2025).
+
 ## Section 1. Compact formulation: Modeling with assignments
 The bin packing problem is a classic optimization problem that asks:
 
@@ -136,7 +138,22 @@ The pricing problem does not have information regarding the branching decisions 
 Now that we have implemented the pricing problem, the branching rule, and handled infeasibility, you have successfully implemented a full branch-and-price algorithm. Congrats!
 You can test your implementation by running the `test_bnp.py` file.
 
-### 3.4 Improving vanilla Branch-and-Price
+### 3.4 Computational Experiments
+
+Compare the compact formulation against branch-and-price. Complete `experiments.py`:
+
+```bash
+python experiments.py
+```
+
+Solve the same bin packing instances with both formulations across increasing sizes. Print a comparison table with solving time, B&B nodes, and LP bound.
+
+**Questions to answer:**
+- How does the LP bound of the compact formulation compare to branch-and-price?
+- At what instance size does the compact formulation become impractical?
+- How many nodes does branch-and-price need compared to the compact formulation?
+
+### 3.5 Improving vanilla Branch-and-Price
 There are many more tricks to make your Branch-and-Price code faster and more robust. The following is a collection of self-paced exercises that ask you to implement some of these tricks. You may complete them in any order you'd like.
 
 <!-- #### Bonus Exercise: Using integrality
@@ -213,7 +230,7 @@ Additionally, when the pricer generates a new column, it must add the correct co
 
 #### Exercise 5: Subset Row Separator
 
-**Your task:** Implement the `sepaexeclp` method in `../separator/subset_row/subset_row.py`. The separator should:
+**Your task:** Implement the `sepaexeclp` method in `subset_row.py`. The separator should:
 1. Parse variable names to determine which items each pattern covers
 2. For each triple of items, compute the LHS of the subset row inequality
 3. If violated, add the cut as a modifiable constraint (so the pricer can extend it)
@@ -224,4 +241,4 @@ Additionally, when the pricer generates a new column, it must add the correct co
 
 The wiring in `pricer.py` and `bnp.py` is already provided: the pricer extracts dual values of active cuts and passes them to the pricing solver, and adds coefficients to cut constraints for new columns.
 
-You can test your implementation by running `test_bpc.py` in `branch_and_price/` or `test_subset_row.py` in `../separator/subset_row/`.
+You can test your implementation by running `test_bpc.py`.

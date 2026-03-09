@@ -1,9 +1,15 @@
 """
 Compact MTZ formulation for the Traveling Salesman Problem.
 
+Exercise 0: Implement the MTZ formulation.
+
 The Miller-Tucker-Zemlin (MTZ) formulation uses position variables to
 eliminate subtours. While it has a polynomial number of constraints,
 its LP relaxation is weaker than the exponential-size SEC formulation.
+
+Your task: Build the directed formulation with binary edge variables
+x[i,j], continuous position variables u[i], degree constraints, and
+the MTZ subtour elimination constraints.
 """
 
 from pyscipopt import Model, quicksum
@@ -30,46 +36,36 @@ def tsp_mtz(distances):
         model: PySCIPOpt Model object
         x: dict mapping (i,j) to binary edge variables
     """
-    model = Model("TSP-MTZ")
-    n = len(distances)
+    # =========================================================================
+    # EXERCISE 0: Build the MTZ formulation for TSP
+    # =========================================================================
+    #
+    # Step 1: Create a Model and get n from the distance matrix
+    #
+    # Step 2: Add binary variables x[i,j] for each pair i != j
+    #         with objective coefficient distances[i][j]
+    #
+    # Step 3: Add continuous position variables u[i] for i = 1, ..., n-1
+    #         with bounds 1 <= u[i] <= n-1  (u[0] is fixed implicitly)
+    #
+    # Step 4: Add out-degree constraints — each city is left exactly once
+    #         sum_j x[i,j] == 1   for all i
+    #
+    # Step 5: Add in-degree constraints — each city is entered exactly once
+    #         sum_i x[i,j] == 1   for all j
+    #
+    # Step 6: Add MTZ subtour elimination constraints
+    #         u[i] - u[j] + n * x[i,j] <= n - 1   for all i,j != 0, i != j
+    #
+    # Step 7: Return model, x
+    #
+    # =========================================================================
 
-    # Binary edge variables (directed formulation for MTZ)
-    x = {}
-    for i in range(n):
-        for j in range(n):
-            if i != j:
-                x[i, j] = model.addVar(vtype="B", obj=distances[i][j],
-                                       name=f"x_{i}_{j}")
-
-    # Position variables (continuous)
-    u = {}
-    for i in range(1, n):  # u[0] is fixed implicitly
-        u[i] = model.addVar(vtype="C", lb=1, ub=n - 1, name=f"u_{i}")
-
-    # Each city must be left exactly once
-    for i in range(n):
-        model.addCons(
-            quicksum(x[i, j] for j in range(n) if j != i) == 1,
-            name=f"out_{i}"
-        )
-
-    # Each city must be entered exactly once
-    for j in range(n):
-        model.addCons(
-            quicksum(x[i, j] for i in range(n) if i != j) == 1,
-            name=f"in_{j}"
-        )
-
-    # MTZ subtour elimination constraints
-    for i in range(1, n):
-        for j in range(1, n):
-            if i != j:
-                model.addCons(
-                    u[i] - u[j] + n * x[i, j] <= n - 1,
-                    name=f"mtz_{i}_{j}"
-                )
-
-    return model, x
+    raise NotImplementedError(
+        "Exercise 0: Build the MTZ formulation for TSP.\n"
+        "Hint: Directed binary x[i,j], continuous position u[i],\n"
+        "degree constraints, and MTZ subtour elimination."
+    )
 
 
 if __name__ == "__main__":
