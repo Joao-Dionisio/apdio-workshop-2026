@@ -1,6 +1,6 @@
 ## Introduction
 
-Part 1 of this workshop introduces PySCIPOpt through a series of progressively more complex optimization models. Starting from a minimal integer program, we build up to classic combinatorial optimization problems: transportation, blending, set cover, knapsack, facility location, and graph coloring. By the end, you will be comfortable creating models, adding variables and constraints, solving, and inspecting solutions.
+Part 1 of this workshop introduces PySCIPOpt through a series of progressively more complex optimization models. Starting from a minimal integer program, we build up to classic optimization problems: transportation, portfolio optimization, set cover, knapsack, facility location, and graph coloring. By the end, you will be comfortable creating models, adding variables and constraints, solving, and inspecting solutions.
 
 Each section explains the problem and its mathematical formulation, then points to an exercise file where you must implement the model. Every exercise includes a test script to verify correctness.
 
@@ -124,30 +124,31 @@ Return the model (not yet optimized) and a dictionary `x` mapping tuples `(i, j)
 
 **Test:** `python ex03_transportation/test_transportation.py`
 
-## Section 4. Blending Problem
+## Section 4. Portfolio Optimization
 
-In a blending problem, a manufacturer must combine raw materials to produce a product that meets quality specifications. Each raw material $i$ has a per-unit cost $c_i$, limited availability $a_i$, and known quality attributes $q_{iq}$ for each quality dimension $q$. The blend must achieve a total production target $T$ and the average quality of the blend must fall within specified bounds.
+In portfolio optimization, an investor allocates capital among $n$ assets to minimize portfolio risk (variance) while achieving a minimum expected return. Each asset $i$ has an expected return $\mu_i$, and the covariance between assets $i$ and $j$ is $\sigma_{ij}$.
 
 $$
 \begin{align*}
-    \min \quad & \sum_{i} c_i \, x_i \\
-    \text{subject to} \quad & \sum_{i} x_i = T \\
-    & lb_q \cdot T \leq \sum_{i} q_{iq} \, x_i \leq ub_q \cdot T, \quad & \forall \, q \\
-    & 0 \leq x_i \leq a_i, \quad & \forall \, i
+    \min \quad & t \\
+    \text{subject to} \quad & t \geq \sum_{i} \sum_{j} \sigma_{ij} \, x_i \, x_j \\
+    & \sum_{i} \mu_i \, x_i \geq r_{\min} \\
+    & \sum_{i} x_i = 1 \\
+    & 0 \leq x_i \leq 1, \quad \forall \, i
 \end{align*}
 $$
 
-The quality constraints deserve attention. The requirement that the average quality $\bar{q}$ of the blend satisfies $lb_q \leq \bar{q} \leq ub_q$ translates to $lb_q \cdot T \leq \sum_i q_{iq} x_i \leq ub_q \cdot T$ because $\bar{q} = \sum_i q_{iq} x_i / T$ and $\sum_i x_i = T$.
+The goal is to minimize portfolio variance $x^\top \Sigma x$. Since SCIP requires a linear objective, we use the **epigraph reformulation**: an auxiliary variable $t$ with objective coefficient 1 and a quadratic constraint $t \geq x^\top \Sigma x$. The return constraint ensures the portfolio meets the target $r_{\min}$, and the budget constraint requires weights to sum to 1.
 
-> Like the transportation problem, blending is a pure LP. These problems are common in petroleum refining, food manufacturing, and chemical engineering.
+> Unlike the previous exercises, this involves a **quadratic constraint**. PySCIPOpt supports products of variables in `addCons`. This is the classic Markowitz mean-variance model.
 
-### Exercise 4: Blending
+### Exercise 4: Portfolio Optimization
 
-**Your task:** Implement the function `blending(costs, availability, qualities, quality_lb, quality_ub, total_production)` in `ex04_blending/blending.py`.
+**Your task:** Implement the function `portfolio(expected_returns, covariance, r_min)` in `ex04_portfolio/portfolio.py`.
 
-Return the model (not yet optimized) and a dictionary `x` mapping material index to its continuous variable.
+Return the model (not yet optimized) and a dictionary `x` mapping asset index to its continuous variable.
 
-**Test:** `python ex04_blending/test_blending.py`
+**Test:** `python ex04_portfolio/test_portfolio.py`
 
 ## Section 5. Set Cover
 

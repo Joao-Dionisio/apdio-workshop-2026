@@ -78,7 +78,7 @@ By the end of Part~1 you will be able to:
   \item Translate a mathematical model into Python code.
   \item Solve classical optimization problems:
     \begin{itemize}
-      \item Transportation, Blending, Set Cover,
+      \item Transportation, Portfolio Optimization, Set Cover,
       \item Knapsack, Facility Location, Graph Coloring.
     \end{itemize}
   \item Extract solutions and solver statistics.
@@ -386,68 +386,59 @@ Implement the transportation problem:
 \end{frame}
 
 % ---------------------------------------------------------
-% Frame 14: Blending Problem
+% Frame 14: Portfolio Optimization
 % ---------------------------------------------------------
-\begin{frame}{Blending Problem}
+\begin{frame}{Portfolio Optimization (Markowitz)}
 \begin{columns}[T]
 \begin{column}{0.42\textwidth}
 \begin{center}
 \begin{tikzpicture}[
-  raw/.style={rectangle,draw,rounded corners=2pt,minimum width=1.1cm,
-              minimum height=0.6cm,font=\scriptsize\bfseries},
-  mixer/.style={cylinder,draw,fill=gray!15,minimum width=1.2cm,
-                minimum height=1.2cm,shape border rotate=90,
-                font=\scriptsize\bfseries,aspect=0.4},
-  output/.style={rectangle,draw,rounded corners=4pt,fill=green!15,
-                 minimum width=1.3cm,minimum height=0.8cm,
-                 font=\scriptsize\bfseries},
+  asset/.style={circle,draw,minimum size=0.9cm,
+                font=\scriptsize\bfseries},
+  port/.style={rectangle,draw,rounded corners=4pt,fill=green!15,
+               minimum width=1.6cm,minimum height=0.8cm,
+               font=\scriptsize\bfseries},
   arr/.style={-{Stealth},thick},
 ]
-  % Raw materials
-  \node[raw,fill=blue!20]   (m1) at (0, 1.6) {$m_1$};
-  \node[raw,fill=red!20]    (m2) at (0, 0.5) {$m_2$};
-  \node[raw,fill=orange!20] (m3) at (0,-0.6) {$m_3$};
+  % Assets
+  \node[asset,fill=blue!20]   (a1) at (0, 1.6) {$a_1$};
+  \node[asset,fill=red!20]    (a2) at (0, 0.5) {$a_2$};
+  \node[asset,fill=orange!20] (a3) at (0,-0.6) {$a_3$};
 
-  \node[anchor=south,font=\scriptsize] at (0,2.0) {Raw Materials};
+  \node[anchor=south,font=\scriptsize] at (0,2.2) {Assets};
 
-  % Mixer
-  \node[mixer] (mix) at (2.4,0.5) {Mixer};
+  % Portfolio
+  \node[port] (p) at (3.5,0.5) {Portfolio};
 
-  % Output
-  \node[output] (out) at (4.6,0.5) {Blend};
+  % Arrows with weights
+  \draw[arr,blue!60]   (a1.east) -- node[above,font=\tiny]{$x_1$} (p.150);
+  \draw[arr,red!60]    (a2.east) -- node[above,font=\tiny]{$x_2$} (p.west);
+  \draw[arr,orange!60] (a3.east) -- node[below,font=\tiny]{$x_3$} (p.210);
 
-  % Arrows with labels
-  \draw[arr,blue!60]   (m1.east) -- node[above,font=\tiny]{$x_1$} (mix.150);
-  \draw[arr,red!60]    (m2.east) -- node[above,font=\tiny]{$x_2$} (mix.west);
-  \draw[arr,orange!60] (m3.east) -- node[below,font=\tiny]{$x_3$} (mix.210);
-  \draw[arr,green!50!black,very thick] (mix.east) -- (out.west);
-
-  % Quality annotation
-  \node[below=0.3cm of out,font=\tiny,align=center,text=green!40!black]
-    {Quality\\$\ell_q \le \cdot \le u_q$};
+  % Annotations
+  \node[below=0.3cm of p,font=\tiny,align=center,text=green!40!black]
+    {Return $\ge r_{\min}$\\Min variance};
 \end{tikzpicture}
 \end{center}
 \end{column}
 \begin{column}{0.58\textwidth}
-Combine raw materials to meet quality specifications at minimum cost.
+Allocate capital among assets to minimize risk (variance) while achieving a target return.
 
 \smallskip
-{\small\textbf{Sets:} materials $M$, quality attributes $Q$}
+{\small\textbf{Parameters:} returns $\mu_i$, covariance $\Sigma_{ij}$, target $r_{\min}$}
 
-{\small\textbf{Parameters:} cost $c_m$, content $a_{mq}$,
-bounds $[\ell_q, u_q]$, availability $b_m$}
-
-{\small\textbf{Variables:} $x_m \ge 0$ (amount of material $m$)}
+{\small\textbf{Variables:} $x_i \in [0,1]$ (weight of asset $i$)}
 
 \begin{align*}
-  \min \quad & \sum_{m \in M} c_m \, x_m \\
+  \min \quad & t \\
   \text{s.t.} \quad
-    & \ell_q \le \frac{\sum_{m} a_{mq}\, x_m}{\sum_{m} x_m} \le u_q
-      & \forall\, q \in Q \\
-    & 0 \le x_m \le b_m & \forall\, m \in M
+    & t \ge \textstyle\sum_{i}\sum_{j} \Sigma_{ij}\, x_i \, x_j \\
+    & \sum_i \mu_i\, x_i \ge r_{\min} \\
+    & \sum_i x_i = 1, \quad 0 \le x_i \le 1
 \end{align*}
 
-{\small\textbf{Linearize:} $\ell_q \!\sum_{m} x_m \le \sum_{m} a_{mq} x_m \le u_q \!\sum_{m} x_m$}
+\smallskip
+{\small\textbf{Note:} SCIP needs a linear objective, so we use the epigraph trick: minimize $t$ subject to $t \ge x^\top\!\Sigma\, x$.}
 \end{column}
 \end{columns}
 \end{frame}
@@ -455,18 +446,18 @@ bounds $[\ell_q, u_q]$, availability $b_m$}
 % ---------------------------------------------------------
 % Frame 15: Exercise 4
 % ---------------------------------------------------------
-\begin{frame}{Exercise 4: Blending}
+\begin{frame}{Exercise 4: Portfolio Optimization}
 \begin{block}{Task}
-Implement the blending problem:
+Implement the Markowitz portfolio model:
 \begin{itemize}
-  \item Model quality bounds as linear constraints.
-  \item Handle material availability limits.
-  \item Minimize total cost.
+  \item Budget and return constraints (linear).
+  \item Auxiliary variable $t$ with \texttt{obj=1}.
+  \item \textbf{Quadratic constraint}: $t \ge x^\top \Sigma\, x$.
 \end{itemize}
 \end{block}
 \begin{itemize}
-  \item File: \texttt{ex04\_blending/blending.py}
-  \item Test: \texttt{python ex04\_blending/test\_blending.py}
+  \item File: \texttt{ex04\_portfolio/portfolio.py}
+  \item Test: \texttt{python ex04\_portfolio/test\_portfolio.py}
 \end{itemize}
 \end{frame}
 
@@ -835,7 +826,7 @@ Implement the graph coloring formulation:
   \item Classical LP/IP/MIP formulations:
     \begin{itemize}
       \item Transportation (LP)
-      \item Blending (LP)
+      \item Portfolio Optimization (QP)
       \item Set Cover (IP)
       \item Knapsack (IP)
       \item Facility Location (MIP)

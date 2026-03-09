@@ -12,7 +12,7 @@ import pytest
 
 # Module names used across multiple exercises (each has a different generator)
 _LOCAL_MODULES = {
-    "generator", "first_model", "solving", "transportation", "blending",
+    "generator", "first_model", "solving", "transportation", "portfolio",
     "set_cover", "knapsack", "facility_location", "graph_coloring",
 }
 

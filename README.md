@@ -36,7 +36,7 @@ Learn to formulate and solve optimization problems using PySCIPOpt. Covers LPs, 
 1. **First Model** — build a small binary IP
 2. **Solving** — optimize and inspect solutions
 3. **Transportation** — LP with supply/demand constraints
-4. **Blending** — LP with quality specifications
+4. **Portfolio Optimization** — QP with quadratic objective
 5. **Set Cover** — first IP with binary variables
 6. **Knapsack** — classic 0-1 knapsack
 7. **Facility Location** — MIP with linking constraints
@@ -71,7 +71,7 @@ cd part1
 python ex01_first_model/test_first_model.py
 python ex02_solving/test_solving.py
 python ex03_transportation/test_transportation.py
-python ex04_blending/test_blending.py
+python ex04_portfolio/test_portfolio.py
 python ex05_set_cover/test_set_cover.py
 python ex06_knapsack/test_knapsack.py
 python ex07_facility_location/test_facility_location.py
