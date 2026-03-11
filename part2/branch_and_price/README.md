@@ -84,6 +84,14 @@ $\text{minimize} \hspace{0.5em} 1 - \displaystyle\sum_{i \in I} a_i\pi_i = 1 + \
 To reduce the complexity of the code each of the following exercises is accompanied by a test.
 Running the test validates the correctness of the code of this particular exercise.
 
+#### Exercise 0: Initial Columns
+
+Column generation needs an initial set of columns so that the RMP is feasible from the start. The simplest approach is the **one-item-per-bin** strategy: for each item, create a pattern containing only that item. This yields $n$ initial patterns and a trivial (but valid) feasible solution.
+
+**Your task:** Implement `initial_columns()` in `initial_columns.py`. For each item $i$, produce a pattern $p_i$ where $a_i^{p_i} = 1$ and $a_j^{p_i} = 0$ for all $j \neq i$. Return the list of patterns.
+
+You can test your implementation by running `test_initial_columns.py`.
+
 #### Exercise 1: Pricing
 
 **Your task:** Implement the knapsack pricing problem solver (by implementing a MIP) `solve_knapsack` in `pricing_knapsack.py`.

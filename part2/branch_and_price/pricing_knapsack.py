@@ -79,28 +79,27 @@ def solve_knapsack_with_constraints(
     Returns:
     tuple[float, List[int]] - the optimal value and the packing of the items
     """
+    # =========================================================================
+    # EXERCISE: Implement pricing with branching constraints
+    # =========================================================================
+    #
+    # Start from solve_knapsack and add constraints for:
+    #
+    # Together pairs: items i and j must both be selected or both not.
+    #     x[i] == x[j]
+    #
+    # Apart pairs: items i and j cannot both be selected.
+    #     x[i] + x[j] <= 1
+    #
+    # Note: "apart" does not forbid both items being absent from the packing.
+    #
+    # =========================================================================
 
-    m = Model("knapsack_with_constraints")
-    m.hideOutput()
-
-    x = {}
-    for i in range(len(sizes)):
-        x[i] = m.addVar(vtype="B", name=f"x{i}", obj=values[i])
-
-    m.addCons(sum(sizes[i] * x[i] for i in range(len(sizes))) <= capacity)
-
-    for i, j in together:
-        m.addCons(x[i] == x[j])
-
-    for i, j in apart:
-        m.addCons(x[i] + x[j] <= 1)
-
-    m.setMaximize()
-
-    m.optimize()
-
-    packing = [i for i in range(len(sizes)) if m.getVal(x[i]) > 0.5]
-    return m.getObjVal(), packing
+    raise NotImplementedError(
+        "Exercise: Implement knapsack pricing with branching constraints.\n"
+        "Copy solve_knapsack and add together (x[i] == x[j]) and\n"
+        "apart (x[i] + x[j] <= 1) constraints."
+    )
 
 
 def solve_knapsack_with_subset_row_cuts(

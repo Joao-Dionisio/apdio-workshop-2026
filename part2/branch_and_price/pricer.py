@@ -69,18 +69,20 @@ class KnapsackPricer(Pricer):
             else:
                 dual_sol[cons_id] = self.model.getDualsolLinear(cons)
                 self.duals_at_node[current_node][cons_id].append(dual_sol[cons_id])
-                if self.i > 1:
-                    alpha = 0.7
-                    self.stable_dual[cons_id] = alpha * self.stable_dual[cons_id] + (1-alpha) * dual_sol[cons_id]
 
-        if self.i == 1:
-            self.stable_dual = dual_sol
+                # =============================================================
+                # BONUS EXERCISE: Dual Stabilization
+                # =============================================================
+                # Column generation can suffer from the "yo-yo" effect where
+                # dual values oscillate wildly between iterations.
+                # Implement smoothed duals: for a given alpha in [0,1],
+                #   stable_dual[i] = alpha * stable_dual[i] + (1-alpha) * dual[i]
+                # Then pass stable_dual_sol to the pricing solver instead of
+                # dual_sol. Be careful: you cannot use stabilized duals to
+                # prove optimality (misprice detection handles this).
+                # =============================================================
 
-        if not farkas:
-            # stable_dual_sol = self.stable_dual
-            stable_dual_sol = dual_sol
-        else:
-            stable_dual_sol = dual_sol
+        stable_dual_sol = dual_sol
 
         # Extract subset row cut duals if separator is active
         subset_row_cuts = None
