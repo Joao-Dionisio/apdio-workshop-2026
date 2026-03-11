@@ -5,7 +5,7 @@ A hands-on workshop for learning mathematical optimization with [PySCIPOpt](http
 ## Setup
 
 ```bash
-python -m pip install pyscipopt
+python -m pip install -r requirements.txt
 ```
 
 On some Linux distributions (e.g. Debian/Ubuntu), installing packages globally with `pip` is restricted. If you get an `externally-managed-environment` error, create a virtual environment first. This is probably not required for most users (Windows/macOS).
@@ -13,7 +13,7 @@ On some Linux distributions (e.g. Debian/Ubuntu), installing packages globally w
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install pyscipopt
+python -m pip install -r requirements.txt
 ```
 
 Verify installation:
@@ -31,18 +31,21 @@ The workshop is divided into two parts:
 
 ### Part 1: Modeling Basics
 
-Learn to formulate and solve optimization problems using PySCIPOpt. Covers LPs, IPs, and MIPs through eight progressively complex exercises:
+Learn to formulate and solve optimization problems using PySCIPOpt. Covers LPs, IPs, MIPs, and nonlinear models through eleven progressively complex exercises:
 
 1. **First Model** — build a small binary IP
 2. **Solving** — optimize and inspect solutions
-3. **Transportation** — LP with supply/demand constraints
-4. **Portfolio Optimization** — QP with quadratic objective
-5. **Set Cover** — first IP with binary variables
-6. **Knapsack** — classic 0-1 knapsack
-7. **Facility Location** — MIP with linking constraints
-8. **Graph Coloring** — IP with symmetry
+3. **Parameters** — time limits, gap limits, and emphasis settings
+4. **Transportation** — LP with supply/demand constraints
+5. **Blending** — nonlinear pooling problem with bilinear constraints
+6. **Set Cover** — IP with binary covering variables
+7. **Knapsack** — classic 0-1 knapsack
+8. **Bin Packing** — IP with assignment and capacity constraints
+9. **Facility Location** — MIP with linking constraints
+10. **Graph Coloring** — IP with symmetry-breaking
+11. **Indicator Constraints** — big-M vs indicator formulations
 
-All exercises are in `part1/`. Each has a stub file (with `NotImplementedError`), a test, and (for exercises 3–8) a random instance generator.
+All exercises are in `part1/`. Each has a stub file (with `NotImplementedError`), a test, and (for exercises 4–10) a random instance generator.
 
 ```bash
 cd part1
@@ -70,16 +73,19 @@ The Part 2 README and slides provide the narrative arc connecting these exercise
 cd part1
 python ex01_first_model/test_first_model.py
 python ex02_solving/test_solving.py
+python ex03_parameters/test_parameters.py
 python ex03_transportation/test_transportation.py
-python ex04_portfolio/test_portfolio.py
+python ex04_blending/test_blending.py
 python ex05_set_cover/test_set_cover.py
 python ex06_knapsack/test_knapsack.py
+python ex07_bin_packing/test_bin_packing.py
 python ex07_facility_location/test_facility_location.py
 python ex08_graph_coloring/test_graph_coloring.py
+python ex09_indicators/test_indicators.py
 
 # Part 2 (exercises in existing directories)
 cd part2/row_generation && python test_subtour.py
+cd part2/branch_and_price && python test_initial_columns.py
 cd part2/branch_and_price && python test_pricing_knapsack.py
 cd part2/branch_and_price && python test_bpc.py
 ```
-

@@ -1,6 +1,6 @@
 ## Introduction
 
-Part 1 of this workshop introduces PySCIPOpt through a series of progressively more complex optimization models. Starting from a minimal integer program, we build up to classic optimization problems: transportation, portfolio optimization, set cover, knapsack, facility location, and graph coloring. By the end, you will be comfortable creating models, adding variables and constraints, solving, and inspecting solutions.
+Part 1 of this workshop introduces PySCIPOpt through a series of progressively more complex optimization models. Starting from a minimal integer program, we build up to classic optimization problems: transportation, blending, set cover, knapsack, facility location, graph coloring, and indicator constraints. By the end, you will be comfortable creating models, adding variables and constraints, solving, and inspecting solutions.
 
 Each section explains the problem and its mathematical formulation, then points to an exercise file where you must implement the model. Every exercise includes a test script to verify correctness.
 
@@ -97,7 +97,34 @@ Given a pre-built (but not yet optimized) model, optimize it and return a dictio
 
 **Test:** `python ex02_solving/test_solving.py`
 
-## Section 3. Transportation Problem
+## Section 3. Solver Parameters
+
+SCIP exposes hundreds of parameters that control the solving process. In this exercise you will learn to set the most important ones: time limits, optimality gap limits, and emphasis settings. You will also learn to load models from standard file formats.
+
+Key methods:
+
+- `model.setParam("limits/time", seconds)` — stop after a time limit
+- `model.setParam("limits/gap", gap)` — stop when the relative optimality gap is small enough
+- `model.setEmphasis(emphasis)` — set a solving emphasis (e.g. `"OPTIMALITY"`, `"FEASIBILITY"`)
+- `model.readProblem(filepath)` — load a model from an MPS or LP file
+- `model.getGap()` — get the relative gap between primal and dual bound
+
+### Exercise 3: Parameters
+
+**Your task:** Implement the four functions in `ex03_parameters/parameters.py`:
+
+| Function | What it does |
+|----------|-------------|
+| `solve_with_time_limit(model, time_limit)` | Set a time limit and solve |
+| `solve_with_gap_limit(model, gap)` | Set a gap limit and solve |
+| `solve_with_emphasis(model, emphasis)` | Set an emphasis and solve |
+| `load_and_solve(filepath, params)` | Load a model from file and solve with optional parameters |
+
+Each function returns a dictionary with the relevant statistics (status, objective, gap, time, n_nodes).
+
+**Test:** `python ex03_parameters/test_parameters.py`
+
+## Section 4. Transportation Problem
 
 The transportation problem is one of the earliest applications of linear programming. A set of suppliers, each with a limited supply, must ship goods to a set of customers, each with a specific demand. Shipping one unit from supplier $i$ to customer $j$ costs $c_{ij}$. The goal is to satisfy all demands at minimum total shipping cost.
 
@@ -116,7 +143,7 @@ where $s_i$ is the supply at source $i$ and $d_j$ is the demand at customer $j$.
 
 In PySCIPOpt, the data for this problem is naturally represented with Python lists. The cost matrix `costs[i][j]` gives the per-unit cost, `supply[i]` the available amount at each source, and `demand[j]` the required amount at each destination.
 
-### Exercise 3: Transportation
+### Exercise 4: Transportation
 
 **Your task:** Implement the function `transportation(supply, demand, costs)` in `ex03_transportation/transportation.py`.
 
@@ -124,33 +151,34 @@ Return the model (not yet optimized) and a dictionary `x` mapping tuples `(i, j)
 
 **Test:** `python ex03_transportation/test_transportation.py`
 
-## Section 4. Portfolio Optimization
+## Section 5. Nonlinear Blending (Pooling Problem)
 
-In portfolio optimization, an investor allocates capital among $n$ assets to minimize portfolio risk (variance) while achieving a minimum expected return. Each asset $i$ has an expected return $\mu_i$, and the covariance between assets $i$ and $j$ is $\sigma_{ij}$.
+The pooling problem is a classic nonlinear optimization problem from the process industry. Raw materials with known qualities are blended through a mixing pool to produce products that must meet quality specifications. The pool has an unknown quality that depends on the input mix, introducing bilinear terms.
 
 $$
 \begin{align*}
-    \min \quad & t \\
-    \text{subject to} \quad & t \geq \sum_{i} \sum_{j} \sigma_{ij} \, x_i \, x_j \\
-    & \sum_{i} \mu_i \, x_i \geq r_{\min} \\
-    & \sum_{i} x_i = 1 \\
-    & 0 \leq x_i \leq 1, \quad \forall \, i
+    \max \quad & \sum_{p} r_p \, d_p - \sum_{s} c_s \left( x_s + \sum_{p} z_{sp} \right) \\
+    \text{subject to} \quad & \sum_{s} x_s = \sum_{p} y_p && \text{(pool balance)} \\
+    & \lambda \sum_{s} x_s = \sum_{s} q_s \, x_s && \text{(pool quality definition)} \\
+    & \lambda \, y_p + \sum_{s} q_s \, z_{sp} \leq \bar{q}_p \, d_p && \forall \, p \quad \text{(product quality)} \\
+    & d_p = y_p + \sum_{s} z_{sp} && \forall \, p \quad \text{(product demand)} \\
+    & x_s, y_p, z_{sp}, \lambda \geq 0
 \end{align*}
 $$
 
-The goal is to minimize portfolio variance $x^\top \Sigma x$. Since SCIP requires a linear objective, we use the **epigraph reformulation**: an auxiliary variable $t$ with objective coefficient 1 and a quadratic constraint $t \geq x^\top \Sigma x$. The return constraint ensures the portfolio meets the target $r_{\min}$, and the budget constraint requires weights to sum to 1.
+where $\lambda$ is the pool quality, $x_s$ is the flow from source $s$ to the pool, $y_p$ is the flow from the pool to product $p$, and $z_{sp}$ is the direct bypass flow from source $s$ to product $p$. The terms $\lambda \cdot x_s$ and $\lambda \cdot y_p$ are bilinear (nonconvex).
 
-> Unlike the previous exercises, this involves a **quadratic constraint**. PySCIPOpt supports products of variables in `addCons`. This is the classic Markowitz mean-variance model.
+> Unlike previous exercises, this involves **bilinear constraints** — products of two continuous variables. PySCIPOpt supports these as nonlinear constraints. SCIP uses spatial branch-and-bound to solve nonconvex problems to global optimality.
 
-### Exercise 4: Portfolio Optimization
+### Exercise 5: Blending
 
-**Your task:** Implement the function `portfolio(expected_returns, covariance, r_min)` in `ex04_portfolio/portfolio.py`.
+**Your task:** Implement the function `blending(sources, products)` in `ex04_blending/blending.py`.
 
-Return the model (not yet optimized) and a dictionary `x` mapping asset index to its continuous variable.
+Return the model (not yet optimized) and the variables `x`, `y`, `z`, `lam`.
 
-**Test:** `python ex04_portfolio/test_portfolio.py`
+**Test:** `python ex04_blending/test_blending.py`
 
-## Section 5. Set Cover
+## Section 6. Set Cover
 
 The set cover problem is a fundamental integer program. Given a universe $U$ of elements and a collection of subsets $S_1, S_2, \ldots, S_n$, each with an associated cost $c_j$, select the cheapest collection of subsets whose union covers the entire universe.
 
@@ -166,7 +194,7 @@ This is the first IP (as opposed to LP) in the workshop. The binary variable $y_
 
 > Set cover appears in many real-world settings: crew scheduling, facility placement, wireless network coverage, and feature selection, among others. The problem is NP-hard, but SCIP handles moderately sized instances efficiently.
 
-### Exercise 5: Set Cover
+### Exercise 6: Set Cover
 
 **Your task:** Implement the function `set_cover(universe, subsets, costs)` in `ex05_set_cover/set_cover.py`.
 
@@ -174,7 +202,7 @@ Return the model (not yet optimized) and a dictionary `y` mapping subset index t
 
 **Test:** `python ex05_set_cover/test_set_cover.py`
 
-## Section 6. 0-1 Knapsack
+## Section 7. 0-1 Knapsack
 
 The 0-1 knapsack problem is perhaps the most studied problem in combinatorial optimization. Given a set of items, each with a weight $w_i$ and a value $v_i$, and a knapsack with capacity $C$, select items to maximize total value without exceeding the capacity.
 
@@ -190,7 +218,7 @@ Despite its simplicity, the knapsack problem has widespread applications: capita
 
 > The LP relaxation of the knapsack problem has a simple greedy solution: sort items by value-to-weight ratio and pack greedily. The gap between the LP relaxation and the IP optimum is typically small, making branch-and-bound very effective.
 
-### Exercise 6: Knapsack
+### Exercise 7: Knapsack
 
 **Your task:** Implement the function `knapsack(weights, values, capacity)` in `ex06_knapsack/knapsack.py`.
 
@@ -198,7 +226,35 @@ Return the model (not yet optimized) and a dictionary `x` mapping item index to 
 
 **Test:** `python ex06_knapsack/test_knapsack.py`
 
-## Section 7. Facility Location
+## Section 8. Bin Packing
+
+The bin packing problem asks how to pack a set of items with given sizes into the fewest number of identical bins without exceeding their capacity. It is closely related to the knapsack problem but shifts the focus from selecting valuable items to efficiently distributing all items.
+
+Assuming an upper bound of $n$ bins (one per item):
+
+$$
+\begin{align*}
+    \min \quad & \sum_{b} y_b \\
+    \text{subject to} \quad & \sum_{b} x_{ib} = 1, \quad & \forall \, i \quad \text{(assignment)} \\
+    & \sum_{i} s_i \, x_{ib} \leq C \, y_b, \quad & \forall \, b \quad \text{(capacity)} \\
+    & x_{ib} \in \{0, 1\}, \quad & \forall \, i, b \\
+    & y_b \in \{0, 1\}, \quad & \forall \, b
+\end{align*}
+$$
+
+The binary variable $y_b$ indicates whether bin $b$ is used, and $x_{ib}$ indicates whether item $i$ is assigned to bin $b$. The capacity constraints link both: items can only be assigned to open bins, and the total size in each bin cannot exceed $C$.
+
+> This compact formulation suffers from symmetry — any permutation of bin labels yields an equivalent solution. In Part 2, we will see how branch-and-price with column generation can solve bin packing much more efficiently by working with packing patterns instead of item-to-bin assignments.
+
+### Exercise 8: Bin Packing
+
+**Your task:** Implement the function `bin_packing(sizes, capacity)` in `ex07_bin_packing/bin_packing.py`.
+
+Return the model (not yet optimized), a dictionary `x` mapping `(i, b)` to binary assignment variables, and a dictionary `y` mapping bin index `b` to binary usage variables.
+
+**Test:** `python ex07_bin_packing/test_bin_packing.py`
+
+## Section 9. Facility Location
 
 The uncapacitated facility location problem combines fixed costs with variable connection costs. A set of potential facility sites must be chosen, and each customer must be assigned to exactly one open facility. Opening facility $i$ incurs a fixed cost $f_i$, and serving customer $j$ from facility $i$ costs $c_{ij}$.
 
@@ -216,7 +272,7 @@ This is a mixed-integer program (MIP): the facility opening variables $y_i$ are 
 
 > In the optimal solution, each $x_{ij}$ will naturally be 0 or 1 (each customer assigned to a single facility) even though the variables are declared continuous. This is because the constraint structure forces integrality. However, the LP relaxation at intermediate nodes of the branch-and-bound tree may have fractional $x_{ij}$ values.
 
-### Exercise 7: Facility Location
+### Exercise 9: Facility Location
 
 **Your task:** Implement the function `facility_location(fixed_costs, connection_costs)` in `ex07_facility_location/facility_location.py`.
 
@@ -224,7 +280,7 @@ Return the model (not yet optimized), a dictionary `y` mapping facility index to
 
 **Test:** `python ex07_facility_location/test_facility_location.py`
 
-## Section 8. Graph Coloring
+## Section 10. Graph Coloring
 
 Given an undirected graph $G = (V, E)$, the graph coloring problem asks for an assignment of colors to nodes such that no two adjacent nodes share the same color, using the minimum number of colors. This minimum is called the chromatic number $\chi(G)$.
 
@@ -252,13 +308,42 @@ This forces colors to be "used in order" (color 1 before color 2, etc.), elimina
 
 > Graph coloring is NP-hard and notoriously difficult for IP solvers due to the inherent symmetry. Symmetry-breaking constraints are essential for practical performance. For large instances, specialized approaches such as column generation (where each column represents an independent set) are often preferred.
 
-### Exercise 8: Graph Coloring
+### Exercise 10: Graph Coloring
 
 **Your task:** Implement the function `graph_coloring(n_nodes, edges, max_colors)` in `ex08_graph_coloring/graph_coloring.py`.
 
 Return the model (not yet optimized), a dictionary `x` mapping `(v, k)` to its binary assignment variable, and a dictionary `w` mapping color index `k` to its binary usage variable. Include the symmetry-breaking constraints.
 
 **Test:** `python ex08_graph_coloring/test_graph_coloring.py`
+
+## Section 11. Indicator Constraints
+
+Indicator constraints are a modeling tool for conditional logic: "if binary variable $y = 1$, then constraint $g(x) \leq 0$ must hold." The traditional approach is big-M linearization, which replaces the conditional with $g(x) \leq M(1 - y)$ for a large constant $M$. This works but introduces numerical difficulties and weakens the LP relaxation.
+
+SCIP supports indicator constraints natively via `model.addConsIndicator()`, avoiding the need for big-M constants entirely. The solver handles the disjunction internally, often producing tighter relaxations and better performance.
+
+We model a generator scheduling problem: a set of generators must meet a total electricity demand. Each generator $i$ has a fixed startup cost $f_i$, a variable cost $c_i$ per MW, and minimum/maximum output levels $[\underline{p}_i, \bar{p}_i]$. If a generator is on ($y_i = 1$), it must produce at least $\underline{p}_i$.
+
+$$
+\begin{align*}
+    \min \quad & \sum_{i} f_i \, y_i + \sum_{i} c_i \, p_i \\
+    \text{subject to} \quad & \sum_{i} p_i \geq D \\
+    & p_i \leq \bar{p}_i \, y_i \quad & \forall \, i \\
+    & y_i = 1 \implies p_i \geq \underline{p}_i \quad & \forall \, i \\
+    & y_i \in \{0, 1\}, \; p_i \geq 0 \quad & \forall \, i
+\end{align*}
+$$
+
+### Exercise 11: Indicator Constraints
+
+**Your task:** Implement both formulations in `ex09_indicators/indicators.py`:
+
+- `generator_scheduling_bigm(...)` — use big-M constraints: $p_i \geq \underline{p}_i \, y_i$
+- `generator_scheduling_indicator(...)` — use `model.addConsIndicator()` for the minimum output constraint
+
+Both functions return `model, y, p` (not yet optimized).
+
+**Test:** `python ex09_indicators/test_indicators.py`
 
 ---
 
