@@ -12,20 +12,7 @@ from pyscipopt import Model
 
 
 def solve_and_report(model):
-    """
-    Optimize the given model and return solution statistics.
-
-    Args:
-        model: A PySCIPOpt Model (already built, not yet optimized).
-
-    Returns:
-        dict with keys:
-            "status":    str   — model status (e.g. "optimal")
-            "objective": float — optimal objective value
-            "variables": dict  — mapping variable name -> value
-            "n_nodes":   int   — number of B&B nodes explored
-            "time":      float — solving time in seconds
-    """
+    """Optimize the given model and return solution statistics."""
     # =========================================================================
     # EXERCISE 2: Solve and inspect a model
     # =========================================================================

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests for Exercise 7: Facility location.
+Tests for Exercise 9: Facility location.
 
 Run:
     python test_facility_location.py

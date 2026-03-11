@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests for Exercise 3: Transportation problem.
+Tests for Exercise 4: Transportation problem.
 
 Run:
     python test_transportation.py

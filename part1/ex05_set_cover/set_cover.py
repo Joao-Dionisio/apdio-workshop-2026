@@ -16,34 +16,16 @@ from pyscipopt import Model, quicksum
 
 
 def set_cover(universe, subsets, costs):
-    """
-    Build and return a set cover IP.
-
-    Args:
-        universe: Set of elements to cover.
-        subsets: List of sets, each a subset of universe.
-        costs: List of costs (one per subset).
-
-    Returns:
-        model: A PySCIPOpt Model (not yet optimized).
-        y: Dict mapping subset index j to binary variable.
-    """
+    """Build and return a set cover IP."""
     # =========================================================================
-    # EXERCISE 5: Build a set cover IP
+    # EXERCISE 6: Build a set cover IP
     # =========================================================================
     #
-    # Step 1: Create a Model
+    # One binary variable per subset. Think about what constraint
+    # ensures every element in the universe is covered.
     #
-    # Step 2: Add a binary variable y[j] for each subset j with obj=costs[j]
-    #
-    # Step 3: For each element e in the universe, add a covering constraint:
-    #         sum of y[j] for all j where e is in subsets[j] >= 1
-    #
-    # Step 4: Return model, y
+    # Return model, y
     #
     # =========================================================================
 
-    raise NotImplementedError(
-        "Exercise 5: Build a set cover IP.\n"
-        "Hint: Binary variable per subset, one covering constraint per element."
-    )
+    raise NotImplementedError("Exercise 6: Build a set cover IP.")

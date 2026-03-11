@@ -17,36 +17,15 @@ from pyscipopt import Model, quicksum
 
 
 def knapsack(weights, values, capacity):
-    """
-    Build and return a 0-1 knapsack IP.
-
-    Args:
-        weights: List of item weights (length n).
-        values: List of item values (length n).
-        capacity: Knapsack capacity.
-
-    Returns:
-        model: A PySCIPOpt Model (not yet optimized).
-        x: Dict mapping item index i to binary variable.
-    """
+    """Build and return a 0-1 knapsack IP."""
     # =========================================================================
-    # EXERCISE 6: Build a 0-1 knapsack IP
+    # EXERCISE 7: Build a 0-1 knapsack IP
     # =========================================================================
     #
-    # Step 1: Create a Model
+    # This is a maximization problem — don't forget the objective sense.
     #
-    # Step 2: Add a binary variable x[i] for each item i with obj=values[i]
-    #
-    # Step 3: Add the capacity constraint:
-    #         sum_i weights[i] * x[i] <= capacity
-    #
-    # Step 4: Set objective to maximize
-    #
-    # Step 5: Return model, x
+    # Return model, x
     #
     # =========================================================================
 
-    raise NotImplementedError(
-        "Exercise 6: Build a 0-1 knapsack IP.\n"
-        "Hint: Binary variable per item, one capacity constraint."
-    )
+    raise NotImplementedError("Exercise 7: Build a 0-1 knapsack IP.")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests for Exercise 5: Set cover problem.
+Tests for Exercise 6: Set cover problem.
 
 Run:
     python test_set_cover.py

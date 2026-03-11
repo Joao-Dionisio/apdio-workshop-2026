@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests for Exercise 6: 0-1 Knapsack.
+Tests for Exercise 7: 0-1 Knapsack.
 
 Run:
     python test_knapsack.py

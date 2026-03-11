@@ -14,19 +14,13 @@ from pyscipopt import Model
 
 
 def first_model():
-    """
-    Build and return a PySCIPOpt Model for a small binary IP.
+    """Build and return a PySCIPOpt Model for a small binary IP.
 
     The model is:
         max  3x + 2y
         s.t. x + y  <= 1
              2x + y <= 2
              x, y in {0, 1}
-
-    Returns:
-        model: A PySCIPOpt Model (not yet optimized).
-        x: The binary variable x.
-        y: The binary variable y.
     """
     # =========================================================================
     # EXERCISE 1: Build your first PySCIPOpt model

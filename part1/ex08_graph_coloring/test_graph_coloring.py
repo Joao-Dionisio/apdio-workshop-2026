@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests for Exercise 8: Graph coloring.
+Tests for Exercise 10: Graph coloring.
 
 Run:
     python test_graph_coloring.py
