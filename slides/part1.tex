@@ -561,6 +561,7 @@ Implement the pooling problem:
 \end{itemize}
 \end{frame}
 
+\iffalse
 % ---------------------------------------------------------
 % Frame 16: Set Cover
 % ---------------------------------------------------------
@@ -647,6 +648,7 @@ Implement the set cover problem:
   \item Test: \texttt{python ex05\_set\_cover/test\_set\_cover.py}
 \end{itemize}
 \end{frame}
+\fi
 
 % ---------------------------------------------------------
 % Frame 18: Knapsack Problem
@@ -743,6 +745,85 @@ Implement the 0--1 knapsack problem:
 \end{frame}
 
 % ---------------------------------------------------------
+% Frame: TSP — Compact MTZ Formulation
+% ---------------------------------------------------------
+\begin{frame}{Traveling Salesman Problem (MTZ)}
+\begin{columns}[T]
+\begin{column}{0.38\textwidth}
+\begin{center}
+\begin{tikzpicture}[scale=0.85,
+  vtx/.style={circle, draw, thick, fill=blue!15, minimum size=0.45cm,
+              font=\scriptsize\bfseries},
+  edge/.style={thick},
+  tour/.style={very thick, red!70!black},
+]
+  % Cities
+  \node[vtx] (0) at (1.5, 2.8) {0};
+  \node[vtx] (1) at (0, 1.5)   {1};
+  \node[vtx] (2) at (0.8, 0)   {2};
+  \node[vtx] (3) at (2.2, 0)   {3};
+  \node[vtx] (4) at (3.0, 1.5) {4};
+
+  % Tour edges
+  \draw[tour, -{Stealth}] (0) -- (1);
+  \draw[tour, -{Stealth}] (1) -- (2);
+  \draw[tour, -{Stealth}] (2) -- (3);
+  \draw[tour, -{Stealth}] (3) -- (4);
+  \draw[tour, -{Stealth}] (4) -- (0);
+
+  % Position labels
+  \node[font=\tiny, gray, above left=-2pt of 0] {$u{=}0$};
+  \node[font=\tiny, gray, left=1pt of 1]  {$u{=}1$};
+  \node[font=\tiny, gray, below=1pt of 2] {$u{=}2$};
+  \node[font=\tiny, gray, below=1pt of 3] {$u{=}3$};
+  \node[font=\tiny, gray, right=1pt of 4] {$u{=}4$};
+\end{tikzpicture}
+\end{center}
+\end{column}
+\begin{column}{0.62\textwidth}
+\textbf{Goal:} Shortest tour visiting every city exactly once.
+
+\smallskip
+\textbf{MTZ formulation} --- position variables prevent subtours:
+
+\begin{align*}
+  \min \quad & \sum_{i \ne j} d_{ij}\, x_{ij} \\
+  \text{s.t.} \quad
+    & \textstyle\sum_{j \ne i} x_{ij} = 1
+      & \forall\, i \\
+    & \textstyle\sum_{i \ne j} x_{ij} = 1
+      & \forall\, j \\
+    & u_i - u_j + n\, x_{ij} \le n{-}1
+      & \forall\, i,j \ne 0 \\
+    & x_{ij} \in \{0,1\}
+\end{align*}
+
+\smallskip
+\begin{itemize}
+  \item $O(n^2)$ variables and constraints --- easy to implement.
+  \item Weak LP relaxation --- Part 2 shows a stronger approach.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------
+\begin{frame}{Exercise 8: TSP (MTZ)}
+\begin{block}{Task}
+Implement the compact MTZ formulation for the Traveling Salesman Problem:
+\begin{itemize}
+  \item Binary edge variables $x_{ij}$, position variables $u_i$.
+  \item Degree constraints, MTZ subtour elimination.
+\end{itemize}
+\end{block}
+\begin{itemize}
+  \item File: \texttt{ex11\_tsp\_mtz/tsp\_mtz.py}
+  \item Test: \texttt{python ex11\_tsp\_mtz/test\_tsp\_mtz.py}
+\end{itemize}
+\end{frame}
+
+\iffalse
+% ---------------------------------------------------------
 % Frame 20: Facility Location
 % ---------------------------------------------------------
 \begin{frame}{Facility Location}
@@ -835,6 +916,7 @@ Implement the uncapacitated facility location problem:
   \item Test: \texttt{python ex07\_facility\_location/test\_facility\_location.py}
 \end{itemize}
 \end{frame}
+\fi
 
 % ---------------------------------------------------------
 % Frame 22: Graph Coloring

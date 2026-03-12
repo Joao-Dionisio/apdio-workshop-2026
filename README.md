@@ -1,6 +1,7 @@
 # APDIO Workshop 2026 — Optimization Software & Practice
 
-A hands-on workshop for learning mathematical optimization with [PySCIPOpt](https://github.com/scipopt/PySCIPOpt), the Python interface to the [SCIP](https://www.scipopt.org/) solver.
+An APDIO-organized workshop on Optimization with [PySCIPOpt](https://github.com/scipopt/PySCIPOpt), the Python interface to the [SCIP](https://www.scipopt.org/) solver.
+More information about the event [here](https://www.apdio.pt/2026/03/03/2026-apdio-workshop-optimization-software-practice/).
 
 ## Setup
 
@@ -25,6 +26,17 @@ m.optimize()
 print("PySCIPOpt is ready!")
 ```
 
+## How It Works
+
+Each part of the workshop follows the same flow:
+
+1. **Slides** introduce the concepts and formulations (`slides/`).
+2. **The README** in each part provides detailed explanations, mathematical formulations, and pointers to exercises (`part1/README.md`, `part2/README.md`, `part3/README.md`).
+3. **Exercise stubs** contain skeleton code with `NotImplementedError` and you fill in the missing pieces.
+4. **Tests** verify your implementation. Run them with `python test_*.py` or `python -m pytest`.
+
+Work through the slides and README side by side, implementing each exercise as it comes up.
+
 ## Structure
 
 The workshop is divided into three parts:
@@ -36,23 +48,17 @@ Build and solve MINLPs in PySCIPOpt through twelve progressively complex exercis
 1. **First Model** — build a small binary IP
 2. **Solving** — optimize and inspect solutions
 3. **Parameters** — time limits, gap limits, and emphasis settings
-3b. **MIPLIB Instances** — load and solve real benchmark instances
+   - **MIPLIB Instances** — load and solve real benchmark instances
 4. **Transportation** — LP with supply/demand constraints
 5. **Blending** — nonlinear pooling problem with bilinear constraints
-6. **Set Cover** — IP with binary covering variables
-7. **Knapsack** — classic 0-1 knapsack
-8. **Bin Packing** — IP with assignment and capacity constraints
-9. **Facility Location** — MIP with linking constraints
-10. **Graph Coloring** — IP with symmetry-breaking
-11. **Indicator Constraints** — big-M vs indicator formulations
-12. **Benchmarking** — compare big-M vs indicator formulations at scale
+6. **Knapsack** — classic 0-1 knapsack
+7. **Bin Packing** — IP with assignment and capacity constraints
+8. **TSP (MTZ)** — compact formulation for the Traveling Salesman Problem
+9. **Graph Coloring** — IP with symmetry-breaking
+10. **Indicator Constraints** — big-M vs indicator formulations
+11. **Benchmarking** — compare big-M vs indicator formulations at scale
 
 All exercises are in `part1/`. Each has a stub file (with `NotImplementedError`), a test, and (for exercises 4–10) a random instance generator.
-
-```bash
-cd part1
-python -m pytest  # all tests SKIP until exercises are implemented
-```
 
 ### Part 2: Row Generation
 
@@ -60,7 +66,6 @@ Use the **Traveling Salesman Problem** to explore row generation (cutting planes
 
 | Topic | Exercises in |
 |-------|-------------|
-| TSP compact (MTZ) formulation | `part2/` |
 | Subtour detection | `part2/` |
 | Constraint handler for SECs | `part2/` |
 | Experimental comparison | `part2/` |
@@ -93,6 +98,7 @@ python ex07_facility_location/test_facility_location.py
 python ex08_graph_coloring/test_graph_coloring.py
 python ex09_indicators/test_indicators.py
 python ex10_benchmarking/test_benchmarking.py
+python ex11_tsp_mtz/test_tsp_mtz.py
 
 # Part 2: Row Generation
 cd part2

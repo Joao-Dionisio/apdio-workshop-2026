@@ -193,31 +193,18 @@ Return the model (not yet optimized) and the variables `x`, `y`, `z`, `lam`.
 
 **Test:** `python ex04_blending/test_blending.py`
 
-## Section 6. Set Cover
+<!-- Section: Set Cover (optional bonus exercise, not covered in slides)
+
+## Set Cover
 
 The set cover problem is a fundamental integer program. Given a universe $U$ of elements and a collection of subsets $S_1, S_2, \ldots, S_n$, each with an associated cost $c_j$, select the cheapest collection of subsets whose union covers the entire universe.
 
-$$
-\begin{align*}
-    \min \quad & \sum_{j} c_j \, y_j \\
-    \text{subject to} \quad & \sum_{j : e \in S_j} y_j \geq 1, \quad & \forall \, e \in U \\
-    & y_j \in \{0, 1\}, \quad & \forall \, j
-\end{align*}
-$$
-
-This is the first IP (as opposed to LP) in the workshop. The binary variable $y_j$ indicates whether subset $j$ is selected. The covering constraints ensure that every element in the universe appears in at least one chosen subset.
-
-> Set cover appears in many real-world settings: crew scheduling, facility placement, wireless network coverage, and feature selection, among others. The problem is NP-hard, but SCIP handles moderately sized instances efficiently.
-
-### Exercise 6: Set Cover
-
-**Your task:** Implement the function `set_cover(universe, subsets, costs)` in `ex05_set_cover/set_cover.py`.
-
-Return the model (not yet optimized) and a dictionary `y` mapping subset index to its binary variable.
+**Your task:** Implement `set_cover(universe, subsets, costs)` in `ex05_set_cover/set_cover.py`.
 
 **Test:** `python ex05_set_cover/test_set_cover.py`
+-->
 
-## Section 7. 0-1 Knapsack
+## Section 6. 0-1 Knapsack
 
 The 0-1 knapsack problem is perhaps the most studied problem in combinatorial optimization. Given a set of items, each with a weight $w_i$ and a value $v_i$, and a knapsack with capacity $C$, select items to maximize total value without exceeding the capacity.
 
@@ -233,7 +220,7 @@ Despite its simplicity, the knapsack problem has widespread applications: capita
 
 > The LP relaxation of the knapsack problem has a simple greedy solution: sort items by value-to-weight ratio and pack greedily. The gap between the LP relaxation and the IP optimum is typically small, making branch-and-bound very effective.
 
-### Exercise 7: Knapsack
+### Exercise 6: Knapsack
 
 **Your task:** Implement the function `knapsack(weights, values, capacity)` in `ex06_knapsack/knapsack.py`.
 
@@ -241,7 +228,7 @@ Return the model (not yet optimized) and a dictionary `x` mapping item index to 
 
 **Test:** `python ex06_knapsack/test_knapsack.py`
 
-## Section 8. Bin Packing
+## Section 7. Bin Packing
 
 The bin packing problem asks how to pack a set of items with given sizes into the fewest number of identical bins without exceeding their capacity. It is closely related to the knapsack problem but shifts the focus from selecting valuable items to efficiently distributing all items.
 
@@ -261,7 +248,7 @@ The binary variable $y_b$ indicates whether bin $b$ is used, and $x_{ib}$ indica
 
 > This compact formulation suffers from symmetry — any permutation of bin labels yields an equivalent solution. In Part 2, we will see how branch-and-price with column generation can solve bin packing much more efficiently by working with packing patterns instead of item-to-bin assignments.
 
-### Exercise 8: Bin Packing
+### Exercise 7: Bin Packing
 
 **Your task:** Implement the function `bin_packing(sizes, capacity)` in `ex07_bin_packing/bin_packing.py`.
 
@@ -269,33 +256,43 @@ Return the model (not yet optimized), a dictionary `x` mapping `(i, b)` to binar
 
 **Test:** `python ex07_bin_packing/test_bin_packing.py`
 
-## Section 9. Facility Location
+<!-- Section: Facility Location (optional bonus exercise, not covered in slides)
 
-The uncapacitated facility location problem combines fixed costs with variable connection costs. A set of potential facility sites must be chosen, and each customer must be assigned to exactly one open facility. Opening facility $i$ incurs a fixed cost $f_i$, and serving customer $j$ from facility $i$ costs $c_{ij}$.
+## Facility Location
+
+The uncapacitated facility location problem combines fixed costs with variable connection costs.
+
+**Your task:** Implement `facility_location(fixed_costs, connection_costs)` in `ex07_facility_location/facility_location.py`.
+
+**Test:** `python ex07_facility_location/test_facility_location.py`
+-->
+
+## Section 8. TSP — Compact MTZ Formulation
+
+The Traveling Salesman Problem (TSP) asks for the shortest tour that visits each city exactly once and returns to the start. The Miller-Tucker-Zemlin (MTZ) formulation uses position variables $u_i$ to eliminate subtours with a polynomial number of constraints:
 
 $$
 \begin{align*}
-    \min \quad & \sum_{i} f_i \, y_i + \sum_{i} \sum_{j} c_{ij} \, x_{ij} \\
-    \text{subject to} \quad & \sum_{i} x_{ij} = 1, \quad & \forall \, j \\
-    & x_{ij} \leq y_i, \quad & \forall \, i, j \\
-    & y_i \in \{0, 1\}, \quad & \forall \, i \\
-    & x_{ij} \geq 0, \quad & \forall \, i, j
+    \min \quad & \sum_{i \neq j} d_{ij} \, x_{ij} \\
+    \text{subject to} \quad & \sum_{j \neq i} x_{ij} = 1 \quad \forall \, i \\
+    & \sum_{i \neq j} x_{ij} = 1 \quad \forall \, j \\
+    & u_i - u_j + n \, x_{ij} \leq n - 1 \quad \forall \, i, j \neq 0 \\
+    & 1 \leq u_i \leq n - 1 \quad \forall \, i \neq 0 \\
+    & x_{ij} \in \{0, 1\}
 \end{align*}
 $$
 
-This is a mixed-integer program (MIP): the facility opening variables $y_i$ are binary, while the assignment variables $x_{ij}$ are continuous. The linking constraints $x_{ij} \leq y_i$ enforce that a customer can only be assigned to an open facility.
+The MTZ constraints enforce a consistent ordering of cities, preventing subtours. This formulation is easy to implement but has a weak LP relaxation. In Part 2, you will see how row generation with stronger subtour elimination constraints can solve TSP much more efficiently.
 
-> In the optimal solution, each $x_{ij}$ will naturally be 0 or 1 (each customer assigned to a single facility) even though the variables are declared continuous. This is because the constraint structure forces integrality. However, the LP relaxation at intermediate nodes of the branch-and-bound tree may have fractional $x_{ij}$ values.
+### Exercise 8: TSP (MTZ)
 
-### Exercise 9: Facility Location
+**Your task:** Implement the function `tsp_mtz(distances)` in `ex11_tsp_mtz/tsp_mtz.py`.
 
-**Your task:** Implement the function `facility_location(fixed_costs, connection_costs)` in `ex07_facility_location/facility_location.py`.
+Return the model (not yet optimized) and a dictionary `x` mapping `(i, j)` to binary edge variables.
 
-Return the model (not yet optimized), a dictionary `y` mapping facility index to its binary variable, and a dictionary `x` mapping `(i, j)` to its continuous assignment variable.
+**Test:** `python ex11_tsp_mtz/test_tsp_mtz.py`
 
-**Test:** `python ex07_facility_location/test_facility_location.py`
-
-## Section 10. Graph Coloring
+## Section 9. Graph Coloring
 
 Given an undirected graph $G = (V, E)$, the graph coloring problem asks for an assignment of colors to nodes such that no two adjacent nodes share the same color, using the minimum number of colors. This minimum is called the chromatic number $\chi(G)$.
 
@@ -323,7 +320,7 @@ This forces colors to be "used in order" (color 1 before color 2, etc.), elimina
 
 > Graph coloring is NP-hard and notoriously difficult for IP solvers due to the inherent symmetry. Symmetry-breaking constraints are essential for practical performance. For large instances, specialized approaches such as column generation (where each column represents an independent set) are often preferred.
 
-### Exercise 10: Graph Coloring
+### Exercise 9: Graph Coloring
 
 **Your task:** Implement the function `graph_coloring(n_nodes, edges, max_colors)` in `ex08_graph_coloring/graph_coloring.py`.
 
@@ -331,7 +328,7 @@ Return the model (not yet optimized), a dictionary `x` mapping `(v, k)` to its b
 
 **Test:** `python ex08_graph_coloring/test_graph_coloring.py`
 
-## Section 11. Indicator Constraints
+## Section 10. Indicator Constraints
 
 Indicator constraints are a modeling tool for conditional logic: "if binary variable $y = 1$, then constraint $g(x) \leq 0$ must hold." The traditional approach is big-M linearization, which replaces the conditional with $g(x) \leq M(1 - y)$ for a large constant $M$. This works but introduces numerical difficulties and weakens the LP relaxation.
 
@@ -349,7 +346,7 @@ $$
 \end{align*}
 $$
 
-### Exercise 11: Indicator Constraints
+### Exercise 10: Indicator Constraints
 
 **Your task:** Implement both formulations in `ex09_indicators/indicators.py`:
 
@@ -360,7 +357,7 @@ Both functions return `model, y, p` (not yet optimized).
 
 **Test:** `python ex09_indicators/test_indicators.py`
 
-## Section 12. Benchmarking Formulations
+## Section 11. Benchmarking Formulations
 
 Modeling is only half the story — understanding how your formulation affects solver performance is equally important. In this exercise you will systematically compare the big-M and indicator formulations from Exercise 11 on random instances of increasing size.
 

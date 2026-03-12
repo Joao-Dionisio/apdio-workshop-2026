@@ -8,55 +8,11 @@ Given $n$ cities and distances $d_{ij}$ between each pair, find the shortest tou
 
 For symmetric TSP: $d_{ij} = d_{ji}$ (undirected edges).
 
----
-
-## Exercise 0: Compact MTZ Formulation
-
-The Miller-Tucker-Zemlin (MTZ) formulation uses position variables to eliminate subtours with a polynomial number of constraints.
-
-### Variables
-- $x_{ij} \in \{0, 1\}$: 1 if edge $(i,j)$ is in the tour
-- $u_i \in \mathbb{R}$: position of city $i$ in the tour (for $i \neq 0$)
-
-### Formulation
-
-$$
-\begin{align}
-\min \quad & \sum_{i \neq j} d_{ij} x_{ij} \\
-\text{s.t.} \quad & \sum_{j \neq i} x_{ij} = 1 && \forall i \quad \text{(leave each city once)} \\
-& \sum_{i \neq j} x_{ij} = 1 && \forall j \quad \text{(enter each city once)} \\
-& u_i - u_j + n \cdot x_{ij} \leq n - 1 && \forall i,j \neq 0, i \neq j \quad \text{(MTZ)} \\
-& 1 \leq u_i \leq n-1 && \forall i \neq 0 \\
-& x_{ij} \in \{0,1\}
-\end{align}
-$$
-
-### Properties
-- **Polynomial size**: $O(n^2)$ variables and constraints
-- **Weak LP relaxation**: The LP bound is typically far from optimal
-- **Easy to implement**: No special callbacks needed
-
-Complete `tsp_mtz()` in `compact_mtz.py`:
-
-```python
-def tsp_mtz(distances):
-    """
-    Build the directed MTZ formulation with binary x[i,j],
-    continuous position u[i], degree constraints, and MTZ SECs.
-    """
-    # Your implementation here
-```
-
-### Usage
-```bash
-python compact_mtz.py
-# or
-python main.py --compact
-```
+> **Prerequisite:** Complete Exercise 13 (TSP MTZ) in Part 1 first. The compact formulation is used here as a baseline for comparison.
 
 ---
 
-## 2. Edge Formulation with Subtour Elimination Constraints
+## 1. Edge Formulation with Subtour Elimination Constraints
 
 For symmetric TSP, we use undirected edge variables with degree constraints and subtour elimination constraints (SECs).
 
@@ -85,7 +41,7 @@ Where:
 
 ---
 
-## 3. Row Generation (Cutting Planes)
+## 2. Row Generation (Cutting Planes)
 
 Instead of adding all $2^n$ SECs upfront, we:
 1. Solve with only degree constraints
@@ -95,7 +51,7 @@ Instead of adding all $2^n$ SECs upfront, we:
 
 This is implemented via a **constraint handler** in SCIP.
 
-### 3.1 Subtour Detection
+### 2.1 Subtour Detection
 
 Given an integer solution (selected edges), we need to detect subtours:
 
@@ -134,7 +90,7 @@ def find_subtours(selected_edges, n_nodes):
 python test_subtour.py
 ```
 
-### 3.2 Constraint Handler
+### 2.2 Constraint Handler
 
 SCIP's constraint handler interface allows adding constraints lazily:
 
@@ -171,7 +127,7 @@ def consenfolp(self, constraints, nusefulconss, solinfeasible):
 python test_tsp.py
 ```
 
-### 3.3 How It Works Together
+### 2.3 How It Works Together
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -189,7 +145,7 @@ python test_tsp.py
 
 ---
 
-## Exercise 3: Computational Experiments
+## Exercise 3: Computational Experiments (MTZ vs Row Generation)
 
 Now that both formulations work, compare them experimentally. Complete `experiments.py`:
 
@@ -206,7 +162,7 @@ Solve the same TSP instances with MTZ and row generation across increasing sizes
 
 ---
 
-## 4. Bonus Exercises
+## 3. Bonus Exercises
 
 ### 4.1 Min-Cut Separation (Advanced)
 
