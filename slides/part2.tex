@@ -33,14 +33,14 @@
   morekeywords={Model, quicksum, Pricer, Branchrule, Conshdlr, Sepa}
 }
 
-\title{SCIP Workshop}
-\subtitle{Part 2: Advanced Techniques}
-\author{João Dionísio}
-\date{}
+\title{APDIO Workshop: Optimization Software \& Practice}
+\subtitle{Part 2: Row Generation}
+\author{Jo\~{a}o Dion\'{i}sio}
+\date{March 27, 2026}
 \titlegraphic{%
-  \includegraphics[height=1.2cm]{sciplogo.png}\hspace{1.5cm}%
-  \includegraphics[height=1.2cm]{uporto_logo.jpg}\hspace{1.5cm}%
-  \includegraphics[height=1.2cm]{apdio_logo.png}%
+  \includegraphics[height=0.6cm]{media/uporto_logo.jpg}\hspace{1.5cm}%
+  \includegraphics[height=1.5cm]{media/sciplogo.png}\hspace{1.5cm}%
+  \includegraphics[height=1.0cm]{media/apdio_logo.png}%
 }
 
 \begin{document}
@@ -58,37 +58,26 @@
 \begin{frame}{Roadmap}
 \begin{center}
 \begin{tikzpicture}[
-  box/.style={draw, rounded corners, fill=blue!10,
+  box/.style={draw, rounded corners, fill=orange!10,
               minimum height=0.75cm, font=\small\bfseries, inner xsep=6pt},
   arr/.style={-{Stealth}, thick}
 ]
-  % Top track: row generation (adding constraints)
-  \node[box, fill=orange!10] (tsp) at (0, 0)   {TSP};
-  \node[box, fill=orange!10] (row) at (3.2, 0)  {Row Generation};
-  \draw[arr] (tsp) -- (row);
-
-  % Bottom track: column generation (adding variables)
-  \node[box] (bpp) at (0, -1.8)   {Bin Packing};
-  \node[box] (cg)  at (3.2, -1.8) {Col.\ Gen.};
-  \node[box] (bp)  at (6.0, -1.8) {B\&P};
-  \node[box] (bpc) at (8.3, -1.8) {BPC};
-
-  \draw[arr] (bpp) -- (cg);
-  \draw[arr] (cg)  -- (bp);
-  \draw[arr] (bp)  -- (bpc);
-
-  % Transition arrow from top track to bottom track
-  \draw[arr, densely dashed, gray]
-    (row.south) -- ++(0,-0.4) -| (bpp.north);
+  \node[box] (tsp) at (0, 0)   {TSP};
+  \node[box] (weak) at (3.5, 0)  {Compact (MTZ)};
+  \node[box] (row) at (8, 0)  {Edge + Row Generation};
+  \node[box] (exp) at (12.5, 0) {Comparison};
+  \draw[arr] (tsp) -- (weak);
+  \draw[arr] (weak) -- (row);
+  \draw[arr] (row) -- (exp);
 \end{tikzpicture}
 \end{center}
 
 \medskip
 \begin{itemize}
-  \item Row generation: add \textbf{constraints} dynamically (TSP)
-  \item Column generation: add \textbf{variables} dynamically (bin packing)
-  \item Branch-and-price: column generation inside branch-and-bound
-  \item Branch-price-and-cut: add cutting planes on top
+  \item \textbf{Motivation:} some formulations have exponentially many constraints
+  \item \textbf{Row generation:} add \textbf{constraints} dynamically as they are violated
+  \item \textbf{SCIP plugin:} the constraint handler
+  \item \textbf{Application:} Traveling Salesman Problem (TSP)
 \end{itemize}
 \end{frame}
 
@@ -97,7 +86,7 @@
 % ---------------------------------------------------------
 \begin{frame}{Traveling Salesman Problem (TSP)}
 \begin{columns}[T]
-\begin{column}{0.55\textwidth}
+\begin{column}{0.52\textwidth}
 \textbf{Given:} $n$ cities, pairwise distances $d_{ij}$
 
 \textbf{Find:} shortest tour visiting each city exactly once, returning to start
@@ -113,37 +102,45 @@
     \end{enumerate}
 \end{itemize}
 \end{column}
-\begin{column}{0.42\textwidth}
+\begin{column}{0.45\textwidth}
 \centering
-\begin{tikzpicture}[
-  city/.style={circle, draw, fill=blue!60, inner sep=0pt,
-               minimum size=8pt, font=\scriptsize},
-  tour/.style={very thick, red!70!black}
+\begin{tikzpicture}[scale=0.85,
+  city/.style={circle, draw=blue!80, fill=blue!60, inner sep=0pt,
+               minimum size=9pt, font=\scriptsize\bfseries, text=white},
+  tour/.style={very thick, red!70!black},
+  nontour/.style={thin, gray!40}
 ]
-  % City positions
-  \node[city, label={[font=\scriptsize]above:$1$}]   (c1) at (0, 1.6)  {};
-  \node[city, label={[font=\scriptsize]right:$2$}]    (c2) at (1.4, 0.8) {};
-  \node[city, label={[font=\scriptsize]right:$3$}]    (c3) at (1.1,-0.7) {};
-  \node[city, label={[font=\scriptsize]left:$4$}]     (c4) at (-0.6,-1.0) {};
-  \node[city, label={[font=\scriptsize]left:$5$}]     (c5) at (-1.3, 0.5) {};
+  % City positions (7 cities, scattered with interior nodes)
+  \node[city] (c1) at (-0.3, 2.3)  {1};
+  \node[city] (c2) at (2.0, 1.5)   {2};
+  \node[city] (c3) at (2.4,-0.5)   {3};
+  \node[city] (c4) at (0.8,-1.3)   {4};
+  \node[city] (c5) at (-1.4,-0.3)  {5};
+  \node[city] (c6) at (0.3, 0.9)   {6};
+  \node[city] (c7) at (1.1, 0.1)   {7};
 
-  % Tour edges (cycle)
-  \draw[tour] (c1) -- (c2);
-  \draw[tour] (c2) -- (c3);
-  \draw[tour] (c3) -- (c4);
-  \draw[tour] (c4) -- (c5);
-  \draw[tour] (c5) -- (c1);
+  % All non-tour edges (complete graph background)
+  \foreach \i in {1,...,7} {
+    \foreach \j in {\i,...,7} {
+      \ifnum\i<\j
+        \draw[nontour] (c\i) -- (c\j);
+      \fi
+    }
+  }
 
-  % Dashed non-tour edges (a few)
-  \draw[thin, dashed, gray!50] (c1) -- (c3);
-  \draw[thin, dashed, gray!50] (c1) -- (c4);
-  \draw[thin, dashed, gray!50] (c2) -- (c4);
-  \draw[thin, dashed, gray!50] (c2) -- (c5);
-  \draw[thin, dashed, gray!50] (c3) -- (c5);
+  % Optimal tour on top
+  \draw[tour] (c1) -- (c6);
+  \draw[tour] (c6) -- (c5);
+  \draw[tour] (c5) -- (c4);
+  \draw[tour] (c4) -- (c7);
+  \draw[tour] (c7) -- (c3);
+  \draw[tour] (c3) -- (c2);
+  \draw[tour] (c2) -- (c1);
 \end{tikzpicture}
 
 \smallskip
-{\scriptsize\color{red!70!black} Optimal tour shown in red}
+{\scriptsize\color{red!70!black} Optimal tour in red;
+\color{gray!60} complete graph in gray}
 \end{column}
 \end{columns}
 \end{frame}
@@ -166,7 +163,7 @@
 \end{align*}
 
 \begin{itemize}
-  \item $O(n^2)$ variables and constraints --- no plugins needed
+  \item $O(n^2)$ variables and constraints
   \item LP relaxation is \textbf{very weak}
 \end{itemize}
 \end{column}
@@ -360,512 +357,52 @@ Implement \texttt{conscheck} and \texttt{consenfolp} callbacks.
 \end{frame}
 
 % ---------------------------------------------------------
-% Frame 10: Cutting Stock / Bin Packing
+% Frame 10: Exercise --- Experimental Comparison
 % ---------------------------------------------------------
-\begin{frame}{Bin Packing Problem}
-\begin{columns}[T]
-\begin{column}{0.52\textwidth}
-\textbf{Given:} items with sizes $s_i$, bins with capacity $C$
-
-\textbf{Goal:} pack all items using the fewest bins
-
-\medskip
-\begin{itemize}
-  \item NP-hard; applications in logistics, scheduling, cloud computing
-  \item We will explore two formulations:
-    \begin{enumerate}
-      \item Compact (assignment variables) --- symmetry, weak LP
-      \item Extended (pattern variables) --- column generation
-    \end{enumerate}
-\end{itemize}
-\end{column}
-\begin{column}{0.45\textwidth}
-\centering
-\begin{tikzpicture}[
-  bin/.style={draw, thick, minimum width=1.2cm},
-  item/.style={draw, minimum width=1cm, font=\scriptsize\bfseries,
-               align=center}
-]
-  % Capacity line height
-  \def\caph{3.2}
-
-  % Bin 1
-  \draw[thick] (0,0) -- (0,\caph) (1.2,0) -- (1.2,\caph);
-  \draw[thick] (0,0) -- (1.2,0);
-  \fill[red!40] (0.1,0) rectangle (1.1, 1.2);
-  \node[font=\scriptsize\bfseries] at (0.6, 0.6) {$a$};
-  \fill[blue!40] (0.1,1.2) rectangle (1.1, 2.6);
-  \node[font=\scriptsize\bfseries] at (0.6, 1.9) {$b$};
-  \draw[dashed, gray] (0, \caph) -- (1.2, \caph);
-  \node[font=\scriptsize] at (0.6, -0.3) {Bin 1};
-
-  % Bin 2
-  \draw[thick] (1.8,0) -- (1.8,\caph) (3.0,0) -- (3.0,\caph);
-  \draw[thick] (1.8,0) -- (3.0,0);
-  \fill[green!40] (1.9,0) rectangle (2.9, 0.8);
-  \node[font=\scriptsize\bfseries] at (2.4, 0.4) {$c$};
-  \fill[orange!40] (1.9,0.8) rectangle (2.9, 2.0);
-  \node[font=\scriptsize\bfseries] at (2.4, 1.4) {$d$};
-  \fill[purple!30] (1.9,2.0) rectangle (2.9, 2.8);
-  \node[font=\scriptsize\bfseries] at (2.4, 2.4) {$e$};
-  \draw[dashed, gray] (1.8, \caph) -- (3.0, \caph);
-  \node[font=\scriptsize] at (2.4, -0.3) {Bin 2};
-
-  % Bin 3
-  \draw[thick] (3.6,0) -- (3.6,\caph) (4.8,0) -- (4.8,\caph);
-  \draw[thick] (3.6,0) -- (4.8,0);
-  \fill[yellow!50] (3.7,0) rectangle (4.7, 1.8);
-  \node[font=\scriptsize\bfseries] at (4.2, 0.9) {$f$};
-  \fill[cyan!40] (3.7,1.8) rectangle (4.7, 2.5);
-  \node[font=\scriptsize\bfseries] at (4.2, 2.15) {$g$};
-  \draw[dashed, gray] (3.6, \caph) -- (4.8, \caph);
-  \node[font=\scriptsize] at (4.2, -0.3) {Bin 3};
-
-  % Capacity label
-  \node[font=\scriptsize, gray] at (5.3, \caph) {$C$};
-\end{tikzpicture}
-\end{column}
-\end{columns}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 11: Compact Formulation
-% ---------------------------------------------------------
-\begin{frame}{Compact Formulation}
-\textbf{Variables:} $x_{ib} \in \{0,1\}$ (item $i$ in bin $b$),
-$y_b \in \{0,1\}$ (bin $b$ used)
-
-\begin{align*}
-  \min \quad & \sum_{b} y_b \\
-  \text{s.t.} \quad
-    & \sum_{b} x_{ib} = 1 && \forall\, i \quad \text{(assign each item)} \\
-    & \sum_{i} s_i\, x_{ib} \le C\, y_b && \forall\, b \quad \text{(capacity)} \\
-    & x_{ib}, y_b \in \{0,1\}
-\end{align*}
-
-\begin{center}
-\begin{tikzpicture}[
-  item/.style={draw, minimum width=0.7cm, font=\scriptsize\bfseries, align=center}
-]
-  % Bin A (left)
-  \draw[thick] (0,0) -- (0,1.6) (1.0,0) -- (1.0,1.6);
-  \draw[thick] (0,0) -- (1.0,0);
-  \fill[red!40] (0.05,0) rectangle (0.95, 0.7);
-  \node[font=\scriptsize\bfseries] at (0.5, 0.35) {$a$};
-  \fill[blue!40] (0.05,0.7) rectangle (0.95, 1.4);
-  \node[font=\scriptsize\bfseries] at (0.5, 1.05) {$b$};
-  \node[font=\scriptsize] at (0.5, -0.3) {Bin 1};
-
-  % Bin B (left)
-  \draw[thick] (1.4,0) -- (1.4,1.6) (2.4,0) -- (2.4,1.6);
-  \draw[thick] (1.4,0) -- (2.4,0);
-  \fill[green!40] (1.45,0) rectangle (2.35, 0.9);
-  \node[font=\scriptsize\bfseries] at (1.9, 0.45) {$c$};
-  \node[font=\scriptsize] at (1.9, -0.3) {Bin 2};
-
-  % Equivalence symbol
-  \node[font=\Large\bfseries] at (3.3, 0.7) {$\equiv$};
-
-  % Bin A (right -- swapped)
-  \draw[thick] (4.2,0) -- (4.2,1.6) (5.2,0) -- (5.2,1.6);
-  \draw[thick] (4.2,0) -- (5.2,0);
-  \fill[green!40] (4.25,0) rectangle (5.15, 0.9);
-  \node[font=\scriptsize\bfseries] at (4.7, 0.45) {$c$};
-  \node[font=\scriptsize] at (4.7, -0.3) {Bin 1};
-
-  % Bin B (right -- swapped)
-  \draw[thick] (5.6,0) -- (5.6,1.6) (6.6,0) -- (6.6,1.6);
-  \draw[thick] (5.6,0) -- (6.6,0);
-  \fill[red!40] (5.65,0) rectangle (6.55, 0.7);
-  \node[font=\scriptsize\bfseries] at (6.1, 0.35) {$a$};
-  \fill[blue!40] (5.65,0.7) rectangle (6.55, 1.4);
-  \node[font=\scriptsize\bfseries] at (6.1, 1.05) {$b$};
-  \node[font=\scriptsize] at (6.1, -0.3) {Bin 2};
-
-  % Annotation
-  \node[font=\scriptsize, text=red!70!black] at (3.3, -0.7)
-    {Same solution, different indices!};
-\end{tikzpicture}
-\end{center}
-
-\vspace{-0.2cm}
-\begin{itemize}
-  \item \textbf{Enormous symmetry}: permuting bin indices $\Rightarrow$ equivalent solutions
-  \item \textbf{Weak LP relaxation}: impractical for large instances
-\end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 12: Column Generation Idea
-% ---------------------------------------------------------
-\begin{frame}{Column Generation}
-\begin{center}
-\begin{tikzpicture}[
-  box/.style={draw, rounded corners, fill=blue!10, minimum width=3.5cm,
-              minimum height=1cm, font=\small\bfseries, align=center},
-  arr/.style={-{Stealth}, thick}
-]
-  \node[box] (rmp) at (0,0) {RMP\\{\scriptsize(restricted master)}};
-  \node[box] (pp)  at (6,0) {Pricing Problem\\{\scriptsize(knapsack)}};
-
-  \draw[arr, transform canvas={yshift=3mm}]
-    (rmp) -- node[above, font=\scriptsize] {dual values $\pi_i$} (pp);
-  \draw[arr, transform canvas={yshift=-3mm}]
-    (pp) -- node[below, font=\scriptsize] {new column (packing)} (rmp);
-\end{tikzpicture}
-\end{center}
-
-\medskip
-\begin{enumerate}
-  \item Solve RMP with small set of columns
-  \item Get dual values $\pi_i$ for each covering constraint
-  \item Solve pricing problem to find column with most negative reduced cost
-  \item If reduced cost $\ge 0$: LP optimal. Else: add column, go to 1.
-\end{enumerate}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 13: Extended Formulation
-% ---------------------------------------------------------
-\begin{frame}{Extended Formulation}
-Let $\mathcal{P}$ = all feasible packings, $a_i^p = 1$ if item $i \in$ packing $p$:
-
-\begin{align*}
-  \min \quad & \sum_{p \in \mathcal{P}} z_p \\
-  \text{s.t.} \quad
-    & \sum_{p \in \mathcal{P}} a_i^p\, z_p = 1 && \forall\, i \quad \text{(cover each item)} \\
-    & z_p \in \{0,1\} && \forall\, p
-\end{align*}
-
-\begin{itemize}
-  \item Exponentially many packings $\Rightarrow$ cannot enumerate
-  \item Column generation generates only the useful ones
-  \item \textbf{Stronger LP relaxation} than compact formulation
-\end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 14: Pricing = Knapsack
-% ---------------------------------------------------------
-\begin{frame}{Pricing Problem = Knapsack}
-Reduced cost of a new packing $a$:
-\[
-  \bar{c} = 1 - \sum_{i} a_i \pi_i
-\]
-
-Minimize reduced cost subject to capacity:
-\begin{align*}
-  \min \quad & 1 - \sum_{i} a_i\, \pi_i \\
-  \text{s.t.} \quad
-    & \sum_{i} s_i\, a_i \le C \\
-    & a_i \in \{0,1\}
-\end{align*}
-
-Equivalently: $\max \sum_i a_i \pi_i$ s.t.\ capacity $\Rightarrow$ \textbf{0--1 knapsack}!
-
-\medskip
-When optimal reduced cost $\ge 0$: no improving column exists.
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 15: Pricer Plugin
-% ---------------------------------------------------------
-\begin{frame}[fragile]{Pricer Plugin in SCIP}
-\begin{table}
-\centering\small
-\begin{tabular}{lp{8cm}}
-\toprule
-\textbf{Callback} & \textbf{Purpose} \\
-\midrule
-\texttt{pricerredcost} & Generate columns with negative reduced cost \\
-\texttt{pricerfarkas}  & Generate columns to restore feasibility \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\medskip
-\begin{lstlisting}
-class KnapsackPricer(Pricer):
-    def pricerredcost(self):
-        duals = {i: self.model.getDualsolLinear(cons)
-                 for i, cons in self.constraints.items()}
-        red_cost, pattern = solve_knapsack(...)
-        if red_cost < -1e-6:
-            new_var = self.model.addVar(
-                vtype="B", obj=1, pricedVar=True)
-            # Add coefficients to covering constraints
-        return {"result": SCIP_RESULT.SUCCESS}
-\end{lstlisting}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 16: Exercise --- Pricing
-% ---------------------------------------------------------
-\begin{frame}{Exercise: Knapsack Pricing}
-\begin{block}{Task}
-Implement the 0--1 knapsack solver used as the pricing subproblem.
-Return \texttt{(optimal\_value, list\_of\_selected\_items)}.
+\begin{frame}{Exercise: MTZ vs.\ Row Generation}
+\begin{block}{Exercise 3: Experimental Comparison}
+Compare the compact MTZ formulation against row generation
+on instances of increasing size.
 \end{block}
 \begin{itemize}
-  \item File: \texttt{branch\_and\_price/pricing\_knapsack.py}
-  \item Test: \texttt{cd branch\_and\_price \&\& python test\_pricing\_knapsack.py}
-\end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 17: Why Standard Branching Fails
-% ---------------------------------------------------------
-\begin{frame}{Why Standard Branching Fails}
-Standard variable branching on $z_p$:
-
-\medskip
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\begin{block}{$z_p = 1$}
-Force \emph{one specific} packing out of exponentially many.
-
-$\Rightarrow$ \textbf{Very restrictive}
-\end{block}
-\end{column}
-\begin{column}{0.48\textwidth}
-\begin{block}{$z_p = 0$}
-Forbid \emph{one specific} packing out of exponentially many.
-
-$\Rightarrow$ \textbf{Barely restrictive}
-\end{block}
-\end{column}
-\end{columns}
-
-\bigskip
-\begin{center}
-\begin{tikzpicture}[
-  nd/.style={circle, draw, fill=blue!15, inner sep=0pt,
-             minimum size=14pt, font=\scriptsize},
-  lbl/.style={font=\scriptsize, midway},
-  edge/.style={thick},
-  level distance=0.9cm,
-  sibling distance=1.2cm
-]
-  % Root
-  \node[nd] (root) at (0,0) {};
-
-  % Left child: z_p = 1 (deep skinny branch)
-  \node[nd, fill=green!25] (l1) at (-2.2, -0.9) {};
-  \draw[edge] (root) -- (l1) node[lbl, left, pos=0.4] {$z_p{=}1$};
-
-  % Left subtree - pruned quickly
-  \node[nd, fill=green!25] (l2) at (-2.2, -1.8) {};
-  \draw[edge] (l1) -- (l2);
-  \node[font=\scriptsize, green!50!black] at (-2.2, -2.3) {pruned};
-
-  % Right child: z_p = 0 (deep unbalanced)
-  \node[nd, fill=red!20] (r1) at (1.8, -0.9) {};
-  \draw[edge] (root) -- (r1) node[lbl, right, pos=0.4] {$z_p{=}0$};
-
-  % Right subtree - keeps going deep
-  \node[nd, fill=red!20] (r2) at (1.0, -1.8) {};
-  \node[nd, fill=red!20] (r3) at (2.6, -1.8) {};
-  \draw[edge] (r1) -- (r2);
-  \draw[edge] (r1) -- (r3);
-
-  \node[nd, fill=red!20] (r4) at (0.5, -2.7) {};
-  \node[nd, fill=red!20] (r5) at (1.5, -2.7) {};
-  \draw[edge] (r2) -- (r4);
-  \draw[edge] (r2) -- (r5);
-
-  \node[nd, fill=red!20] (r6) at (2.1, -2.7) {};
-  \node[nd, fill=red!20] (r7) at (3.1, -2.7) {};
-  \draw[edge] (r3) -- (r6);
-  \draw[edge] (r3) -- (r7);
-
-  % Dots indicating more
-  \node[font=\scriptsize] at (0.5, -3.2) {$\vdots$};
-  \node[font=\scriptsize] at (1.5, -3.2) {$\vdots$};
-  \node[font=\scriptsize] at (2.1, -3.2) {$\vdots$};
-  \node[font=\scriptsize] at (3.1, -3.2) {$\vdots$};
-
-  % Labels
-  \node[font=\scriptsize, green!50!black, align=center] at (-3.5, -1.3)
-    {tight\\bound};
-  \node[font=\scriptsize, red!60!black, align=center] at (4.2, -1.3)
-    {barely\\changed};
-\end{tikzpicture}
-
-\smallskip
-Result: \textbf{highly unbalanced} tree $\Rightarrow$ very slow convergence
-\end{center}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 18: Ryan-Foster Branching
-% ---------------------------------------------------------
-\begin{frame}{Ryan-Foster Branching}
-Branch on \textbf{pairs of items} $(i, j)$ instead of individual variables:
-
-\medskip
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\begin{block}{Together}
-Items $i$ and $j$ must be in the \textbf{same} bin.
-\end{block}
-\end{column}
-\begin{column}{0.48\textwidth}
-\begin{block}{Apart}
-Items $i$ and $j$ must be in \textbf{different} bins.
-\end{block}
-\end{column}
-\end{columns}
-
-\medskip
-\begin{columns}[T]
-\begin{column}{0.50\textwidth}
-\textbf{How to find a pair:}
-\begin{itemize}
-  \item Compute implicit pair variable: $x_{ij} = \sum_{p:\, i \in p,\, j \in p} z_p$
-  \item Choose pair where $0 < x_{ij} < 1$ (fractional)
+  \item File: \texttt{row\_generation/experiment.py}
+  \item Metrics to compare:
+    \begin{itemize}
+      \item Solve time
+      \item Number of branch-and-bound nodes
+      \item LP relaxation gap
+    \end{itemize}
+  \item Try instances with 10, 15, 20, 30 cities
 \end{itemize}
 
 \medskip
-$\Rightarrow$ Much more \textbf{balanced} search tree
-\end{column}
-\begin{column}{0.47\textwidth}
-\centering
-\includegraphics[width=\linewidth]{ryan_foster.png}
-\end{column}
-\end{columns}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 19: Exercise --- Ryan-Foster
-% ---------------------------------------------------------
-\begin{frame}{Exercises: Ryan-Foster Branching}
-\begin{block}{Exercise: Fractional Pairs}
-Implement \texttt{all\_fractional\_pairs()} --- find all item pairs with fractional implicit values.
-\end{block}
-\begin{itemize}
-  \item File: \texttt{branch\_and\_price/ryan\_foster.py}
-  \item Test: \texttt{cd branch\_and\_price \&\& python test\_fractional\_pairs.py}
-\end{itemize}
-
-\medskip
-\begin{block}{Exercise: Branching Decisions}
-Complete the child-node creation logic: inherit parent decisions, add new pair.
-\end{block}
-\begin{itemize}
-  \item File: \texttt{branch\_and\_price/ryan\_foster.py}
-\end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 20: Enforcing Branching in Pricing
-% ---------------------------------------------------------
-\begin{frame}[fragile]{Enforcing Branching in Pricing}
-The pricing problem must respect \textbf{all} accumulated branching decisions:
-
-\medskip
-\begin{itemize}
-  \item \textbf{Together} $(i, j)$: add constraint $a_i = a_j$ in knapsack
-  \item \textbf{Apart} $(i, j)$: add constraint $a_i + a_j \le 1$ in knapsack
-\end{itemize}
-
-\medskip
-\begin{lstlisting}
-# Together constraints
-for i, j in together:
-    m.addCons(x[i] == x[j])
-
-# Apart constraints
-for i, j in apart:
-    m.addCons(x[i] + x[j] <= 1)
-\end{lstlisting}
-
-\medskip
-\textbf{Note:} Apart does not forbid both items being \emph{absent}.
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 21: Exercise --- Constrained Pricing
-% ---------------------------------------------------------
-\begin{frame}{Exercise: Constrained Pricing}
-\begin{block}{Task}
-Implement \texttt{solve\_knapsack\_with\_constraints()} --- extend the knapsack solver
-with together/apart constraints from Ryan-Foster branching.
-\end{block}
-\begin{itemize}
-  \item File: \texttt{branch\_and\_price/pricing\_knapsack.py}
-  \item Test: \texttt{cd branch\_and\_price \&\& python test\_knapsack\_with\_constraints.py}
-\end{itemize}
-
-\medskip
-\begin{block}{Integration Test}
-After all B\&P exercises: \texttt{cd branch\_and\_price \&\& python test\_bnp.py}
+\begin{block}{What to expect}
+Row generation should dominate on larger instances thanks to its
+much stronger LP relaxation, despite the overhead of the separation callback.
 \end{block}
 \end{frame}
 
 % ---------------------------------------------------------
-% Frame 22: Branch-Price-and-Cut
+% Frame 11: Summary
 % ---------------------------------------------------------
-\begin{frame}{Branch-Price-and-Cut}
-Strengthen branch-and-price by adding \textbf{cutting planes}:
-
-\medskip
-\textbf{Subset-row inequalities} for set partitioning:
-
-For any triple of items $S = \{i, j, k\}$, consider all packings covering
-$\ge 2$ items in $S$. If their LP values sum $> 1$:
-\[
-  \sum_{p:\, |p \cap S| \ge 2} z_p \le 1
-\]
-
-\medskip
-\textbf{Separator plugin} in SCIP:
-\begin{itemize}
-  \item \texttt{sepaexeclp}: search for violated inequalities at each LP solution
-  \item Return \texttt{SEPARATED} if cut added, \texttt{DIDNOTFIND} otherwise
-\end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 23: Exercise --- Subset-Row Separator
-% ---------------------------------------------------------
-\begin{frame}{Exercise: Subset-Row Separator}
-\begin{block}{Task}
-Implement the subset-row separator: enumerate triples of fractional
-LP variables and add cuts when their values sum exceeds 1.
-\end{block}
-\begin{itemize}
-  \item File: \texttt{separator/subset\_row/subset\_row.py}
-  \item Test: \texttt{cd separator/subset\_row \&\& python test\_subset\_row.py}
-\end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 24: Summary
-% ---------------------------------------------------------
-\begin{frame}{Summary \& Further Resources}
+\begin{frame}{Summary}
 \textbf{What we covered:}
 \begin{itemize}
-  \item TSP: compact MTZ vs.\ row generation with SECs
-  \item Bin packing: compact vs.\ extended formulation
-  \item Column generation with knapsack pricing
-  \item Branch-and-price with Ryan-Foster branching
-  \item Branch-price-and-cut with subset-row inequalities
+  \item TSP: compact MTZ vs.\ edge formulation with SECs
+  \item Row generation paradigm: add constraints on-the-fly
+  \item SCIP constraint handler plugin (\texttt{conscheck}, \texttt{consenfolp})
+  \item Exponential constraint families handled implicitly
 \end{itemize}
 
 \medskip
-\textbf{Bonus exercises} (see \texttt{branch\_and\_price/README.md}):
+\textbf{Key takeaway:}
 \begin{itemize}
-  \item Dual stabilization, Lagrangian bound
-  \item Better initialization, faster pricing
-  \item Handling numerical issues
+  \item A strong LP relaxation can make a huge difference in solving time
+  \item Row generation lets us use formulations with exponentially many constraints
 \end{itemize}
 
 \medskip
-\textbf{Resources:}
-\begin{itemize}
-  \item \url{https://www.scipopt.org/} --- SCIP documentation
-  \item \url{https://github.com/scipopt/PySCIPOpt} --- PySCIPOpt
-\end{itemize}
+\textbf{Part 3:} Column generation \& branch-and-price for bin packing
 \end{frame}
 
 \end{document}

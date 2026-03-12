@@ -47,14 +47,14 @@
 \lstset{style=pyStyle}
 
 % ---- metadata -------------------------------------------
-\title{SCIP Workshop}
+\title{APDIO Workshop: Optimization Software \& Practice}
 \subtitle{Part 1: Modeling Basics}
 \author{João Dionísio}
-\date{March 20th, 2026}
+\date{March 27, 2026}
 \titlegraphic{%
-  \includegraphics[height=1.2cm]{sciplogo.png}\hspace{1.5cm}%
-  \includegraphics[height=1.2cm]{uporto_logo.jpg}\hspace{1.5cm}%
-  \includegraphics[height=1.2cm]{apdio_logo.png}%
+  \includegraphics[height=0.6cm]{media/uporto_logo.jpg}\hspace{1.5cm}%
+  \includegraphics[height=1.5cm]{media/sciplogo.png}\hspace{1.5cm}%
+  \includegraphics[height=1.0cm]{media/apdio_logo.png}%
 }
 
 % =========================================================
@@ -68,13 +68,39 @@
 \end{frame}
 
 % ---------------------------------------------------------
-% Frame 2: Objectives
+% Frame 2: Getting Started
+% ---------------------------------------------------------
+\begin{frame}[fragile]{Getting Started}
+\begin{block}{1. Download the repository}
+Go to \url{https://github.com/Joao-Dionisio/apdio-workshop-2026},\\
+click \textbf{Code} $\rightarrow$ \textbf{Download ZIP}, and extract it.
+\end{block}
+
+\begin{block}{2. Install dependencies}
+\begin{lstlisting}
+pip install -r requirements.txt
+\end{lstlisting}
+This installs \texttt{pyscipopt} (Python interface to SCIP) and \texttt{matplotlib}.
+\end{block}
+
+\begin{block}{3. Verify installation}
+\begin{lstlisting}
+python -c "from pyscipopt import Model; print('Ready!')"
+\end{lstlisting}
+\end{block}
+
+\medskip
+Each exercise has a stub file and a test script. Edit the stub, then run the test:
+\texttt{python ex01\_first\_model/test\_first\_model.py}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 3: Objectives
 % ---------------------------------------------------------
 \begin{frame}{Objectives}
 By the end of Part~1 you will be able to:
 \begin{itemize}
-  \item Formulate \textbf{Linear Programs (LP)}, \textbf{Integer Programs (IP)},
-        and \textbf{Mixed-Integer Programs (MIP)} in PySCIPOpt.
+  \item Formulate problems in PySCIPOpt.
   \item Translate a mathematical model into Python code.
   \item Solve classical optimization problems:
     \begin{itemize}
@@ -86,58 +112,21 @@ By the end of Part~1 you will be able to:
 \end{frame}
 
 % ---------------------------------------------------------
-% Frame 3: What is SCIP / PySCIPOpt
-% ---------------------------------------------------------
-\begin{frame}{What is SCIP / PySCIPOpt?}
-\begin{columns}[T]
-\begin{column}{0.55\textwidth}
-  \textbf{SCIP} --- \emph{Solving Constraint Integer Programs}
-  \begin{itemize}
-    \item The fastest academic MINLP solver.
-    \item Supports LP, MIP, MINLP, CIP.
-    \item Open-source (Apache 2.0 license).
-    \item Highly extensible plugin architecture.
-  \end{itemize}
-
-  \medskip
-  \textbf{PySCIPOpt} --- Python interface to SCIP
-  \begin{itemize}
-    \item Install: \texttt{pip install pyscipopt}
-  \end{itemize}
-\end{column}
-\begin{column}{0.4\textwidth}
-  \begin{center}
-  \begin{tikzpicture}[
-    box/.style={draw,rounded corners,minimum width=3cm,
-                minimum height=0.8cm,align=center,font=\small},
-  ]
-    \node[box,fill=blue!15]  (py)   {Python / PySCIPOpt};
-    \node[box,fill=green!15, below=0.6cm of py]  (scip) {SCIP Core};
-    \node[box,fill=orange!15,below=0.6cm of scip](lp)   {LP Solver (SoPlex)};
-    \draw[-{Stealth},thick] (py)   -- (scip);
-    \draw[-{Stealth},thick] (scip) -- (lp);
-  \end{tikzpicture}
-  \end{center}
-\end{column}
-\end{columns}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 4: Model Lifecycle
+% Frame 3: Model Lifecycle
 % ---------------------------------------------------------
 \begin{frame}[fragile]{Model Lifecycle}
 \begin{center}
 \begin{tikzpicture}[
-  stepbox/.style={draw,rounded corners,minimum width=2.2cm,
+  stepbox/.style={draw,rounded corners,minimum width=2.0cm,
                minimum height=0.7cm,align=center,font=\small\bfseries,
                fill=blue!10},
   arr/.style={-{Stealth},thick,shorten >=2pt,shorten <=2pt},
 ]
   \node[stepbox] (create)  {Create Model};
-  \node[stepbox,right=1.0cm of create]  (vars)  {Add Variables};
-  \node[stepbox,right=1.0cm of vars]    (cons)  {Add Constraints};
-  \node[stepbox,right=1.0cm of cons]    (opt)   {Optimize};
-  \node[stepbox,right=1.0cm of opt]     (query) {Query Solution};
+  \node[stepbox,right=0.6cm of create]  (vars)  {Add Variables};
+  \node[stepbox,right=0.6cm of vars]    (cons)  {Add Constraints};
+  \node[stepbox,right=0.6cm of cons]    (opt)   {Optimize};
+  \node[stepbox,right=0.6cm of opt]     (query) {Query Solution};
 
   \draw[arr] (create) -- (vars);
   \draw[arr] (vars)   -- (cons);
@@ -194,7 +183,7 @@ z = model.addVar(name="z", vtype="I", obj=-2)
 % Frame 6: Constraints
 % ---------------------------------------------------------
 \begin{frame}[fragile]{Constraints}
-\texttt{model.addCons(expression, name)}
+\texttt{model.addCons()}
 
 \begin{lstlisting}
 
@@ -217,18 +206,17 @@ model.addCons(sum(c[i]*x[i] for i in I) <= b)
 % ---------------------------------------------------------
 \begin{frame}[fragile]{Objective Function}
 
-\texttt{setObjective}
+\texttt{setObjective()}
 \begin{lstlisting}
 model.setObjective(
     sum(cost[i,j] * x[i,j] for i in I for j in J),
-    sense="minimize"
+    sense="maximize"
 )
 \end{lstlisting}
 
 \medskip
-Convenience methods:
 \begin{itemize}
-  \item \texttt{model.setMaximize()} — minimization is the default
+  \item Default sense is \texttt{"minimize"}
 \end{itemize}
 \end{frame}
 
@@ -256,8 +244,8 @@ Build the following model:
 % ---------------------------------------------------------
 \begin{frame}[fragile]{Solving and Querying}
 \begin{lstlisting}
-model.hideOutput()        # suppress solver log (optional)
-model.optimize()          # solve the model
+model.hideOutput()            # suppress solver log (optional)
+model.optimize()              # solve the model
 
 status = model.getStatus()    # "optimal", "infeasible", ...
 obj    = model.getObjVal()    # objective value
@@ -296,6 +284,99 @@ Solve the model from Exercise~1 and extract:
   \item File: \texttt{ex02\_solving/solving.py}
   \item Test: \texttt{python ex02\_solving/test\_solving.py}
 \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 10b: Solver Parameters
+% ---------------------------------------------------------
+\begin{frame}[fragile]{Solver Parameters}
+SCIP has over 2000 parameters to control the solving process.
+
+\medskip
+\textbf{Setting parameters in PySCIPOpt:}
+\begin{lstlisting}
+model.setParam("limits/time", 60)       # time limit (seconds)
+model.setParam("limits/gap", 0.01)      # stop at 1% gap
+model.setParam("limits/nodes", 1000)    # node limit
+
+model.setParam("display/verblevel", 0)  # silence output
+model.setParam("randomization/randomseedshift", 42)
+\end{lstlisting}
+
+\medskip
+\textbf{Emphasis settings} adjust groups of parameters at once:
+\begin{lstlisting}
+model.setEmphasis("OPTIMALITY")  # focus on proving optimality
+model.setEmphasis("FEASIBILITY") # focus on finding solutions
+\end{lstlisting}
+
+\medskip
+\textbf{Reading models from file:}
+\begin{lstlisting}
+model = Model()
+model.readProblem("instance.mps")  # or .lp
+model.optimize()
+\end{lstlisting}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 10c: Exercise 3
+% ---------------------------------------------------------
+\begin{frame}{Exercise 3: Solver Parameters}
+\begin{block}{Task}
+Experiment with solver parameters:
+\begin{itemize}
+  \item Set a time limit and observe the effect on a hard instance.
+  \item Compare default vs.\ \texttt{FEASIBILITY} emphasis.
+  \item Use \texttt{limits/gap} to accept near-optimal solutions.
+  \item Load a model from an \texttt{.lp}/\texttt{.mps} file and tune parameters.
+\end{itemize}
+\end{block}
+\begin{itemize}
+  \item File: \texttt{ex03\_parameters/parameters.py}
+  \item Test: \texttt{python ex03\_parameters/test\_parameters.py}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 10d: Exercise 3b --- MIPLIB
+% ---------------------------------------------------------
+\begin{frame}[fragile]{Exercise 3b: MIPLIB Instances}
+\begin{block}{Task}
+Load and solve real instances from MIPLIB, the standard benchmark library
+for mixed-integer programming. Collect: status, objective, time, nodes, gap.
+\end{block}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{lstlisting}
+model = Model()
+model.readProblem(
+    "miplib_data/p0033.mps.gz")
+model.setParam("limits/time", 120)
+model.optimize()
+\end{lstlisting}
+\end{column}
+\begin{column}{0.48\textwidth}
+{\small Pre-downloaded in \texttt{ex03\_parameters/miplib\_data/}:}
+
+\smallskip
+{\small
+\begin{tabular}{l @{\hspace{0.8em}} l @{\hspace{0.8em}} r @{\hspace{0.8em}} r}
+\toprule
+\textbf{Instance} & \textbf{Type} & \textbf{Vars} & \textbf{Conss} \\
+\midrule
+\texttt{p0033}     & IP  &  33 &  16 \\
+\texttt{flugpl}    & MIP &  18 &  18 \\
+\texttt{enigma}    & IP  & 100 &  21 \\
+\texttt{misc03}    & MIP & 160 &  96 \\
+\texttt{stein27}   & IP  &  27 & 118 \\
+\texttt{gen-ip054} & IP  &  30 &  27 \\
+\bottomrule
+\end{tabular}
+}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
@@ -370,7 +451,7 @@ for j in demand:
 % ---------------------------------------------------------
 % Frame 13: Exercise 3
 % ---------------------------------------------------------
-\begin{frame}{Exercise 3: Transportation}
+\begin{frame}{Exercise 4: Transportation}
 \begin{block}{Task}
 Implement the transportation problem:
 \begin{itemize}
@@ -386,78 +467,97 @@ Implement the transportation problem:
 \end{frame}
 
 % ---------------------------------------------------------
-% Frame 14: Portfolio Optimization
+% Frame 14: Nonlinear Blending (Pooling Problem)
 % ---------------------------------------------------------
-\begin{frame}{Portfolio Optimization (Markowitz)}
+\begin{frame}{Nonlinear Blending (Pooling Problem)}
 \begin{columns}[T]
-\begin{column}{0.42\textwidth}
+\begin{column}{0.40\textwidth}
 \begin{center}
-\begin{tikzpicture}[
-  asset/.style={circle,draw,minimum size=0.9cm,
-                font=\scriptsize\bfseries},
-  port/.style={rectangle,draw,rounded corners=4pt,fill=green!15,
-               minimum width=1.6cm,minimum height=0.8cm,
+\begin{tikzpicture}[scale=0.9,
+  src/.style={circle,draw,fill=blue!15,minimum size=0.7cm,
+              font=\scriptsize\bfseries},
+  pool/.style={rectangle,draw,rounded corners=4pt,fill=yellow!20,
+               minimum width=1.2cm,minimum height=0.7cm,
                font=\scriptsize\bfseries},
-  arr/.style={-{Stealth},thick},
+  prod/.style={circle,draw,fill=red!15,minimum size=0.7cm,
+               font=\scriptsize\bfseries},
+  arr/.style={-{Stealth},thin},
 ]
-  % Assets
-  \node[asset,fill=blue!20]   (a1) at (0, 1.6) {$a_1$};
-  \node[asset,fill=red!20]    (a2) at (0, 0.5) {$a_2$};
-  \node[asset,fill=orange!20] (a3) at (0,-0.6) {$a_3$};
+  % Sources
+  \node[src]  (s1) at (0, 2.2) {$A$};
+  \node[src]  (s2) at (0, 0.4) {$B$};
 
-  \node[anchor=south,font=\scriptsize] at (0,2.2) {Assets};
+  % Pool
+  \node[pool] (pl) at (2.2, 1.3) {Pool};
 
-  % Portfolio
-  \node[port] (p) at (3.5,0.5) {Portfolio};
+  % Products
+  \node[prod] (p1) at (4.4, 2.2) {$X$};
+  \node[prod] (p2) at (4.4, 0.4) {$Y$};
 
-  % Arrows with weights
-  \draw[arr,blue!60]   (a1.east) -- node[above,font=\tiny]{$x_1$} (p.150);
-  \draw[arr,red!60]    (a2.east) -- node[above,font=\tiny]{$x_2$} (p.west);
-  \draw[arr,orange!60] (a3.east) -- node[below,font=\tiny]{$x_3$} (p.210);
+  % Source -> Pool
+  \draw[arr] (s1) -- node[above,font=\tiny]{$x_A$} (pl);
+  \draw[arr] (s2) -- node[below,font=\tiny]{$x_B$} (pl);
 
-  % Annotations
-  \node[below=0.3cm of p,font=\tiny,align=center,text=green!40!black]
-    {Return $\ge r_{\min}$\\Min variance};
+  % Pool -> Products
+  \draw[arr] (pl) -- node[above,font=\tiny]{$y_X$} (p1);
+  \draw[arr] (pl) -- node[below,font=\tiny]{$y_Y$} (p2);
+
+  % Direct bypass arcs (wider bend to clear the pool)
+  \draw[arr,densely dashed,gray] (s1) to[bend left=30]
+    node[above,font=\tiny,pos=0.5]{$z_{AX}$} (p1);
+  \draw[arr,densely dashed,gray] (s2) to[bend right=30]
+    node[below,font=\tiny,pos=0.5]{$z_{BY}$} (p2);
+
+  % Legend
+  \node[font=\tiny,gray] at (2.2,-0.9) {dashed = direct bypass};
 \end{tikzpicture}
 \end{center}
 \end{column}
-\begin{column}{0.58\textwidth}
-Allocate capital among assets to minimize risk (variance) while achieving a target return.
+\begin{column}{0.60\textwidth}
+Blend raw materials through a mixing pool to make products with
+quality specifications.
 
 \smallskip
-{\small\textbf{Parameters:} returns $\mu_i$, covariance $\Sigma_{ij}$, target $r_{\min}$}
+{\small\textbf{Parameters:} cost $c_s$, quality $q_s$ per source;
+revenue $r_p$, max quality $\bar{q}_p$ per product}
 
-{\small\textbf{Variables:} $x_i \in [0,1]$ (weight of asset $i$)}
+{\small\textbf{Variables:} $x_s$ (source to pool), $y_p$ (pool to product),
+$z_{sp}$ (direct bypass), $\lambda$ (pool quality)}
 
 \begin{align*}
-  \min \quad & t \\
+  \max \quad & \textstyle\sum_p r_p\,d_p - \sum_s c_s\,(\,x_s + \sum_p z_{sp})\\[3pt]
   \text{s.t.} \quad
-    & t \ge \textstyle\sum_{i}\sum_{j} \Sigma_{ij}\, x_i \, x_j \\
-    & \sum_i \mu_i\, x_i \ge r_{\min} \\
-    & \sum_i x_i = 1, \quad 0 \le x_i \le 1
+    & \textstyle\sum_s x_s = \sum_p y_p
+      & \text{(balance)} \\
+    & \lambda \textstyle\sum_s x_s = \sum_s q_s\, x_s
+      & \text{(pool qual.)} \\
+    & \lambda\, y_p + \textstyle\sum_s q_s\, z_{sp} \le \bar{q}_p\, d_p
+      & \forall\, p
 \end{align*}
+where $d_p = y_p + \sum_s z_{sp}$.
 
 \smallskip
-{\small\textbf{Note:} SCIP needs a linear objective, so we use the epigraph trick: minimize $t$ subject to $t \ge x^\top\!\Sigma\, x$.}
+{\small\textbf{Note:} The terms $\lambda\, x_s$ and $\lambda\, y_p$ are
+\textbf{bilinear}. This is a nonconvex NLP that SCIP can solve globally.}
 \end{column}
 \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
-% Frame 15: Exercise 4
+% Frame 15: Exercise 5
 % ---------------------------------------------------------
-\begin{frame}{Exercise 4: Portfolio Optimization}
+\begin{frame}{Exercise 5: Nonlinear Blending}
 \begin{block}{Task}
-Implement the Markowitz portfolio model:
+Implement the pooling problem:
 \begin{itemize}
-  \item Budget and return constraints (linear).
-  \item Auxiliary variable $t$ with \texttt{obj=1}.
-  \item \textbf{Quadratic constraint}: $t \ge x^\top \Sigma\, x$.
+  \item Flow variables for pool and direct bypass paths.
+  \item Pool quality variable $\lambda$ with \textbf{bilinear constraints}.
+  \item Maximize profit (linear objective).
 \end{itemize}
 \end{block}
 \begin{itemize}
-  \item File: \texttt{ex04\_portfolio/portfolio.py}
-  \item Test: \texttt{python ex04\_portfolio/test\_portfolio.py}
+  \item File: \texttt{ex04\_blending/blending.py}
+  \item Test: \texttt{python ex04\_blending/test\_blending.py}
 \end{itemize}
 \end{frame}
 
@@ -533,7 +633,7 @@ costs $c_j$.
 % ---------------------------------------------------------
 % Frame 17: Exercise 5
 % ---------------------------------------------------------
-\begin{frame}{Exercise 5: Set Cover}
+\begin{frame}{Exercise 6: Set Cover}
 \begin{block}{Task}
 Implement the set cover problem:
 \begin{itemize}
@@ -553,43 +653,51 @@ Implement the set cover problem:
 % ---------------------------------------------------------
 \begin{frame}{Knapsack Problem}
 \begin{columns}[T]
-\begin{column}{0.43\textwidth}
+\begin{column}{0.40\textwidth}
 \begin{center}
-\begin{tikzpicture}[
-  item/.style={rectangle,draw,rounded corners=2pt,minimum width=0.9cm,
-               minimum height=0.7cm,font=\tiny,align=center},
-  arr/.style={-{Stealth},thick,dashed,gray},
+\begin{tikzpicture}[scale=0.9,
+  item/.style={rectangle, draw, rounded corners=2pt,
+               minimum width=1.0cm, font=\scriptsize, align=center},
 ]
-  % Knapsack (bag)
-  \draw[thick,fill=brown!10,rounded corners=6pt]
-    (2.0,-0.2) rectangle (4.2,2.6);
-  \node[font=\scriptsize\bfseries,brown!60!black] at (3.1,2.85) {Knapsack};
+  % Available items (row 1)
+  \node[font=\scriptsize\bfseries] at (1.5, 4.7) {Items};
+  \node[item, fill=red!25]    (i1) at (0, 4.0)   {$v{=}6$\\$w{=}2$};
+  \node[item, fill=blue!25]   (i2) at (1.5, 4.0) {$v{=}3$\\$w{=}3$};
+  \node[item, fill=green!25]  (i3) at (3.0, 4.0) {$v{=}5$\\$w{=}2$};
+  % Available items (row 2)
+  \node[item, fill=orange!25] (i4) at (0, 2.7)   {$v{=}4$\\$w{=}4$};
+  \node[item, fill=purple!20] (i5) at (1.5, 2.7) {$v{=}2$\\$w{=}3$};
 
-  % Capacity bar
-  \draw[thick,gray] (4.5,-0.2) -- (4.5,2.6);
-  \fill[red!20] (4.5,-0.2) rectangle (4.8,1.8);
-  \draw[thick] (4.5,-0.2) rectangle (4.8,2.6);
-  \draw[thick,red!60!black,{Stealth}-{Stealth}] (5.0,-0.2) -- node[right,font=\tiny]{$W$} (5.0,2.6);
-  \node[font=\tiny,red!60!black] at (4.65,2.0) {\rotatebox{90}{\textit{used}}};
+  % Dimmed rejected items
+  \node[font=\small, gray] at (1.5, 3.35) {$\times$};
+  \node[font=\small, gray] at (0, 2.05) {$\times$};
+  \node[font=\small, gray] at (1.5, 2.05) {$\times$};
 
-  % Items inside bag (selected)
-  \node[item,fill=blue!25]   at (2.7,0.4) {$v_1$\\$w_1$};
-  \node[item,fill=green!25]  at (3.5,0.4) {$v_3$\\$w_3$};
-  \node[item,fill=orange!25] at (3.1,1.3) {$v_4$\\$w_4$};
+  % Knapsack (bag shape)
+  \draw[very thick, fill=brown!8, rounded corners=4pt]
+    (0.2, -0.3) rectangle (2.8, 0.9);
+  \draw[very thick, brown!50!black, rounded corners=8pt]
+    (-0.05, 0.7) -- (-0.05, 1.15) -- (3.05, 1.15) -- (3.05, 0.7);
+  \node[font=\scriptsize\bfseries, brown!60!black] at (1.5, 1.45) {$W = 5$};
 
-  % Items outside (not selected)
-  \node[item,fill=red!20]    (out1) at (0.4,2.0) {$v_2$\\$w_2$};
-  \node[item,fill=purple!20] (out2) at (0.4,0.8) {$v_5$\\$w_5$};
+  % Selected items inside
+  \fill[red!25, rounded corners=2pt] (0.35, -0.15) rectangle (1.35, 0.55);
+  \draw[rounded corners=2pt] (0.35, -0.15) rectangle (1.35, 0.55);
+  \node[font=\scriptsize] at (0.85, 0.2) {$v{=}6$};
 
-  % Cross marks on excluded items
-  \draw[red,thick] (out1.north west) -- (out1.south east);
-  \draw[red,thick] (out1.south west) -- (out1.north east);
-  \draw[red,thick] (out2.north west) -- (out2.south east);
-  \draw[red,thick] (out2.south west) -- (out2.north east);
+  \fill[green!25, rounded corners=2pt] (1.55, -0.15) rectangle (2.55, 0.55);
+  \draw[rounded corners=2pt] (1.55, -0.15) rectangle (2.55, 0.55);
+  \node[font=\scriptsize] at (2.05, 0.2) {$v{=}5$};
 
-  % Labels
-  \node[font=\tiny,gray] at (0.4,0.0) {\textit{rejected}};
-  \node[font=\tiny,gray] at (3.1,-0.5) {\textit{selected}};
+  % Arrows for selected (routed around row-2 items, entering bag from above)
+  \draw[-{Stealth}, thick, green!50!black, rounded corners=4pt]
+    (i1.south west) -- ++(-0.5,-0.3) -- (-0.5, 1.7) -- (0.85, 1.7) -- (0.85, 1.15);
+  \draw[-{Stealth}, thick, green!50!black, rounded corners=4pt]
+    (i3.south east) -- ++(0.5,-0.3) -- (3.5, 1.7) -- (2.05, 1.7) -- (2.05, 1.15);
+
+  % Total
+  \node[font=\scriptsize, green!50!black] at (1.5, -0.65)
+    {value $= 11$, weight $= 4 \le 5$ \checkmark};
 \end{tikzpicture}
 \end{center}
 \end{column}
@@ -619,7 +727,7 @@ without exceeding capacity.
 % ---------------------------------------------------------
 % Frame 19: Exercise 6
 % ---------------------------------------------------------
-\begin{frame}{Exercise 6: Knapsack}
+\begin{frame}{Exercise 7: Knapsack}
 \begin{block}{Task}
 Implement the 0--1 knapsack problem:
 \begin{itemize}
@@ -713,7 +821,7 @@ Implement the 0--1 knapsack problem:
 % ---------------------------------------------------------
 % Frame 21: Exercise 7
 % ---------------------------------------------------------
-\begin{frame}{Exercise 7: Facility Location}
+\begin{frame}{Exercise 8: Facility Location}
 \begin{block}{Task}
 Implement the uncapacitated facility location problem:
 \begin{itemize}
@@ -766,7 +874,7 @@ Implement the uncapacitated facility location problem:
   \draw[edge] (v6) -- (v5);
 
   % Color legend
-  \node[font=\tiny,gray] at (0,-2.3) {4 colors --- is this optimal?};
+  \node[font=\tiny,gray] at (0,-2.3) {};
 \end{tikzpicture}
 \end{center}
 \end{column}
@@ -800,7 +908,7 @@ $w_c \in \{0,1\}$ (color $c$ used?)}
 % ---------------------------------------------------------
 % Frame 23: Exercise 8
 % ---------------------------------------------------------
-\begin{frame}{Exercise 8: Graph Coloring}
+\begin{frame}{Exercise 9: Graph Coloring}
 \begin{block}{Task}
 Implement the graph coloring formulation:
 \begin{itemize}
@@ -816,30 +924,173 @@ Implement the graph coloring formulation:
 \end{frame}
 
 % ---------------------------------------------------------
-% Frame 24: Wrap-up
+% Frame 24: Generator Scheduling Problem
+% ---------------------------------------------------------
+\begin{frame}{Generator Scheduling}
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+\centering
+\begin{tikzpicture}[scale=0.85,
+  gen/.style={draw, thick, rounded corners=3pt, minimum width=1.4cm,
+              minimum height=0.9cm, font=\scriptsize, align=center},
+]
+  % Generators
+  \node[gen, fill=green!20]  (g1) at (0, 2.2)  {Gen 1\\[-1pt]{\tiny $P^{\min}{=}20$, $P^{\max}{=}100$}};
+  \node[gen, fill=blue!15]   (g2) at (0, 0.8)  {Gen 2\\[-1pt]{\tiny $P^{\min}{=}30$, $P^{\max}{=}150$}};
+  \node[gen, fill=orange!20] (g3) at (0, -0.6) {Gen 3\\[-1pt]{\tiny $P^{\min}{=}50$, $P^{\max}{=}200$}};
+
+  % Demand node
+  \node[draw, thick, circle, fill=red!15, minimum size=1cm,
+        font=\scriptsize\bfseries] (d) at (3.2, 0.8) {$D$};
+
+  % Power flows
+  \draw[-{Stealth}, thick, green!50!black] (g1.east) -- node[above, font=\tiny] {$p_1$} (d.north west);
+  \draw[-{Stealth}, thick, blue!50!black]  (g2.east) -- node[above, font=\tiny] {$p_2$} (d.west);
+  \draw[-{Stealth}, thick, orange!50!black](g3.east) -- node[below, font=\tiny] {$p_3$} (d.south west);
+
+  % On/off labels (anchored to right, placed left of generator boxes)
+  \node[font=\tiny, green!50!black, anchor=east] at (g1.west) {$y_1 \in \{0,1\}$\;};
+  \node[font=\tiny, blue!50!black, anchor=east]  at (g2.west) {$y_2 \in \{0,1\}$\;};
+  \node[font=\tiny, orange!50!black, anchor=east]at (g3.west) {$y_3 \in \{0,1\}$\;};
+\end{tikzpicture}
+\end{column}
+\begin{column}{0.52\textwidth}
+\textbf{Given:} generators with on/off decisions, min/max output, and costs.
+\textbf{Goal:} meet demand $D$ at minimum cost.
+
+\smallskip
+\textbf{Key constraint:} if on ($y_i{=}1$), output satisfies
+$P_i^{\min} \le p_i \le P_i^{\max}$. If off ($y_i{=}0$), $p_i = 0$.
+
+\vspace{-2pt}
+\begin{align*}
+  \min \quad & \sum_i (f_i\, y_i + c_i\, p_i) \\
+  \text{s.t.} \quad
+    & \sum_i p_i \ge D \\
+    & y_i = 0 \;\Rightarrow\; p_i = 0 \\
+    & y_i = 1 \;\Rightarrow\; P_i^{\min} \le p_i \le P_i^{\max}
+\end{align*}
+
+\vspace{-6pt}
+{\small How do we model the conditional logic?}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 25: Indicator Constraints
+% ---------------------------------------------------------
+\begin{frame}[fragile]{Indicator Constraints}
+Big-M constraints model logical implications using a large constant $M$.
+They work, but choosing $M$ and the resulting LP relaxation can be tricky.
+
+\medskip
+\textbf{Indicator constraints} link a binary variable directly to a
+linear constraint, no $M$ needed:
+
+\medskip
+\begin{center}
+$y = 1 \;\Rightarrow\; \text{constraint holds}$
+\end{center}
+
+\medskip
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Big-M:}
+\begin{align*}
+  p_i &\le P_i^{\max} \cdot y_i \\
+  p_i &\ge P_i^{\min} \cdot y_i
+\end{align*}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Indicator:}
+\begin{lstlisting}
+addConsIndicator(p[i] >= P_min[i], y[i])
+\end{lstlisting}
+\end{column}
+\end{columns}
+
+\medskip
+\begin{itemize}
+  \item SCIP handles the logic internally (branching, propagation).
+  \item Often tighter LP relaxation and faster solving.
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 25: Exercise 10
+% ---------------------------------------------------------
+\begin{frame}{Exercise 10: Indicator Constraints}
+\begin{block}{Task}
+Model a generator scheduling problem two ways:
+\begin{itemize}
+  \item Big-M formulation (standard linearization).
+  \item Indicator constraints (\texttt{model.addConsIndicator}).
+\end{itemize}
+Verify that both yield the same optimal solution.
+\end{block}
+\begin{itemize}
+  \item File: \texttt{ex09\_indicators/indicators.py}
+  \item Test: \texttt{python ex09\_indicators/test\_indicators.py}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 26: Benchmarking
+% ---------------------------------------------------------
+\begin{frame}{Exercise 12: Benchmarking Formulations}
+\textbf{Goal:} measure how formulation choices affect solver performance.
+
+\medskip
+\begin{block}{Task}
+Generate generator scheduling instances of increasing size ($n = 10, 20, 50, 100, 200$).
+Solve with both big-M and indicator formulations. Compare:
+\begin{itemize}
+  \item Solve time, number of B\&B nodes, LP gap
+\end{itemize}
+\end{block}
+
+\medskip
+\textbf{Questions to answer:}
+\begin{itemize}
+  \item Does one formulation consistently solve faster?
+  \item How does the gap between them change as $n$ grows?
+  \item Which formulation explores fewer B\&B nodes?
+\end{itemize}
+
+\medskip
+\begin{itemize}
+  \item File: \texttt{ex10\_benchmarking/benchmarking.py}
+  \item Run: \texttt{python ex10\_benchmarking/benchmarking.py}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame 27: Wrap-up
 % ---------------------------------------------------------
 \begin{frame}{Part 1 --- Wrap-up}
 \textbf{What we covered:}
 \begin{itemize}
   \item The PySCIPOpt modeling lifecycle: variables, constraints, objective.
-  \item Solving and querying solutions and statistics.
+  \item Solving, parameters, and reading models from file.
   \item Classical LP/IP/MIP formulations:
     \begin{itemize}
       \item Transportation (LP)
-      \item Portfolio Optimization (QP)
+      \item Nonlinear Blending (NLP)
       \item Set Cover (IP)
       \item Knapsack (IP)
       \item Facility Location (MIP)
       \item Graph Coloring (IP)
     \end{itemize}
+  \item Indicator constraints as an alternative to big-M.
+  \item Benchmarking formulations on random and MIPLIB instances.
 \end{itemize}
 
 \medskip
-\begin{block}{Up next --- Part 2: Advanced Topics}
+\begin{block}{Up next}
 \begin{itemize}
-  \item Row generation (cutting planes, lazy constraints)
-  \item Column generation
-  \item Branch-and-Price
+  \item Part 2: Row generation (TSP, cutting planes)
+  \item Part 3: Column generation \& branch-and-price (bin packing)
 \end{itemize}
 \end{block}
 \end{frame}

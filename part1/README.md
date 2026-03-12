@@ -1,4 +1,4 @@
-## Introduction
+# Part 1: Modeling with PySCIPOpt
 
 Part 1 of this workshop introduces PySCIPOpt through a series of progressively more complex optimization models. Starting from a minimal integer program, we build up to classic optimization problems: transportation, blending, set cover, knapsack, facility location, graph coloring, and indicator constraints. By the end, you will be comfortable creating models, adding variables and constraints, solving, and inspecting solutions.
 
@@ -123,6 +123,21 @@ Key methods:
 Each function returns a dictionary with the relevant statistics (status, objective, gap, time, n_nodes).
 
 **Test:** `python ex03_parameters/test_parameters.py`
+
+### Exercise 3b: MIPLIB Instances
+
+[MIPLIB](https://miplib.zib.de) is the standard benchmark library for mixed-integer programming. Six small instances are included in `ex03_parameters/miplib_data/`:
+
+| Instance | Rows | Cols | Description |
+|----------|------|------|-------------|
+| `p0033` | 16 | 33 | Capital budgeting |
+| `enigma` | 21 | 100 | Puzzle |
+| `flugpl` | 18 | 18 | Flight planning |
+| `misc03` | 96 | 160 | Miscellaneous |
+| `stein27` | 118 | 27 | Steiner triple |
+| `gen-ip054` | 30 | 30 | General IP |
+
+**Your task:** Use `model.readProblem()` and `load_and_solve()` from Exercise 3 to load and solve these instances. Collect status, objective, time, nodes, and gap for each.
 
 ## Section 4. Transportation Problem
 
@@ -345,6 +360,21 @@ Both functions return `model, y, p` (not yet optimized).
 
 **Test:** `python ex09_indicators/test_indicators.py`
 
+## Section 12. Benchmarking Formulations
+
+Modeling is only half the story — understanding how your formulation affects solver performance is equally important. In this exercise you will systematically compare the big-M and indicator formulations from Exercise 11 on random instances of increasing size.
+
+For each instance, collect:
+
+- Solving time
+- Number of branch-and-bound nodes
+- Optimality gap
+
+**Your task:** Implement `benchmark_formulation()` and `compare_formulations()` in `ex10_benchmarking/benchmarking.py`. Use `print_results()` to display the comparison table.
+
+**Run:** `python ex10_benchmarking/benchmarking.py`
+**Test:** `python ex10_benchmarking/test_benchmarking.py`
+
 ---
 
-Once all exercises pass, proceed to **Part 2** for advanced topics: row generation, column generation, branch-and-price, and branch-price-and-cut.
+Once all exercises pass, proceed to **Part 2** (row generation for TSP) and **Part 3** (branch-and-price for bin packing).

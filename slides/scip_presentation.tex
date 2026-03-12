@@ -4,11 +4,16 @@
 
 \usepackage{todonotes}
 \usepackage{listings}
+\usepackage{xcolor}
 
 \lstset{
   language=Python,
   basicstyle=\ttfamily\small,
-  keywordstyle=\bfseries,
+  keywordstyle=\color[RGB]{0,112,192}\bfseries,
+  stringstyle=\color[RGB]{163,21,21},
+  commentstyle=\color[RGB]{106,153,85}\itshape,
+  emphstyle=\color[RGB]{78,154,6}\bfseries,
+  emph={Model,addVar,addCons,setObjective,optimize},
   showstringspaces=false,
   frame=single,
   numbers=none,
@@ -18,10 +23,10 @@
 \newcommand{\plugin}[1]{\texttt{#1}}
 
 \title{Let's SCIP it!}
-\author{Author Name}
-\titlegraphic{\includegraphics[width=3.5cm]{sciplogo.png}}
+\author{João Dionísio}
+\titlegraphic{\includegraphics[width=3.5cm]{media/sciplogo.png}}
 % \logo{\hspace{1mm}\includegraphics[width=1.8cm]{newscippy.png}}
-\logo{\hspace{1mm}\includegraphics[width=1.8cm]{sciplogo.png}}
+\logo{\hspace{1mm}\includegraphics[width=1.8cm]{media/sciplogo.png}}
 
 \begin{document}
 
@@ -75,7 +80,7 @@ model.optimize()
   \end{lstlisting}
 \end{frame}
 
-\sepframe[title={Branch-and-Price},image={\includegraphics[width=6cm]{scip-bap.png}}]
+\sepframe[title={Branch-and-Price},image={\includegraphics[width=6cm]{media/scip-bap.png}}]
 
 \section{Branch-and-Price}
 
