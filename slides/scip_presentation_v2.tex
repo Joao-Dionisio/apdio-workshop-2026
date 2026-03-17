@@ -53,7 +53,7 @@
   \item Also handles satisfiability and constraint integer programs
   \item Supports exact arithmetic for MILPs
   \item Open-source under Apache 2.0 license
-  \item Under active development for over 20 years (Zuse Institute Berlin)
+  \item Under active development for over 20 years (mostly at Zuse Institute Berlin)
   \item SCIP alumni work on Gurobi, Xpress, COPT, Hexaly, \ldots
 \end{itemize}
 
@@ -65,6 +65,21 @@
 \end{frame}
 
 % ---------------------------------------------------------
+
+\begin{frame}{Why do research on optimization?}
+
+Modern solvers are impressive, but they have limits:
+
+\medskip
+\begin{itemize}
+  \item \textbf{Generic vs.\ specific:} solvers use general-purpose techniques. Exploiting problem structure can be orders of magnitude faster
+  \item \textbf{Modeling power:} some formulations only become tractable with custom decomposition (e.g., Dantzig-Wolfe, Benders)
+  \item \textbf{Beyond MIP:} many real-world problems have side constraints, nonlinearities, or combinatorial substructure that generic solvers handle poorly
+  \item \textbf{Integration:} embedding domain-specific heuristics, cuts, or branching rules inside the solver beats solving + post-processing
+\end{itemize}
+
+\end{frame}
+
 \begin{frame}{Plugin-Based Architecture}
 
 SCIP's real strength: a \textbf{modular plugin system} that lets you
@@ -112,11 +127,11 @@ $\Rightarrow$ Not just a solver --- a \textbf{framework} for building solvers
 \toprule
 \textbf{Plugin} & \textbf{Purpose} & \textbf{When} \\
 \midrule
-\plugin{constraint handler} & feasibility, cuts, propagation & throughout \\
-\plugin{separator}          & cutting planes                 & after LP solve \\
-\plugin{pricer}             & column generation              & after LP solve \\
+\alt<2>{\color{blue!70!black}\bfseries \plugin{constraint handler} & \color{blue!70!black}\bfseries feasibility, cuts, propagation & \color{blue!70!black}\bfseries throughout}{\plugin{constraint handler} & feasibility, cuts, propagation & throughout} \\
+\alt<2>{\color{blue!70!black}\bfseries \plugin{separator} & \color{blue!70!black}\bfseries cutting planes & \color{blue!70!black}\bfseries after LP solve}{\plugin{separator} & cutting planes & after LP solve} \\
+\alt<2>{\color{blue!70!black}\bfseries \plugin{pricer} & \color{blue!70!black}\bfseries column generation & \color{blue!70!black}\bfseries after LP solve}{\plugin{pricer} & column generation & after LP solve} \\
 \plugin{heuristic}          & find feasible solutions        & configurable \\
-\plugin{branching rule}     & split subproblems              & at fractional node \\
+\alt<2>{\color{blue!70!black}\bfseries \plugin{branching rule} & \color{blue!70!black}\bfseries split subproblems & \color{blue!70!black}\bfseries at fractional node}{\plugin{branching rule} & split subproblems & at fractional node} \\
 \plugin{propagator}         & tighten variable bounds        & at each node \\
 \plugin{presolver}          & simplify before solving        & before B\&B \\
 \plugin{relaxator}          & custom relaxation bounds       & at each node \\
@@ -126,6 +141,9 @@ $\Rightarrow$ Not just a solver --- a \textbf{framework} for building solvers
 \bottomrule
 \end{tabular}
 }
+
+% ---------------------------------------------------------
+\only<2>{\smallskip\centering\textbf{\color{blue!70!black} We will implement these in Parts 2 \& 3!}}
 \end{frame}
 
 % ---------------------------------------------------------
@@ -150,6 +168,7 @@ $\Rightarrow$ Not just a solver --- a \textbf{framework} for building solvers
   \item Custom branching rules
   \item Benders decomposition
   \item Event-driven callbacks
+  \item Detailed statistics to verify your changes have an effect
 \end{itemize}
 \end{column}
 \end{columns}

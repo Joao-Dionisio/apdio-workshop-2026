@@ -139,8 +139,7 @@
 \end{tikzpicture}
 
 \smallskip
-{\scriptsize\color{red!70!black} Optimal tour in red;
-\color{gray!60} complete graph in gray}
+{\scriptsize\color{red!70!black} Optimal tour in red;}
 \end{column}
 \end{columns}
 \end{frame}
@@ -169,27 +168,47 @@
 \end{column}
 \begin{column}{0.35\textwidth}
 \centering
-\begin{tikzpicture}[
-  city/.style={circle, draw, fill=blue!60, inner sep=0pt,
-               minimum size=10pt, font=\scriptsize\bfseries, text=white},
-  arc/.style={-{Stealth[length=5pt]}, very thick, orange!80!black}
+\begin{tikzpicture}[scale=0.75,
+  city/.style={circle, draw=blue!80, fill=blue!60, inner sep=0pt,
+               minimum size=9pt, font=\scriptsize\bfseries, text=white},
+  tour/.style={very thick, red!70!black},
+  nontour/.style={thin, gray!40}
 ]
-  \node[city] (c0) at (0, 1.5)   {0};
-  \node[city] (c1) at (1.5, 0.7) {1};
-  \node[city] (c2) at (1.2,-0.8) {2};
-  \node[city] (c3) at (-0.8,-0.5){3};
+  % 7 cities (same layout as Part 1)
+  \node[city] (c1) at (-0.3, 2.3)  {1};
+  \node[city] (c2) at (2.0, 1.5)   {2};
+  \node[city] (c3) at (2.4,-0.5)   {3};
+  \node[city] (c4) at (0.8,-1.3)   {4};
+  \node[city] (c5) at (-1.4,-0.3)  {5};
+  \node[city] (c6) at (0.3, 0.9)   {6};
+  \node[city] (c7) at (1.1, 0.1)   {7};
+
+  % Complete graph background
+  \foreach \i in {1,...,7} {
+    \foreach \j in {\i,...,7} {
+      \ifnum\i<\j
+        \draw[nontour] (c\i) -- (c\j);
+      \fi
+    }
+  }
 
   % Directed tour
-  \draw[arc] (c0) -- (c1);
-  \draw[arc] (c1) -- (c2);
-  \draw[arc] (c2) -- (c3);
-  \draw[arc] (c3) -- (c0);
+  \draw[tour, -{Stealth}] (c1) -- (c6);
+  \draw[tour, -{Stealth}] (c6) -- (c5);
+  \draw[tour, -{Stealth}] (c5) -- (c4);
+  \draw[tour, -{Stealth}] (c4) -- (c7);
+  \draw[tour, -{Stealth}] (c7) -- (c3);
+  \draw[tour, -{Stealth}] (c3) -- (c2);
+  \draw[tour, -{Stealth}] (c2) -- (c1);
 
-  % Position labels u_i
-  \node[font=\scriptsize, color=red!70!black] at (-0.5, 1.8)  {$u_0{=}0$};
-  \node[font=\scriptsize, color=red!70!black] at (2.1, 1.0)   {$u_1{=}1$};
-  \node[font=\scriptsize, color=red!70!black] at (1.8, -1.1)  {$u_2{=}2$};
-  \node[font=\scriptsize, color=red!70!black] at (-1.5, -0.8) {$u_3{=}3$};
+  % MTZ position labels
+  \node[font=\tiny, gray, above=1pt of c1] {$u{=}0$};
+  \node[font=\tiny, gray, left=1pt of c6] {$u{=}1$};
+  \node[font=\tiny, gray, left=1pt of c5]  {$u{=}2$};
+  \node[font=\tiny, gray, below=1pt of c4] {$u{=}3$};
+  \node[font=\tiny, gray, above right=-2pt of c7] {$u{=}4$};
+  \node[font=\tiny, gray, right=1pt of c3] {$u{=}5$};
+  \node[font=\tiny, gray, above right=-2pt of c2] {$u{=}6$};
 \end{tikzpicture}
 
 \smallskip
@@ -238,35 +257,43 @@ Study the MTZ formulation as a baseline before implementing row generation.
 \end{column}
 \begin{column}{0.42\textwidth}
 \centering
-\vspace{0.3cm}
-\begin{tikzpicture}[
-  city/.style={circle, draw, fill=blue!60, inner sep=0pt,
-               minimum size=7pt},
-  subtour/.style={very thick}
+\begin{tikzpicture}[scale=0.85,
+  city/.style={circle, draw=blue!80, fill=blue!60, inner sep=0pt,
+               minimum size=9pt, font=\scriptsize\bfseries, text=white},
+  subtour/.style={very thick, red!70!black},
+  nontour/.style={thin, gray!40}
 ]
-  % Subtour 1 (left triangle, 3 cities) -- red
-  \node[city] (a1) at (0, 1.2)  {};
-  \node[city] (a2) at (0.9, 0)  {};
-  \node[city] (a3) at (-0.9, 0) {};
-  \draw[subtour, red!70!black] (a1) -- (a2) -- (a3) -- (a1);
+  % Same 7-city layout as the TSP intro slide
+  \node[city] (c1) at (-0.3, 2.3)  {1};
+  \node[city] (c2) at (2.0, 1.5)   {2};
+  \node[city] (c3) at (2.4,-0.5)   {3};
+  \node[city] (c4) at (0.8,-1.3)   {4};
+  \node[city] (c5) at (-1.4,-0.3)  {5};
+  \node[city] (c6) at (0.3, 0.9)   {6};
+  \node[city] (c7) at (1.1, 0.1)   {7};
 
-  % Subtour 2 (right quadrilateral, 4 cities) -- also red
-  \node[city] (b1) at (2.0, 1.2) {};
-  \node[city] (b2) at (3.6, 0.9) {};
-  \node[city] (b3) at (3.4, -0.1) {};
-  \node[city] (b4) at (1.9, -0.1) {};
-  \draw[subtour, red!70!black] (b1) -- (b2) -- (b3) -- (b4) -- (b1);
+  % Faded complete graph
+  \foreach \i in {1,...,7} {
+    \foreach \j in {\i,...,7} {
+      \ifnum\i<\j
+        \draw[nontour] (c\i) -- (c\j);
+      \fi
+    }
+  }
 
-  % Dashed box around subtour 1
-  \node[draw, dashed, red!70!black, rounded corners, fit=(a1)(a2)(a3),
-        inner sep=5pt, label={[font=\scriptsize,red!70!black]below:$S_1$}] {};
+  % Subtour 1: {1, 2, 6}
+  \draw[subtour] (c1) -- (c6) -- (c2) -- (c1);
 
-  % Dashed box around subtour 2
-  \node[draw, dashed, red!70!black, rounded corners, fit=(b1)(b2)(b3)(b4),
-        inner sep=5pt, label={[font=\scriptsize,red!70!black]below:$S_2$}] {};
+  % Subtour 2: {3, 4, 5, 7}
+  \draw[subtour] (c5) -- (c7) -- (c3) -- (c4) -- (c5);
 
-  % No connection between the two groups
-  \node[font=\small\bfseries, red!60!black] at (1.4, -1.4)
+  % Labels
+  \node[font=\scriptsize\bfseries, red!70!black, above] at (0.7, 2.4)
+    {$S_1$};
+  \node[font=\scriptsize\bfseries, red!70!black, below] at (0.7, -1.5)
+    {$S_2$};
+
+  \node[font=\small\bfseries, red!60!black] at (0.5, -2.2)
     {Subtour violation!};
 \end{tikzpicture}
 \end{column}
@@ -286,7 +313,7 @@ Study the MTZ formulation as a baseline before implementing row generation.
 ]
   \node[box] (solve) at (0, 0)      {Solve LP};
   \node[box] (check) at (4, 0)      {Check subtours};
-  \node[box] (opt)   at (8, 0)      {Optimal!};
+  \node[box] (opt)   at (9, 0)      {Optimal!};
   \node[box] (add)   at (4, -1.6)   {Add violated SECs};
 
   \draw[arr] (solve) -- (check);
@@ -319,7 +346,7 @@ SCIP implements row generation via the \textbf{constraint handler} plugin.
 \midrule
 \texttt{conscheck}  & Check if a candidate integer solution is feasible \\
 \texttt{consenfolp} & Enforce constraints on LP solution; add cuts if violated \\
-\texttt{conslock}   & Declare variable locks (required; can be empty) \\
+% \texttt{conslock}   & Declare variable locks (required; can be empty) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -339,7 +366,7 @@ class SubtourElimination(Conshdlr):
 % ---------------------------------------------------------
 \begin{frame}{Exercises: Subtour Detection \& Constraint Handler}
 \begin{block}{Exercise 1: Subtour Detection}
-Implement \texttt{find\_subtours()} --- find connected components in the edge graph.
+Implement \texttt{find\_subtours()}: find connected components in the edge graph.
 \end{block}
 \begin{itemize}
   \item File: \texttt{row\_generation/subtour.py}
@@ -359,27 +386,35 @@ Implement \texttt{conscheck} and \texttt{consenfolp} callbacks.
 % ---------------------------------------------------------
 % Frame 10: Exercise --- Experimental Comparison
 % ---------------------------------------------------------
-\begin{frame}{Exercise: MTZ vs.\ Row Generation}
-\begin{block}{Exercise 3: Experimental Comparison}
-Compare the compact MTZ formulation against row generation
-on instances of increasing size.
+\begin{frame}{MTZ vs.\ Row Generation}
+\begin{block}{Run the experiments}
+\texttt{python experiments.py} compares both formulations on increasing sizes.
 \end{block}
-\begin{itemize}
-  \item File: \texttt{row\_generation/experiment.py}
-  \item Metrics to compare:
-    \begin{itemize}
-      \item Solve time
-      \item Number of branch-and-bound nodes
-      \item LP relaxation gap
-    \end{itemize}
-  \item Try instances with 10, 15, 20, 30 cities
-\end{itemize}
 
 \medskip
-\begin{block}{What to expect}
-Row generation should dominate on larger instances thanks to its
-much stronger LP relaxation, despite the overhead of the separation callback.
-\end{block}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{MTZ (compact)}
+\begin{itemize}
+  \item $O(n^2)$ constraints
+  \item Very weak LP bound
+  \item Many B\&B nodes needed
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Row generation (SECs)}
+\begin{itemize}
+  \item Exponential constraints, added lazily
+  \item LP bound often near-optimal
+  \item Far fewer nodes
+\end{itemize}
+\end{column}
+\end{columns}
+
+\bigskip
+\textbf{Key insight:} The LP relaxation bound is what matters. MTZ's LP
+can be arbitrarily weak, while the SEC LP bound is tight.
+This gap widens as instance size grows.
 \end{frame}
 
 % ---------------------------------------------------------
@@ -402,7 +437,7 @@ much stronger LP relaxation, despite the overhead of the separation callback.
 \end{itemize}
 
 \medskip
-\textbf{Part 3:} Column generation \& branch-and-price for bin packing
+\textbf{Part 3:} Branch-and-price for bin packing
 \end{frame}
 
 \end{document}

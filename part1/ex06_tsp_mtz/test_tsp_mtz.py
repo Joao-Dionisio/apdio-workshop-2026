@@ -6,8 +6,44 @@ Run:
     python test_tsp_mtz.py
 """
 
-from generator import random_euclidean_tsp
+import math
+import random
+import traceback
+
 from tsp_mtz import tsp_mtz
+
+
+def random_euclidean_tsp(n_cities, seed=None, grid_size=100):
+    """
+    Generate a random Euclidean TSP instance with integer distances.
+
+    Args:
+        n_cities: Number of cities
+        seed: Random seed for reproducibility
+        grid_size: Cities are placed in [0, grid_size] x [0, grid_size]
+
+    Returns:
+        distances: n x n symmetric distance matrix (list of lists)
+    """
+    if seed is not None:
+        random.seed(seed)
+
+    # Generate random coordinates
+    coords = [(random.uniform(0, grid_size), random.uniform(0, grid_size))
+              for _ in range(n_cities)]
+
+    n = len(coords)
+    distances = [[0] * n for _ in range(n)]
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            dx = coords[i][0] - coords[j][0]
+            dy = coords[i][1] - coords[j][1]
+            dist = int(round(math.sqrt(dx * dx + dy * dy)))
+            distances[i][j] = dist
+            distances[j][i] = dist
+
+    return distances
 
 
 def test_small_instance():
@@ -74,11 +110,11 @@ if __name__ == "__main__":
             failed += 1
         except AssertionError as e:
             print(f"FAIL: {test.__name__}")
-            print(f"      {e}")
+            traceback.print_exc()
             failed += 1
         except Exception as e:
             print(f"ERROR: {test.__name__}")
-            print(f"       {type(e).__name__}: {e}")
+            traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")

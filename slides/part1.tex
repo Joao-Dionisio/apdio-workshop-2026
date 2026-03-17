@@ -324,13 +324,14 @@ model.optimize()
 % ---------------------------------------------------------
 \begin{frame}{Exercise 3: Solver Parameters}
 \begin{block}{Task}
-Experiment with solver parameters:
+Implement two functions for configuring and solving models:
 \begin{itemize}
-  \item Set a time limit and observe the effect on a hard instance.
-  \item Compare default vs.\ \texttt{FEASIBILITY} emphasis.
-  \item Use \texttt{limits/gap} to accept near-optimal solutions.
-  \item Load a model from an \texttt{.lp}/\texttt{.mps} file and tune parameters.
+  \item \texttt{solve\_with\_params(model, params)}: apply a dict of SCIP parameters
+        (e.g.\ \texttt{\{"limits/time": 60\}}) and solve.
+  \item \texttt{load\_and\_solve(filepath, params)}: read an \texttt{.mps}/\texttt{.lp}
+        file and solve (reuse the function above!).
 \end{itemize}
+The tests exercise time limits, gap limits, emphasis settings, and MIPLIB instances.
 \end{block}
 \begin{itemize}
   \item File: \texttt{ex03\_parameters/parameters.py}
@@ -426,7 +427,7 @@ model.optimize()
 % ---------------------------------------------------------
 % Frame 12: Data in Python
 % ---------------------------------------------------------
-\begin{frame}[fragile]{Data in Python --- Dictionaries and Loops}
+\begin{frame}[fragile]{Data in Python: Dictionaries and Loops}
 \begin{lstlisting}
 # Data as dictionaries
 supply   = {"S1": 100, "S2": 150}
@@ -461,197 +462,13 @@ Implement the transportation problem:
 \end{itemize}
 \end{block}
 \begin{itemize}
-  \item File: \texttt{ex03\_transportation/transportation.py}
-  \item Test: \texttt{python ex03\_transportation/test\_transportation.py}
+  \item File: \texttt{ex04\_transportation/transportation.py}
+  \item Test: \texttt{python ex04\_transportation/test\_transportation.py}
 \end{itemize}
 \end{frame}
 
 % ---------------------------------------------------------
-% Frame 14: Nonlinear Blending (Pooling Problem)
-% ---------------------------------------------------------
-\begin{frame}{Nonlinear Blending (Pooling Problem)}
-\begin{columns}[T]
-\begin{column}{0.40\textwidth}
-\begin{center}
-\begin{tikzpicture}[scale=0.9,
-  src/.style={circle,draw,fill=blue!15,minimum size=0.7cm,
-              font=\scriptsize\bfseries},
-  pool/.style={rectangle,draw,rounded corners=4pt,fill=yellow!20,
-               minimum width=1.2cm,minimum height=0.7cm,
-               font=\scriptsize\bfseries},
-  prod/.style={circle,draw,fill=red!15,minimum size=0.7cm,
-               font=\scriptsize\bfseries},
-  arr/.style={-{Stealth},thin},
-]
-  % Sources
-  \node[src]  (s1) at (0, 2.2) {$A$};
-  \node[src]  (s2) at (0, 0.4) {$B$};
-
-  % Pool
-  \node[pool] (pl) at (2.2, 1.3) {Pool};
-
-  % Products
-  \node[prod] (p1) at (4.4, 2.2) {$X$};
-  \node[prod] (p2) at (4.4, 0.4) {$Y$};
-
-  % Source -> Pool
-  \draw[arr] (s1) -- node[above,font=\tiny]{$x_A$} (pl);
-  \draw[arr] (s2) -- node[below,font=\tiny]{$x_B$} (pl);
-
-  % Pool -> Products
-  \draw[arr] (pl) -- node[above,font=\tiny]{$y_X$} (p1);
-  \draw[arr] (pl) -- node[below,font=\tiny]{$y_Y$} (p2);
-
-  % Direct bypass arcs (wider bend to clear the pool)
-  \draw[arr,densely dashed,gray] (s1) to[bend left=30]
-    node[above,font=\tiny,pos=0.5]{$z_{AX}$} (p1);
-  \draw[arr,densely dashed,gray] (s2) to[bend right=30]
-    node[below,font=\tiny,pos=0.5]{$z_{BY}$} (p2);
-
-  % Legend
-  \node[font=\tiny,gray] at (2.2,-0.9) {dashed = direct bypass};
-\end{tikzpicture}
-\end{center}
-\end{column}
-\begin{column}{0.60\textwidth}
-Blend raw materials through a mixing pool to make products with
-quality specifications.
-
-\smallskip
-{\small\textbf{Parameters:} cost $c_s$, quality $q_s$ per source;
-revenue $r_p$, max quality $\bar{q}_p$ per product}
-
-{\small\textbf{Variables:} $x_s$ (source to pool), $y_p$ (pool to product),
-$z_{sp}$ (direct bypass), $\lambda$ (pool quality)}
-
-\begin{align*}
-  \max \quad & \textstyle\sum_p r_p\,d_p - \sum_s c_s\,(\,x_s + \sum_p z_{sp})\\[3pt]
-  \text{s.t.} \quad
-    & \textstyle\sum_s x_s = \sum_p y_p
-      & \text{(balance)} \\
-    & \lambda \textstyle\sum_s x_s = \sum_s q_s\, x_s
-      & \text{(pool qual.)} \\
-    & \lambda\, y_p + \textstyle\sum_s q_s\, z_{sp} \le \bar{q}_p\, d_p
-      & \forall\, p
-\end{align*}
-where $d_p = y_p + \sum_s z_{sp}$.
-
-\smallskip
-{\small\textbf{Note:} The terms $\lambda\, x_s$ and $\lambda\, y_p$ are
-\textbf{bilinear}. This is a nonconvex NLP that SCIP can solve globally.}
-\end{column}
-\end{columns}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 15: Exercise 5
-% ---------------------------------------------------------
-\begin{frame}{Exercise 5: Nonlinear Blending}
-\begin{block}{Task}
-Implement the pooling problem:
-\begin{itemize}
-  \item Flow variables for pool and direct bypass paths.
-  \item Pool quality variable $\lambda$ with \textbf{bilinear constraints}.
-  \item Maximize profit (linear objective).
-\end{itemize}
-\end{block}
-\begin{itemize}
-  \item File: \texttt{ex04\_blending/blending.py}
-  \item Test: \texttt{python ex04\_blending/test\_blending.py}
-\end{itemize}
-\end{frame}
-
-\iffalse
-% ---------------------------------------------------------
-% Frame 16: Set Cover
-% ---------------------------------------------------------
-\begin{frame}{From LP to IP: Set Cover}
-\begin{columns}[T]
-\begin{column}{0.42\textwidth}
-\begin{center}
-\begin{tikzpicture}
-  % --- Sets (ellipses drawn first, elements on top) ---
-  % S1 = elements {a,b,d}
-  \fill[red!20, fill opacity=0.5] (0.7, 1.8) ellipse (0.9 and 0.8);
-  \draw[red!70!black, thick] (0.7, 1.8) ellipse (0.9 and 0.8);
-  % S2 = elements {b,c,e}
-  \fill[blue!20, fill opacity=0.5] (1.9, 1.8) ellipse (0.9 and 0.8);
-  \draw[blue!70!black, thick] (1.9, 1.8) ellipse (0.9 and 0.8);
-  % S3 = elements {d,f}
-  \fill[green!20, fill opacity=0.5] (1.0, 0.8) ellipse (0.55 and 0.65);
-  \draw[green!60!black, thick] (1.0, 0.8) ellipse (0.55 and 0.65);
-  % S4 = elements {e,f,g}
-  \fill[violet!20, fill opacity=0.5] (1.9, 0.7) ellipse (0.8 and 0.85);
-  \draw[violet!70!black, thick] (1.9, 0.7) ellipse (0.8 and 0.85);
-  % S5 = elements {c,g}
-  \fill[orange!20, fill opacity=0.5] (2.45, 1.25) ellipse (0.4 and 1.0);
-  \draw[orange!70!black, thick] (2.45, 1.25) ellipse (0.4 and 1.0);
-
-  % --- Set labels (outside their ellipses) ---
-  \node[font=\footnotesize\bfseries, red!70!black] at (-0.15, 2.45) {$S_1$};
-  \node[font=\footnotesize\bfseries, blue!70!black] at (2.7, 2.5) {$S_2$};
-  \node[font=\footnotesize\bfseries, green!60!black] at (0.35, 0.25) {$S_3$};
-  \node[font=\footnotesize\bfseries, violet!70!black] at (2.55, -0.1) {$S_4$};
-  \node[font=\footnotesize\bfseries, orange!70!black] at (3.0, 1.25) {$S_5$};
-
-  % --- Universe elements (dots) ---
-  \foreach \pos in {(0.2,2.0), (1.3,2.2), (2.5,2.0),
-                    (0.7,1.2), (1.9,1.3),
-                    (1.3,0.4), (2.4,0.5)}
-    \fill[black] \pos circle (2pt);
-\end{tikzpicture}
-\end{center}
-\vspace{-2pt}
-{\centering\scriptsize Select cheapest combination of sets to cover all elements.\par}
-\end{column}
-\begin{column}{0.58\textwidth}
-\textbf{Given:} Universe $U = \{1,\dots,n\}$, subsets $S_1,\dots,S_m \subseteq U$,
-costs $c_j$.
-
-\textbf{Goal:} Select minimum-cost subsets that cover every element.
-
-\smallskip
-\textbf{Variables:} $x_j \in \{0,1\}$ (select subset $j$?)
-
-\begin{align*}
-  \min \quad & \sum_{j=1}^{m} c_j \, x_j \\
-  \text{s.t.} \quad
-    & \sum_{j:\, i \in S_j} x_j \ge 1
-      & \forall\, i \in U \\
-    & x_j \in \{0,1\}
-      & \forall\, j
-\end{align*}
-
-\smallskip
-\begin{itemize}
-  \item This is a \textbf{pure integer program} (all variables binary).
-  \item LP relaxation gives a lower bound; SCIP uses branch-and-bound.
-\end{itemize}
-\end{column}
-\end{columns}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 17: Exercise 5
-% ---------------------------------------------------------
-\begin{frame}{Exercise 6: Set Cover}
-\begin{block}{Task}
-Implement the set cover problem:
-\begin{itemize}
-  \item Define binary variables for each subset.
-  \item Add covering constraints for each element.
-  \item Minimize total cost.
-\end{itemize}
-\end{block}
-\begin{itemize}
-  \item File: \texttt{ex05\_set\_cover/set\_cover.py}
-  \item Test: \texttt{python ex05\_set\_cover/test\_set\_cover.py}
-\end{itemize}
-\end{frame}
-\fi
-
-% ---------------------------------------------------------
-% Frame 18: Knapsack Problem
+% Frame: Knapsack Problem
 % ---------------------------------------------------------
 \begin{frame}{Knapsack Problem}
 \begin{columns}[T]
@@ -729,7 +546,7 @@ without exceeding capacity.
 % ---------------------------------------------------------
 % Frame 19: Exercise 6
 % ---------------------------------------------------------
-\begin{frame}{Exercise 7: Knapsack}
+\begin{frame}{Exercise 5: Knapsack}
 \begin{block}{Task}
 Implement the 0--1 knapsack problem:
 \begin{itemize}
@@ -739,8 +556,8 @@ Implement the 0--1 knapsack problem:
 \end{itemize}
 \end{block}
 \begin{itemize}
-  \item File: \texttt{ex06\_knapsack/knapsack.py}
-  \item Test: \texttt{python ex06\_knapsack/test\_knapsack.py}
+  \item File: \texttt{ex05\_knapsack/knapsack.py}
+  \item Test: \texttt{python ex05\_knapsack/test\_knapsack.py}
 \end{itemize}
 \end{frame}
 
@@ -749,42 +566,60 @@ Implement the 0--1 knapsack problem:
 % ---------------------------------------------------------
 \begin{frame}{Traveling Salesman Problem (MTZ)}
 \begin{columns}[T]
-\begin{column}{0.38\textwidth}
-\begin{center}
+\begin{column}{0.45\textwidth}
+\centering
 \begin{tikzpicture}[scale=0.85,
-  vtx/.style={circle, draw, thick, fill=blue!15, minimum size=0.45cm,
-              font=\scriptsize\bfseries},
-  edge/.style={thick},
+  city/.style={circle, draw=blue!80, fill=blue!60, inner sep=0pt,
+               minimum size=9pt, font=\scriptsize\bfseries, text=white},
   tour/.style={very thick, red!70!black},
+  nontour/.style={thin, gray!40}
 ]
-  % Cities
-  \node[vtx] (0) at (1.5, 2.8) {0};
-  \node[vtx] (1) at (0, 1.5)   {1};
-  \node[vtx] (2) at (0.8, 0)   {2};
-  \node[vtx] (3) at (2.2, 0)   {3};
-  \node[vtx] (4) at (3.0, 1.5) {4};
+  % City positions (7 cities, with interior nodes)
+  \node[city] (c1) at (-0.3, 2.3)  {1};
+  \node[city] (c2) at (2.0, 1.5)   {2};
+  \node[city] (c3) at (2.4,-0.5)   {3};
+  \node[city] (c4) at (0.8,-1.3)   {4};
+  \node[city] (c5) at (-1.4,-0.3)  {5};
+  \node[city] (c6) at (0.3, 0.9)   {6};
+  \node[city] (c7) at (1.1, 0.1)   {7};
 
-  % Tour edges
-  \draw[tour, -{Stealth}] (0) -- (1);
-  \draw[tour, -{Stealth}] (1) -- (2);
-  \draw[tour, -{Stealth}] (2) -- (3);
-  \draw[tour, -{Stealth}] (3) -- (4);
-  \draw[tour, -{Stealth}] (4) -- (0);
+  % Complete graph background
+  \foreach \i in {1,...,7} {
+    \foreach \j in {\i,...,7} {
+      \ifnum\i<\j
+        \draw[nontour] (c\i) -- (c\j);
+      \fi
+    }
+  }
 
-  % Position labels
-  \node[font=\tiny, gray, above left=-2pt of 0] {$u{=}0$};
-  \node[font=\tiny, gray, left=1pt of 1]  {$u{=}1$};
-  \node[font=\tiny, gray, below=1pt of 2] {$u{=}2$};
-  \node[font=\tiny, gray, below=1pt of 3] {$u{=}3$};
-  \node[font=\tiny, gray, right=1pt of 4] {$u{=}4$};
+  % Optimal tour (directed, with position labels)
+  \draw[tour, -{Stealth}] (c1) -- (c6);
+  \draw[tour, -{Stealth}] (c6) -- (c5);
+  \draw[tour, -{Stealth}] (c5) -- (c4);
+  \draw[tour, -{Stealth}] (c4) -- (c7);
+  \draw[tour, -{Stealth}] (c7) -- (c3);
+  \draw[tour, -{Stealth}] (c3) -- (c2);
+  \draw[tour, -{Stealth}] (c2) -- (c1);
+
+  % MTZ position labels
+  \node[font=\tiny, gray, above=1pt of c1] {$u{=}0$};
+  \node[font=\tiny, gray, left=1pt of c6] {$u{=}1$};
+  \node[font=\tiny, gray, left=1pt of c5]  {$u{=}2$};
+  \node[font=\tiny, gray, below=1pt of c4] {$u{=}3$};
+  \node[font=\tiny, gray, above right=-2pt of c7] {$u{=}4$};
+  \node[font=\tiny, gray, right=1pt of c3] {$u{=}5$};
+  \node[font=\tiny, gray, above right=-2pt of c2] {$u{=}6$};
 \end{tikzpicture}
-\end{center}
+
+\smallskip
+{\scriptsize\color{red!70!black} Tour in red;
+\color{gray!60} complete graph in gray}
 \end{column}
-\begin{column}{0.62\textwidth}
+\begin{column}{0.55\textwidth}
 \textbf{Goal:} Shortest tour visiting every city exactly once.
 
 \smallskip
-\textbf{MTZ formulation} --- position variables prevent subtours:
+\textbf{MTZ formulation:} position variables prevent subtours.
 
 \begin{align*}
   \min \quad & \sum_{i \ne j} d_{ij}\, x_{ij} \\
@@ -798,17 +633,16 @@ Implement the 0--1 knapsack problem:
     & x_{ij} \in \{0,1\}
 \end{align*}
 
-\smallskip
-\begin{itemize}
-  \item $O(n^2)$ variables and constraints --- easy to implement.
-  \item Weak LP relaxation --- Part 2 shows a stronger approach.
+\begin{itemize}\setlength\itemsep{0pt}
+  \item $O(n^2)$ variables and constraints. Easy to implement.
+  \item Weak LP relaxation. Part 2 shows a stronger approach.
 \end{itemize}
 \end{column}
 \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
-\begin{frame}{Exercise 8: TSP (MTZ)}
+\begin{frame}{Exercise 6: TSP (MTZ)}
 \begin{block}{Task}
 Implement the compact MTZ formulation for the Traveling Salesman Problem:
 \begin{itemize}
@@ -817,106 +651,11 @@ Implement the compact MTZ formulation for the Traveling Salesman Problem:
 \end{itemize}
 \end{block}
 \begin{itemize}
-  \item File: \texttt{ex11\_tsp\_mtz/tsp\_mtz.py}
-  \item Test: \texttt{python ex11\_tsp\_mtz/test\_tsp\_mtz.py}
+  \item File: \texttt{ex06\_tsp\_mtz/tsp\_mtz.py}
+  \item Test: \texttt{python ex06\_tsp\_mtz/test\_tsp\_mtz.py}
 \end{itemize}
 \end{frame}
 
-\iffalse
-% ---------------------------------------------------------
-% Frame 20: Facility Location
-% ---------------------------------------------------------
-\begin{frame}{Facility Location}
-\begin{columns}[T]
-\begin{column}{0.40\textwidth}
-\begin{center}
-\begin{tikzpicture}[
-  fac/.style={rectangle,draw,minimum size=0.55cm,font=\scriptsize\bfseries,
-              thick},
-  cust/.style={circle,draw,fill=blue!15,minimum size=0.5cm,
-               font=\scriptsize\bfseries},
-  assign/.style={-{Stealth},thin,densely dashed},
-]
-  % Facilities (left column)
-  \node[fac,fill=green!30]  (f1) at (0, 2.2) {$F_1$};
-  \node[fac,fill=gray!15]   (f2) at (0, 1.0) {$F_2$};
-  \node[fac,fill=green!30]  (f3) at (0,-0.2) {$F_3$};
-
-  % Open/closed labels
-  \node[font=\tiny,green!50!black,left=2pt of f1] {open};
-  \node[font=\tiny,red!60!black,left=2pt of f2] {closed};
-  \node[font=\tiny,green!50!black,left=2pt of f3] {open};
-
-  % Customers (right column)
-  \node[cust] (c1) at (3.2, 2.6) {$c_1$};
-  \node[cust] (c2) at (3.2, 1.6) {$c_2$};
-  \node[cust] (c3) at (3.2, 0.6) {$c_3$};
-  \node[cust] (c4) at (3.2,-0.4) {$c_4$};
-
-  % Assignment edges (from open facilities only)
-  \draw[assign,green!50!black] (f1) -- (c1);
-  \draw[assign,green!50!black] (f1) -- (c2);
-  \draw[assign,green!50!black] (f3) -- (c3);
-  \draw[assign,green!50!black] (f3) -- (c4);
-
-  % Grey dashed from closed facility (potential)
-  \draw[assign,gray!40] (f2) -- (c2);
-  \draw[assign,gray!40] (f2) -- (c3);
-
-  % Legend
-  \node[fac,fill=green!30,minimum size=0.3cm] at (0.4,-1.1) {};
-  \node[font=\tiny,right] at (0.65,-1.1) {Open};
-  \node[fac,fill=gray!15,minimum size=0.3cm] at (2.0,-1.1) {};
-  \node[font=\tiny,right] at (2.25,-1.1) {Closed};
-\end{tikzpicture}
-\end{center}
-\end{column}
-\begin{column}{0.60\textwidth}
-\textbf{Decide} which facilities to open and how to assign customers.
-
-\smallskip
-{\small\textbf{Sets:} facilities $F$, customers $C$}
-
-{\small\textbf{Parameters:} fixed cost $f_i$, assignment cost $t_{ij}$, demand $d_j$, capacity $q_i$}
-
-{\small\textbf{Variables:} $y_i \in \{0,1\}$ (open $i$?), \; $x_{ij} \ge 0$ (fraction served)}
-
-\begin{align*}
-  \min \quad & \sum_{i \in F} f_i\, y_i
-    + \sum_{i \in F}\sum_{j \in C} t_{ij}\, x_{ij} \\
-  \text{s.t.} \quad
-    & \sum_{i \in F} x_{ij} = 1
-      & \forall\, j \in C \\
-    & \sum_{j \in C} d_j\, x_{ij} \le q_i\, y_i
-      & \forall\, i \in F \\
-    & x_{ij} \ge 0,\; y_i \in \{0,1\}
-\end{align*}
-
-\begin{itemize}
-  \item The constraint $x_{ij} \le y_i$ \textbf{links} assignment to opening.
-\end{itemize}
-\end{column}
-\end{columns}
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 21: Exercise 7
-% ---------------------------------------------------------
-\begin{frame}{Exercise 8: Facility Location}
-\begin{block}{Task}
-Implement the uncapacitated facility location problem:
-\begin{itemize}
-  \item Binary variables for facility opening decisions.
-  \item Continuous variables for customer assignments.
-  \item Linking and demand constraints.
-\end{itemize}
-\end{block}
-\begin{itemize}
-  \item File: \texttt{ex07\_facility\_location/facility\_location.py}
-  \item Test: \texttt{python ex07\_facility\_location/test\_facility\_location.py}
-\end{itemize}
-\end{frame}
-\fi
 
 % ---------------------------------------------------------
 % Frame 22: Graph Coloring
@@ -990,7 +729,7 @@ $w_c \in \{0,1\}$ (color $c$ used?)}
 % ---------------------------------------------------------
 % Frame 23: Exercise 8
 % ---------------------------------------------------------
-\begin{frame}{Exercise 9: Graph Coloring}
+\begin{frame}{Exercise 7: Graph Coloring}
 \begin{block}{Task}
 Implement the graph coloring formulation:
 \begin{itemize}
@@ -1000,13 +739,110 @@ Implement the graph coloring formulation:
 \end{itemize}
 \end{block}
 \begin{itemize}
-  \item File: \texttt{ex08\_graph\_coloring/graph\_coloring.py}
-  \item Test: \texttt{python ex08\_graph\_coloring/test\_graph\_coloring.py}
+  \item File: \texttt{ex07\_graph\_coloring/graph\_coloring.py}
+  \item Test: \texttt{python ex07\_graph\_coloring/test\_graph\_coloring.py}
 \end{itemize}
 \end{frame}
 
 % ---------------------------------------------------------
-% Frame 24: Generator Scheduling Problem
+% Frame: Nonlinear Blending (Pooling Problem)
+% ---------------------------------------------------------
+\begin{frame}{Nonlinear Blending (Pooling Problem)}
+\begin{columns}[T]
+\begin{column}{0.40\textwidth}
+\begin{center}
+\begin{tikzpicture}[scale=0.9,
+  src/.style={circle,draw,fill=blue!15,minimum size=0.7cm,
+              font=\scriptsize\bfseries},
+  pool/.style={rectangle,draw,rounded corners=4pt,fill=yellow!20,
+               minimum width=1.2cm,minimum height=0.7cm,
+               font=\scriptsize\bfseries},
+  prod/.style={circle,draw,fill=red!15,minimum size=0.7cm,
+               font=\scriptsize\bfseries},
+  arr/.style={-{Stealth},thin},
+]
+  % Sources
+  \node[src]  (s1) at (0, 2.2) {$A$};
+  \node[src]  (s2) at (0, 0.4) {$B$};
+
+  % Pool
+  \node[pool] (pl) at (2.2, 1.3) {Pool};
+
+  % Products
+  \node[prod] (p1) at (4.4, 2.2) {$X$};
+  \node[prod] (p2) at (4.4, 0.4) {$Y$};
+
+  % Source -> Pool
+  \draw[arr] (s1) -- node[above,font=\tiny]{$x_A$} (pl);
+  \draw[arr] (s2) -- node[below,font=\tiny]{$x_B$} (pl);
+
+  % Pool -> Products
+  \draw[arr] (pl) -- node[above,font=\tiny]{$y_X$} (p1);
+  \draw[arr] (pl) -- node[below,font=\tiny]{$y_Y$} (p2);
+
+  % Direct bypass arcs (wider bend to clear the pool)
+  \draw[arr,densely dashed,gray] (s1) to[bend left=30]
+    node[above,font=\tiny,pos=0.5]{$z_{AX}$} (p1);
+  \draw[arr,densely dashed,gray] (s2) to[bend right=30]
+    node[below,font=\tiny,pos=0.5]{$z_{BY}$} (p2);
+
+  % Legend
+  \node[font=\tiny,gray] at (2.2,-0.9) {dashed = direct bypass};
+\end{tikzpicture}
+\end{center}
+\end{column}
+\begin{column}{0.60\textwidth}
+Blend raw materials through a mixing pool to make products with
+quality specifications.
+
+\smallskip
+{\small\textbf{Parameters:} cost $c_s$, quality $q_s$ per source;
+revenue $r_p$, max quality $\bar{q}_p$ per product}
+
+{\small\textbf{Variables:} $x_s$ (source to pool), $y_p$ (pool to product),
+$z_{sp}$ (direct bypass), $\lambda$ (pool quality)}
+
+\begin{align*}
+  \max \quad & \textstyle\sum_p r_p\,d_p - \sum_s c_s\,(\,x_s + \sum_p z_{sp})\\[3pt]
+  \text{s.t.} \quad
+    & \textstyle\sum_s x_s = \sum_p y_p
+      & \text{(balance)} \\
+    & \lambda \textstyle\sum_s x_s = \sum_s q_s\, x_s
+      & \text{(pool qual.)} \\
+    & \lambda\, y_p + \textstyle\sum_s q_s\, z_{sp} \le \bar{q}_p\, d_p
+      & \forall\, p
+\end{align*}
+where $d_p = y_p + \sum_s z_{sp}$.
+
+\smallskip
+{\small\textbf{Note:} The terms $\lambda\, x_s$ and $\lambda\, y_p$ are
+\textbf{bilinear}. This is a nonconvex NLP that SCIP can solve globally.}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame: Exercise 8 — Nonlinear Blending
+% ---------------------------------------------------------
+\begin{frame}{Exercise 8: Nonlinear Blending}
+\begin{block}{Task}
+Implement the pooling problem:
+\begin{itemize}
+  \item Flow variables for pool and direct bypass paths.
+  \item Pool quality variable $\lambda$ with \textbf{bilinear constraints}.
+  \item Maximize profit (linear objective).
+\end{itemize}
+\textbf{Tip:} Use \texttt{l} (or \texttt{lam}) for the $\lambda$ variable —
+\texttt{lambda} is a reserved keyword in Python.
+\end{block}
+\begin{itemize}
+  \item File: \texttt{ex08\_blending/blending.py}
+  \item Test: \texttt{python ex08\_blending/test\_blending.py}
+\end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame: Generator Scheduling Problem
 % ---------------------------------------------------------
 \begin{frame}{Generator Scheduling}
 \begin{columns}[T]
@@ -1102,7 +938,7 @@ addConsIndicator(p[i] >= P_min[i], y[i])
 % ---------------------------------------------------------
 % Frame 25: Exercise 10
 % ---------------------------------------------------------
-\begin{frame}{Exercise 10: Indicator Constraints}
+\begin{frame}{Exercise 9: Indicator Constraints}
 \begin{block}{Task}
 Model a generator scheduling problem two ways:
 \begin{itemize}
@@ -1120,7 +956,7 @@ Verify that both yield the same optimal solution.
 % ---------------------------------------------------------
 % Frame 26: Benchmarking
 % ---------------------------------------------------------
-\begin{frame}{Exercise 12: Benchmarking Formulations}
+\begin{frame}{Exercise 10: Benchmarking Formulations}
 \textbf{Goal:} measure how formulation choices affect solver performance.
 
 \medskip
@@ -1150,7 +986,7 @@ Solve with both big-M and indicator formulations. Compare:
 % ---------------------------------------------------------
 % Frame 27: Wrap-up
 % ---------------------------------------------------------
-\begin{frame}{Part 1 --- Wrap-up}
+\begin{frame}{Part 1: Wrap-up}
 \textbf{What we covered:}
 \begin{itemize}
   \item The PySCIPOpt modeling lifecycle: variables, constraints, objective.
@@ -1172,7 +1008,7 @@ Solve with both big-M and indicator formulations. Compare:
 \begin{block}{Up next}
 \begin{itemize}
   \item Part 2: Row generation (TSP, cutting planes)
-  \item Part 3: Column generation \& branch-and-price (bin packing)
+  \item Part 3: Branch-and-price (bin packing)
 \end{itemize}
 \end{block}
 \end{frame}

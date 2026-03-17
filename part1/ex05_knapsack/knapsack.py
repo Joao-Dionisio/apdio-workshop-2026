@@ -17,9 +17,13 @@ from pyscipopt import Model, quicksum
 
 
 def knapsack(weights, values, capacity):
-    """Build and return a 0-1 knapsack IP."""
+    """Build and return a 0-1 knapsack IP.
+
+    Returns:
+        (model, x) — the unsolved model and a dict mapping item index to its binary variable.
+    """
     # =========================================================================
-    # EXERCISE 7: Build a 0-1 knapsack IP
+    # EXERCISE 5: Build a 0-1 knapsack IP
     # =========================================================================
     #
     # This is a maximization problem — don't forget the objective sense.
@@ -28,4 +32,8 @@ def knapsack(weights, values, capacity):
     #
     # =========================================================================
 
-    raise NotImplementedError("Exercise 7: Build a 0-1 knapsack IP.")
+    n_items = len(weights)
+
+    model = Model("knapsack")
+
+    raise NotImplementedError("Exercise 5: Build a 0-1 knapsack IP.")

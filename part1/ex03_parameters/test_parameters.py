@@ -8,53 +8,13 @@ Run:
 
 import os
 import tempfile
+import traceback
 
 from pyscipopt import Model
-from parameters import (
-    solve_with_time_limit,
-    solve_with_gap_limit,
-    solve_with_emphasis,
-    load_and_solve,
-)
+from parameters import solve_with_params, load_and_solve
 
 
-def _build_hard_model():
-    """Build a bin packing instance that takes some effort to solve."""
-    import random
-    random.seed(42)
-
-    n_items = 40
-    capacity = 100
-    sizes = [random.randint(20, 80) for _ in range(n_items)]
-    n_bins = n_items  # upper bound
-
-    model = Model("BinPacking")
-    model.hideOutput()
-
-    x = {}
-    y = {}
-    for b in range(n_bins):
-        y[b] = model.addVar(name=f"y_{b}", vtype="B", obj=1)
-        for i in range(n_items):
-            x[i, b] = model.addVar(name=f"x_{i}_{b}", vtype="B")
-
-    for i in range(n_items):
-        model.addCons(
-            sum(x[i, b] for b in range(n_bins)) == 1,
-            name=f"assign_{i}",
-        )
-
-    for b in range(n_bins):
-        model.addCons(
-            sum(sizes[i] * x[i, b] for i in range(n_items)) <= capacity * y[b],
-            name=f"capacity_{b}",
-        )
-
-    # Symmetry breaking: order bins
-    for b in range(n_bins - 1):
-        model.addCons(y[b] >= y[b + 1], name=f"sym_{b}")
-
-    return model
+REQUIRED_KEYS = {"status", "objective", "gap", "n_nodes", "time"}
 
 
 def _build_simple_model():
@@ -68,54 +28,65 @@ def _build_simple_model():
     return model
 
 
-def test_time_limit():
-    """Time limit should be respected."""
+# ---------- solve_with_params tests ----------
+
+def test_return_format():
+    """Result should be a dict with the required keys."""
     model = _build_simple_model()
-    result = solve_with_time_limit(model, time_limit=60)
+    result = solve_with_params(model, {})
     assert isinstance(result, dict), "Should return a dict"
-    assert "status" in result, "Missing key: status"
-    assert "objective" in result, "Missing key: objective"
-    assert "gap" in result, "Missing key: gap"
-    assert "time" in result, "Missing key: time"
+    for key in REQUIRED_KEYS:
+        assert key in result, f"Missing key: {key}"
+    print("PASS: test_return_format")
+
+
+def test_time_limit():
+    """Time limit parameter should be respected."""
+    model = _build_simple_model()
+    result = solve_with_params(model, {"limits/time": 60})
     assert result["time"] <= 61, "Solving time should respect the limit"
+    assert result["status"] == "optimal"
     print("PASS: test_time_limit")
 
 
 def test_gap_limit():
-    """Gap limit should stop early."""
+    """Gap limit parameter should be respected."""
     model = _build_simple_model()
-    result = solve_with_gap_limit(model, gap=0.1)
-    assert isinstance(result, dict), "Should return a dict"
-    assert "status" in result, "Missing key: status"
-    assert "objective" in result, "Missing key: objective"
-    assert "gap" in result, "Missing key: gap"
-    assert "n_nodes" in result, "Missing key: n_nodes"
+    result = solve_with_params(model, {"limits/gap": 0.1})
     assert result["gap"] <= 0.1 + 1e-6, f"Gap should be <= 0.1, got {result['gap']}"
     print("PASS: test_gap_limit")
 
 
 def test_emphasis():
-    """Emphasis setting should not crash and return valid results."""
-    model = _build_simple_model()
-    result = solve_with_emphasis(model, "OPTIMALITY")
-    assert isinstance(result, dict), "Should return a dict"
-    assert "status" in result, "Missing key: status"
-    assert "n_nodes" in result, "Missing key: n_nodes"
-    assert "time" in result, "Missing key: time"
+    """Emphasis settings should work (passed as a regular parameter)."""
+    for emphasis in ["OPTIMALITY", "FEASIBILITY"]:
+        model = _build_simple_model()
+        result = solve_with_params(
+            model, {"limits/time": 30, "emphasis/" + emphasis.lower(): 1}
+        )
+        assert result["status"] == "optimal", (
+            f"Expected optimal with {emphasis} emphasis, got {result['status']}"
+        )
     print("PASS: test_emphasis")
 
 
-def test_feasibility_emphasis():
-    """Feasibility emphasis should also work."""
-    model = _build_simple_model()
-    result = solve_with_emphasis(model, "FEASIBILITY")
-    assert result["status"] == "optimal", f"Expected optimal, got {result['status']}"
-    print("PASS: test_feasibility_emphasis")
+def test_no_solution_objective():
+    """Objective should be None when no solution is found (e.g., infeasible)."""
+    model = Model("Infeasible")
+    model.hideOutput()
+    x = model.addVar(name="x", vtype="B")
+    model.addCons(x >= 2)  # infeasible for binary
+    result = solve_with_params(model, {})
+    assert result["objective"] is None, (
+        f"Expected None for infeasible, got {result['objective']}"
+    )
+    print("PASS: test_no_solution_objective")
 
 
-def test_load_and_solve():
-    """Load a model from an LP file and solve it."""
-    # Create a temporary LP file from a simple model
+# ---------- load_and_solve tests ----------
+
+def _write_temp_model():
+    """Write a simple model to a temp LP file and return the path."""
     m = Model("Export")
     m.hideOutput()
     x = m.addVar(name="x", vtype="B", obj=3)
@@ -126,18 +97,23 @@ def test_load_and_solve():
     tmpdir = tempfile.mkdtemp()
     filepath = os.path.join(tmpdir, "test.lp")
     m.writeProblem(filepath)
+    return filepath
 
+
+def test_load_and_solve():
+    """Load a model from file, apply params, and solve."""
+    filepath = _write_temp_model()
     result = load_and_solve(filepath, params={"limits/time": 10})
     assert isinstance(result, dict), "Should return a dict"
-    assert "status" in result, "Missing key: status"
-    assert "objective" in result, "Missing key: objective"
+    for key in REQUIRED_KEYS:
+        assert key in result, f"Missing key: {key}"
     assert result["status"] == "optimal", f"Expected optimal, got {result['status']}"
     assert abs(result["objective"] - 3.0) < 1e-6, (
         f"Expected obj=3, got {result['objective']}"
     )
 
     os.remove(filepath)
-    os.rmdir(tmpdir)
+    os.rmdir(os.path.dirname(filepath))
     print("PASS: test_load_and_solve")
 
 
@@ -163,16 +139,33 @@ def test_load_no_params():
     print("PASS: test_load_no_params")
 
 
+def test_load_miplib():
+    """Load a MIPLIB instance if available."""
+    miplib_path = os.path.join(os.path.dirname(__file__), "miplib_data", "p0033.mps.gz")
+    if not os.path.exists(miplib_path):
+        print("SKIP: test_load_miplib - miplib_data/p0033.mps.gz not found")
+        return
+
+    result = load_and_solve(miplib_path, params={"limits/time": 30})
+    assert result["status"] in ("optimal", "timelimit"), (
+        f"Unexpected status: {result['status']}"
+    )
+    assert result["objective"] is not None, "p0033 should find a solution"
+    print("PASS: test_load_miplib")
+
+
 if __name__ == "__main__":
     print("Running parameter tests...\n")
 
     tests = [
+        test_return_format,
         test_time_limit,
         test_gap_limit,
         test_emphasis,
-        test_feasibility_emphasis,
+        test_no_solution_objective,
         test_load_and_solve,
         test_load_no_params,
+        test_load_miplib,
     ]
 
     passed = 0
@@ -188,11 +181,11 @@ if __name__ == "__main__":
             failed += 1
         except AssertionError as e:
             print(f"FAIL: {test.__name__}")
-            print(f"      {e}")
+            traceback.print_exc()
             failed += 1
         except Exception as e:
             print(f"ERROR: {test.__name__}")
-            print(f"       {type(e).__name__}: {e}")
+            traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")

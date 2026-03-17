@@ -89,16 +89,13 @@ cd part1
 python ex01_first_model/test_first_model.py
 python ex02_solving/test_solving.py
 python ex03_parameters/test_parameters.py
-python ex03_transportation/test_transportation.py
-python ex04_blending/test_blending.py
-python ex05_set_cover/test_set_cover.py
-python ex06_knapsack/test_knapsack.py
-python ex07_bin_packing/test_bin_packing.py
-python ex07_facility_location/test_facility_location.py
-python ex08_graph_coloring/test_graph_coloring.py
+python ex04_transportation/test_transportation.py
+python ex08_blending/test_blending.py
+python ex05_knapsack/test_knapsack.py
+python ex07_graph_coloring/test_graph_coloring.py
 python ex09_indicators/test_indicators.py
 python ex10_benchmarking/test_benchmarking.py
-python ex11_tsp_mtz/test_tsp_mtz.py
+python ex06_tsp_mtz/test_tsp_mtz.py
 
 # Part 2: Row Generation
 cd part2

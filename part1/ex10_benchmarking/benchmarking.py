@@ -1,30 +1,49 @@
 """
 Benchmarking formulations.
 
-Exercise 12: Generate random generator scheduling instances of increasing size
+Exercise 10: Generate random generator scheduling instances of increasing size
 and compare big-M vs indicator formulations.
 """
 
 import os
+import random
 from pyscipopt import Model
 
 
 def generate_instance(n_generators, seed=42):
     """Generate a random generator scheduling instance.
 
-    Returns (demand, fixed_costs, var_costs, p_min, p_max).
+    Args:
+        n_generators: number of generators.
+        seed: random seed for reproducibility.
+
+    Returns:
+        (demand, fixed_costs, var_costs, p_min, p_max) where:
+            demand:      int — total demand (~60% of total capacity)
+            fixed_costs: list of length n_generators — startup cost per generator
+            var_costs:   list of length n_generators — per-MW cost per generator
+            p_min:       list of length n_generators — minimum output if on
+            p_max:       list of length n_generators — maximum output
     """
-    import random
-    rng = random.Random(seed)
+    # =========================================================================
+    # EXERCISE 10a: Generate a random instance
+    # =========================================================================
+    #
+    # Use random.Random(seed) for reproducibility.
+    #
+    # For each generator i:
+    #   fixed_costs[i] — random int in [50, 200]
+    #   var_costs[i]   — random int in [5, 20]
+    #   p_max[i]       — random int in [100, 500]
+    #   p_min[i]       — random int in [20, p_max[i] // 2]
+    #
+    # demand = int(0.6 * sum(p_max))
+    #
+    # Return (demand, fixed_costs, var_costs, p_min, p_max)
+    #
+    # =========================================================================
 
-    fixed_costs = [rng.randint(50, 200) for _ in range(n_generators)]
-    var_costs = [rng.randint(5, 20) for _ in range(n_generators)]
-    p_max = [rng.randint(100, 500) for _ in range(n_generators)]
-    p_min = [rng.randint(20, p_max[i] // 2) for i in range(n_generators)]
-    # Demand: ~60% of total capacity so the problem is interesting
-    demand = int(0.6 * sum(p_max))
-
-    return demand, fixed_costs, var_costs, p_min, p_max
+    raise NotImplementedError("Exercise 10a: Implement generate_instance.")
 
 
 def benchmark_formulation(build_fn, demand, fixed_costs, var_costs, p_min, p_max,
@@ -76,15 +95,18 @@ def compare_formulations(sizes, seed=42, time_limit=60.0):
     from indicators import generator_scheduling_bigm, generator_scheduling_indicator
 
     # =========================================================================
-    # EXERCISE: For each size in sizes:
+    # EXERCISE 10b: For each size in sizes:
     #   1. Generate an instance with generate_instance(size, seed)
-    #   2. Benchmark both formulations using benchmark_formulation
-    #   3. Collect results
+    #   2. Benchmark both formulations using benchmark_formulation()
+    #   3. Collect results as a list of dicts:
+    #      {"n": size, "bigm": stats_dict, "indicator": stats_dict}
+    #   4. Call print_results(results) to display the comparison table
+    #      (already implemented below — just call it!)
     #
-    # Print a table showing: n | bigM time | bigM nodes | ind time | ind nodes
+    # Return the results list.
     # =========================================================================
 
-    raise NotImplementedError("Exercise 12: Implement compare_formulations.")
+    raise NotImplementedError("Exercise 10b: Implement compare_formulations.")
 
 
 def print_results(results):

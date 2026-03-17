@@ -97,55 +97,54 @@
   \item NP-hard; applications in logistics, scheduling, cloud computing
   \item We will explore two formulations:
     \begin{enumerate}
-      \item Compact (assignment variables) --- symmetry, weak LP
-      \item Extended (pattern variables) --- column generation
+      \item Compact (assignment variables): symmetry, weak LP
+      \item Extended (pattern variables): column generation
     \end{enumerate}
 \end{itemize}
 \end{column}
 \begin{column}{0.45\textwidth}
 \centering
 \begin{tikzpicture}[
-  bin/.style={draw, thick, minimum width=1.2cm},
-  item/.style={draw, minimum width=1cm, font=\scriptsize\bfseries,
-               align=center}
+  item/.style={rounded corners=2pt, font=\scriptsize\bfseries,
+               align=center, text=white, text opacity=1},
 ]
-  % Capacity line height
-  \def\caph{3.2}
+  \def\caph{3.2}  % capacity height
+  \def\bw{1.2}    % bin width
 
-  % Bin 1
-  \draw[thick] (0,0) -- (0,\caph) (1.2,0) -- (1.2,\caph);
-  \draw[thick] (0,0) -- (1.2,0);
-  \fill[red!40] (0.1,0) rectangle (1.1, 1.2);
-  \node[font=\scriptsize\bfseries] at (0.6, 0.6) {$a$};
-  \fill[blue!40] (0.1,1.2) rectangle (1.1, 2.6);
-  \node[font=\scriptsize\bfseries] at (0.6, 1.9) {$b$};
-  \draw[dashed, gray] (0, \caph) -- (1.2, \caph);
-  \node[font=\scriptsize] at (0.6, -0.3) {Bin 1};
+  % --- Helper: draw a bin container at x-offset #1, label #2 ---
+  % Rounded bottom, open top, subtle fill
+  \foreach \xoff/\lab in {0/1, 1.8/2, 3.6/3} {
+    \fill[black!5, rounded corners=3pt]
+      (\xoff, 0) -- (\xoff, \caph) -- (\xoff+\bw, \caph) -- (\xoff+\bw, 0)
+      -- cycle;
+    \draw[black!60, thick, rounded corners=3pt]
+      (\xoff, \caph) -- (\xoff, 0) -- (\xoff+\bw, 0) -- (\xoff+\bw, \caph);
+    \draw[black!30, densely dashed] (\xoff, \caph) -- (\xoff+\bw, \caph);
+    \node[font=\scriptsize, black!70] at (\xoff+0.6, -0.3) {Bin \lab};
+  }
 
-  % Bin 2
-  \draw[thick] (1.8,0) -- (1.8,\caph) (3.0,0) -- (3.0,\caph);
-  \draw[thick] (1.8,0) -- (3.0,0);
-  \fill[green!40] (1.9,0) rectangle (2.9, 0.8);
-  \node[font=\scriptsize\bfseries] at (2.4, 0.4) {$c$};
-  \fill[orange!40] (1.9,0.8) rectangle (2.9, 2.0);
-  \node[font=\scriptsize\bfseries] at (2.4, 1.4) {$d$};
-  \fill[purple!30] (1.9,2.0) rectangle (2.9, 2.8);
-  \node[font=\scriptsize\bfseries] at (2.4, 2.4) {$e$};
-  \draw[dashed, gray] (1.8, \caph) -- (3.0, \caph);
-  \node[font=\scriptsize] at (2.4, -0.3) {Bin 2};
+  % --- Bin 1 items ---
+  \fill[item, fill=red!65!black]  (0.08,0.05) rectangle (1.12, 1.2);
+  \node[item] at (0.6, 0.625) {$a$};
+  \fill[item, fill=blue!70!black] (0.08,1.25) rectangle (1.12, 2.6);
+  \node[item] at (0.6, 1.925) {$b$};
 
-  % Bin 3
-  \draw[thick] (3.6,0) -- (3.6,\caph) (4.8,0) -- (4.8,\caph);
-  \draw[thick] (3.6,0) -- (4.8,0);
-  \fill[yellow!50] (3.7,0) rectangle (4.7, 1.8);
-  \node[font=\scriptsize\bfseries] at (4.2, 0.9) {$f$};
-  \fill[cyan!40] (3.7,1.8) rectangle (4.7, 2.5);
-  \node[font=\scriptsize\bfseries] at (4.2, 2.15) {$g$};
-  \draw[dashed, gray] (3.6, \caph) -- (4.8, \caph);
-  \node[font=\scriptsize] at (4.2, -0.3) {Bin 3};
+  % --- Bin 2 items ---
+  \fill[item, fill=green!60!black]  (1.88,0.05) rectangle (2.92, 0.8);
+  \node[item] at (2.4, 0.425) {$c$};
+  \fill[item, fill=orange!75!black] (1.88,0.85) rectangle (2.92, 2.0);
+  \node[item] at (2.4, 1.425) {$d$};
+  \fill[item, fill=violet!65!black] (1.88,2.05) rectangle (2.92, 2.8);
+  \node[item] at (2.4, 2.425) {$e$};
+
+  % --- Bin 3 items ---
+  \fill[item, fill=yellow!70!black]  (3.68,0.05) rectangle (4.72, 1.8);
+  \node[item] at (4.2, 0.925) {$f$};
+  \fill[item, fill=teal!70!black]    (3.68,1.85) rectangle (4.72, 2.5);
+  \node[item] at (4.2, 2.175) {$g$};
 
   % Capacity label
-  \node[font=\scriptsize, gray] at (5.3, \caph) {$C$};
+  \node[font=\scriptsize, black!50] at (5.3, \caph) {$C$};
 \end{tikzpicture}
 \end{column}
 \end{columns}
@@ -168,42 +167,51 @@ $y_b \in \{0,1\}$ (bin $b$ used)
 
 \begin{center}
 \begin{tikzpicture}[
-  item/.style={draw, minimum width=0.7cm, font=\scriptsize\bfseries, align=center}
+  item/.style={rounded corners=2pt, font=\scriptsize\bfseries,
+               align=center, text=white, text opacity=1},
 ]
-  % Bin A (left)
-  \draw[thick] (0,0) -- (0,1.6) (1.0,0) -- (1.0,1.6);
-  \draw[thick] (0,0) -- (1.0,0);
-  \fill[red!40] (0.05,0) rectangle (0.95, 0.7);
-  \node[font=\scriptsize\bfseries] at (0.5, 0.35) {$a$};
-  \fill[blue!40] (0.05,0.7) rectangle (0.95, 1.4);
-  \node[font=\scriptsize\bfseries] at (0.5, 1.05) {$b$};
-  \node[font=\scriptsize] at (0.5, -0.3) {Bin 1};
+  \def\bh{1.6}  % bin height
 
-  % Bin B (left)
-  \draw[thick] (1.4,0) -- (1.4,1.6) (2.4,0) -- (2.4,1.6);
-  \draw[thick] (1.4,0) -- (2.4,0);
-  \fill[green!40] (1.45,0) rectangle (2.35, 0.9);
-  \node[font=\scriptsize\bfseries] at (1.9, 0.45) {$c$};
-  \node[font=\scriptsize] at (1.9, -0.3) {Bin 2};
+  % --- Left pair ---
+  % Bin 1 container
+  \fill[black!5, rounded corners=3pt] (0,0) rectangle (1.0, \bh);
+  \draw[black!60, thick, rounded corners=3pt]
+    (0,\bh) -- (0,0) -- (1.0,0) -- (1.0,\bh);
+  \fill[item, fill=red!65!black]  (0.05,0.05) rectangle (0.95, 0.7);
+  \node[item] at (0.5, 0.375) {$a$};
+  \fill[item, fill=blue!70!black] (0.05,0.75) rectangle (0.95, 1.4);
+  \node[item] at (0.5, 1.075) {$b$};
+  \node[font=\scriptsize, black!70] at (0.5, -0.3) {Bin 1};
+
+  % Bin 2 container
+  \fill[black!5, rounded corners=3pt] (1.4,0) rectangle (2.4, \bh);
+  \draw[black!60, thick, rounded corners=3pt]
+    (1.4,\bh) -- (1.4,0) -- (2.4,0) -- (2.4,\bh);
+  \fill[item, fill=green!60!black] (1.45,0.05) rectangle (2.35, 0.9);
+  \node[item] at (1.9, 0.475) {$c$};
+  \node[font=\scriptsize, black!70] at (1.9, -0.3) {Bin 2};
 
   % Equivalence symbol
-  \node[font=\Large\bfseries] at (3.3, 0.7) {$\equiv$};
+  \node[font=\Large\bfseries, black!70] at (3.3, 0.7) {$\equiv$};
 
-  % Bin A (right -- swapped)
-  \draw[thick] (4.2,0) -- (4.2,1.6) (5.2,0) -- (5.2,1.6);
-  \draw[thick] (4.2,0) -- (5.2,0);
-  \fill[green!40] (4.25,0) rectangle (5.15, 0.9);
-  \node[font=\scriptsize\bfseries] at (4.7, 0.45) {$c$};
-  \node[font=\scriptsize] at (4.7, -0.3) {Bin 1};
+  % --- Right pair (swapped) ---
+  % Bin 1 container
+  \fill[black!5, rounded corners=3pt] (4.2,0) rectangle (5.2, \bh);
+  \draw[black!60, thick, rounded corners=3pt]
+    (4.2,\bh) -- (4.2,0) -- (5.2,0) -- (5.2,\bh);
+  \fill[item, fill=green!60!black] (4.25,0.05) rectangle (5.15, 0.9);
+  \node[item] at (4.7, 0.475) {$c$};
+  \node[font=\scriptsize, black!70] at (4.7, -0.3) {Bin 1};
 
-  % Bin B (right -- swapped)
-  \draw[thick] (5.6,0) -- (5.6,1.6) (6.6,0) -- (6.6,1.6);
-  \draw[thick] (5.6,0) -- (6.6,0);
-  \fill[red!40] (5.65,0) rectangle (6.55, 0.7);
-  \node[font=\scriptsize\bfseries] at (6.1, 0.35) {$a$};
-  \fill[blue!40] (5.65,0.7) rectangle (6.55, 1.4);
-  \node[font=\scriptsize\bfseries] at (6.1, 1.05) {$b$};
-  \node[font=\scriptsize] at (6.1, -0.3) {Bin 2};
+  % Bin 2 container
+  \fill[black!5, rounded corners=3pt] (5.6,0) rectangle (6.6, \bh);
+  \draw[black!60, thick, rounded corners=3pt]
+    (5.6,\bh) -- (5.6,0) -- (6.6,0) -- (6.6,\bh);
+  \fill[item, fill=red!65!black]  (5.65,0.05) rectangle (6.55, 0.7);
+  \node[item] at (6.1, 0.375) {$a$};
+  \fill[item, fill=blue!70!black] (5.65,0.75) rectangle (6.55, 1.4);
+  \node[item] at (6.1, 1.075) {$b$};
+  \node[font=\scriptsize, black!70] at (6.1, -0.3) {Bin 2};
 
   % Annotation
   \node[font=\scriptsize, text=red!70!black] at (3.3, -0.7)
@@ -223,55 +231,53 @@ $y_b \in \{0,1\}$ (bin $b$ used)
 % ---------------------------------------------------------
 \begin{frame}{A Different Perspective: Patterns}
 Instead of deciding \emph{where each item goes}, let's think about
-all the ways a single bin can be packed --- \textbf{patterns} (or packings).
+all the ways a single bin can be packed: \textbf{patterns} (or packings).
 
 \medskip
 \begin{center}
 \begin{tikzpicture}[
-  bin/.style={draw, thick, minimum width=1cm},
-  item/.style={font=\scriptsize\bfseries}
+  item/.style={rounded corners=2pt, font=\scriptsize\bfseries,
+               align=center, text=white, text opacity=1},
 ]
   \def\caph{2.2}
   \def\bw{0.9}
 
+  % --- Pattern containers ---
+  \foreach \xoff/\lab in {0/$p_1$, 1.5/$p_2$, 3.0/$p_3$, 4.5/$p_4$} {
+    \fill[black!5, rounded corners=3pt]
+      (\xoff, 0) -- (\xoff, \caph) -- (\xoff+\bw, \caph) -- (\xoff+\bw, 0) -- cycle;
+    \draw[black!60, thick, rounded corners=3pt]
+      (\xoff, \caph) -- (\xoff, 0) -- (\xoff+\bw, 0) -- (\xoff+\bw, \caph);
+    \draw[black!30, densely dashed] (\xoff, \caph) -- (\xoff+\bw, \caph);
+    \node[font=\scriptsize, black!70] at (\xoff+0.45, -0.3) {\lab};
+  }
+
   % Pattern 1: {a,c}
-  \draw[thick] (0,0) rectangle (\bw,\caph);
-  \fill[red!40] (0.05,0) rectangle (0.85, 0.9);
-  \node[item] at (0.45, 0.45) {$a$};
-  \fill[green!40] (0.05,0.9) rectangle (0.85, 1.5);
-  \node[item] at (0.45, 1.2) {$c$};
-  \draw[dashed, gray] (0,\caph) -- (\bw,\caph);
-  \node[font=\scriptsize] at (0.45, -0.3) {$p_1$};
+  \fill[item, fill=red!65!black]   (0.05,0.05) rectangle (0.85, 0.9);
+  \node[item] at (0.45, 0.475) {$a$};
+  \fill[item, fill=green!60!black] (0.05,0.95) rectangle (0.85, 1.5);
+  \node[item] at (0.45, 1.225) {$c$};
 
   % Pattern 2: {a,d}
-  \draw[thick] (1.5,0) rectangle (1.5+\bw,\caph);
-  \fill[red!40] (1.55,0) rectangle (2.35, 0.9);
-  \node[item] at (1.95, 0.45) {$a$};
-  \fill[orange!40] (1.55,0.9) rectangle (2.35, 1.7);
-  \node[item] at (1.95, 1.3) {$d$};
-  \draw[dashed, gray] (1.5,\caph) -- (1.5+\bw,\caph);
-  \node[font=\scriptsize] at (1.95, -0.3) {$p_2$};
+  \fill[item, fill=red!65!black]    (1.55,0.05) rectangle (2.35, 0.9);
+  \node[item] at (1.95, 0.475) {$a$};
+  \fill[item, fill=orange!75!black] (1.55,0.95) rectangle (2.35, 1.7);
+  \node[item] at (1.95, 1.325) {$d$};
 
   % Pattern 3: {b}
-  \draw[thick] (3.0,0) rectangle (3.0+\bw,\caph);
-  \fill[blue!40] (3.05,0) rectangle (3.85, 1.4);
-  \node[item] at (3.45, 0.7) {$b$};
-  \draw[dashed, gray] (3.0,\caph) -- (3.0+\bw,\caph);
-  \node[font=\scriptsize] at (3.45, -0.3) {$p_3$};
+  \fill[item, fill=blue!70!black] (3.05,0.05) rectangle (3.85, 1.4);
+  \node[item] at (3.45, 0.725) {$b$};
 
   % Pattern 4: {c,d,e}
-  \draw[thick] (4.5,0) rectangle (4.5+\bw,\caph);
-  \fill[green!40] (4.55,0) rectangle (5.35, 0.6);
-  \node[item] at (4.95, 0.3) {$c$};
-  \fill[orange!40] (4.55,0.6) rectangle (5.35, 1.4);
-  \node[item] at (4.95, 1.0) {$d$};
-  \fill[purple!30] (4.55,1.4) rectangle (5.35, 1.9);
-  \node[item] at (4.95, 1.65) {$e$};
-  \draw[dashed, gray] (4.5,\caph) -- (4.5+\bw,\caph);
-  \node[font=\scriptsize] at (4.95, -0.3) {$p_4$};
+  \fill[item, fill=green!60!black]  (4.55,0.05) rectangle (5.35, 0.6);
+  \node[item] at (4.95, 0.325) {$c$};
+  \fill[item, fill=orange!75!black] (4.55,0.65) rectangle (5.35, 1.4);
+  \node[item] at (4.95, 1.025) {$d$};
+  \fill[item, fill=violet!65!black] (4.55,1.45) rectangle (5.35, 1.9);
+  \node[item] at (4.95, 1.675) {$e$};
 
   % Dots
-  \node[font=\large] at (6.2, 1.0) {$\cdots$};
+  \node[font=\large, black!50] at (6.2, 1.0) {$\cdots$};
 \end{tikzpicture}
 \end{center}
 
@@ -332,6 +338,91 @@ For all feasible patterns $\mathcal{P}$, let $a_i^p = 1$ if item $i$ is in patte
 \end{frame}
 
 % ---------------------------------------------------------
+% Frame: LP Duality & Reduced Costs
+% ---------------------------------------------------------
+\begin{frame}{LP Duality \& Reduced Costs}
+Consider a general LP and its dual:
+
+\begin{columns}[T]
+\begin{column}{0.44\textwidth}
+\textbf{Primal}
+\vspace{-0.2cm}
+\begin{align*}
+  \min \quad & c^\top x \\
+  \text{s.t.} \quad & Ax = b \\
+  & x \ge 0
+\end{align*}
+\end{column}
+\begin{column}{0.44\textwidth}
+\textbf{Dual}
+\vspace{-0.2cm}
+\begin{align*}
+  \max \quad & b^\top \pi \\
+  \text{s.t.} \quad & A^\top \pi \le c
+\end{align*}
+\end{column}
+\end{columns}
+
+\medskip
+The \textbf{reduced cost} of variable $j$ measures its ``attractiveness'':
+\[
+  \bar{c}_j \;=\; c_j \;-\; \pi^\top a_j
+\]
+
+\begin{itemize}
+  \item $\bar{c}_j < 0$: adding $x_j$ to the basis can \textbf{improve} the objective
+  \item $\bar{c}_j \ge 0 \;\;\forall j$: current solution is \textbf{LP optimal}
+        (complementary slackness)
+\end{itemize}
+
+\medskip
+\textbf{Simplex method:} at each iteration, pivot on a variable with $\bar{c}_j < 0$.
+
+When none exists $\Rightarrow$ optimality certificate.
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame: Why Column Generation Works
+% ---------------------------------------------------------
+\begin{frame}{Why Column Generation Works}
+\textbf{Key insight:} to certify LP optimality, we only need to verify
+$\bar{c}_j \ge 0$ for \emph{all} variables --- but we don't need them all in the LP!
+
+\medskip
+\begin{center}
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners, fill=blue!10, minimum width=3.2cm,
+              minimum height=0.8cm, font=\small\bfseries, align=center},
+  arr/.style={-{Stealth}, thick},
+  note/.style={font=\scriptsize, text=black!70, align=center}
+]
+  \node[box] (solve) at (0,0) {Solve RMP\\{\scriptsize(small LP)}};
+  \node[box] (price) at (6,0) {Pricing oracle\\{\scriptsize$\min_j \;\bar{c}_j$}};
+
+  \draw[arr, transform canvas={yshift=5mm}]
+    (solve) -- node[above, font=\scriptsize] {dual values $\pi$} (price);
+  \draw[arr, transform canvas={yshift=-5mm}]
+    (price) -- node[below, font=\scriptsize] {column with $\bar{c}_j < 0$ (or ``none'')} (solve);
+
+  \node[note] at (0, -1.6) {Only keeps a \emph{subset}\\of all variables};
+  \node[note] at (6, -1.6) {Searches \emph{implicitly} over\\all (exponentially many) variables};
+\end{tikzpicture}
+\end{center}
+
+\medskip
+\begin{itemize}
+  \item If the pricing oracle returns $\min_j \bar{c}_j \ge 0$:
+        the RMP solution is optimal for the \textbf{full} LP
+  \item If $\min_j \bar{c}_j < 0$: add the column and re-solve
+  \item We never need to enumerate all columns --- just a \textbf{smart search}
+\end{itemize}
+
+\smallskip
+\textbf{Dantzig--Wolfe:} exploit problem structure so that the pricing
+oracle is a \emph{tractable} optimization problem (e.g., knapsack, shortest path).
+\end{frame}
+
+% ---------------------------------------------------------
 % Frame 8: Column Generation Loop
 % ---------------------------------------------------------
 \begin{frame}{Column Generation}
@@ -381,22 +472,26 @@ Simplest option: one item per pattern (each item alone in a bin).
 \medskip
 \begin{center}
 \begin{tikzpicture}[
-  bin/.style={draw, thick},
-  item/.style={font=\scriptsize\bfseries}
+  item/.style={rounded corners=2pt, font=\scriptsize\bfseries,
+               align=center, text=white, text opacity=1},
 ]
   \def\caph{1.6}
   \def\bw{0.8}
 
-  \foreach \i/\col/\lbl [count=\n from 0] in {0/red!40/a, 1/blue!40/b, 2/green!40/c, 3/orange!40/d} {
+  \foreach \i/\col/\lbl [count=\n from 0] in
+    {0/red!65!black/a, 1/blue!70!black/b, 2/green!60!black/c, 3/orange!75!black/d} {
     \pgfmathsetmacro{\xoff}{\n * 1.3}
-    \draw[thick] (\xoff,0) rectangle (\xoff+\bw,\caph);
-    \fill[\col] (\xoff+0.05,0) rectangle (\xoff+\bw-0.05, 0.7);
-    \node[item] at (\xoff+\bw/2, 0.35) {$\lbl$};
-    \draw[dashed, gray] (\xoff,\caph) -- (\xoff+\bw,\caph);
+    \fill[black!5, rounded corners=3pt]
+      (\xoff, 0) -- (\xoff, \caph) -- (\xoff+\bw, \caph) -- (\xoff+\bw, 0) -- cycle;
+    \draw[black!60, thick, rounded corners=3pt]
+      (\xoff, \caph) -- (\xoff, 0) -- (\xoff+\bw, 0) -- (\xoff+\bw, \caph);
+    \draw[black!30, densely dashed] (\xoff, \caph) -- (\xoff+\bw, \caph);
+    \fill[item, fill=\col] (\xoff+0.05,0.05) rectangle (\xoff+\bw-0.05, 0.7);
+    \node[item] at (\xoff+\bw/2, 0.375) {$\lbl$};
   }
 
-  \node[font=\large] at (5.7, 0.7) {$\cdots$};
-  \node[font=\scriptsize, gray] at (2.6, -0.4) {One item per bin = $n$ initial patterns};
+  \node[font=\large, black!50] at (5.7, 0.7) {$\cdots$};
+  \node[font=\scriptsize, black!50] at (2.6, -0.4) {One item per bin = $n$ initial patterns};
 \end{tikzpicture}
 \end{center}
 \end{frame}
@@ -414,34 +509,29 @@ for each item, create a pattern containing only that item.
   \item Test: \texttt{cd branch\_and\_price \&\& python test\_initial\_columns.py}
 \end{itemize}
 
-\medskip
-\begin{block}{Hint}
-Each initial pattern $p_i$ has $a_i^{p_i} = 1$ and $a_j^{p_i} = 0$ for $j \neq i$.
-This gives a trivial feasible solution using $n$ bins.
-\end{block}
 \end{frame}
 
 % ---------------------------------------------------------
-% Frame 11: Pricing = Knapsack
+% Frame 11: Pricing
 % ---------------------------------------------------------
-\begin{frame}{Pricing Problem = Knapsack}
-Reduced cost of a new pattern $a$:
-\[
-  \bar{c} = \underbrace{1}_{\text{obj.\ coefficient}} - \underbrace{\sum_{i \in \mathcal{I}} a_i \pi_i}_{\text{column coeffs.\ $\times$ duals}}
-\]
+\begin{frame}{Pricing Problem}
+Reduced cost of a new pattern $a$:\quad
+$\bar{c} = \underbrace{1}_{\text{obj.\ coeff.}} - \underbrace{\sum_{i} a_i \pi_i}_{\text{col.\ coeffs.\ $\times$ duals}}$
 
+\smallskip
 Minimize reduced cost subject to bin capacity:
+\vspace{-0.3cm}
 \begin{align*}
   \min \quad & 1 - \sum_{i} a_i\, \pi_i \\
   \text{s.t.} \quad
-    & \sum_{i} s_i\, a_i \le C \\
-    & a_i \in \{0,1\}
+    & \sum_{i} s_i\, a_i \le C, \quad a_i \in \{0,1\}
 \end{align*}
 
+\vspace{-0.3cm}
 \pause
-$= 1 + \min \left(-\sum_i a_i \pi_i\right) = 1 - \max \sum_i a_i \pi_i \;\;\Rightarrow\;\;$ \textbf{0--1 Knapsack!}
+$= 1 - \max \sum_i a_i \pi_i \;\;\Rightarrow\;\;$ \textbf{0--1 Knapsack!}
 
-\medskip
+\smallskip
 When optimal reduced cost $\ge 0$: no improving pattern exists $\Rightarrow$ LP solved.
 \end{frame}
 
@@ -449,15 +539,19 @@ When optimal reduced cost $\ge 0$: no improving pattern exists $\Rightarrow$ LP 
 % Frame 12: Pricing in SCIP's Solving Loop
 % ---------------------------------------------------------
 \begin{frame}{Where Does Pricing Fit in SCIP?}
-\begin{center}
-\includegraphics[height=0.55\textheight]{media/scip_solving_loop_pricing.png}
-\end{center}
-
+\begin{columns}[c]
+\begin{column}{0.35\textwidth}
 \begin{itemize}
   \item After solving the LP, SCIP calls the \textbf{pricer} plugin
   \item The pricer adds columns with negative reduced cost
   \item LP is re-solved until no improving columns exist
 \end{itemize}
+\end{column}
+\begin{column}{0.63\textwidth}
+\centering
+\includegraphics[height=0.7\textheight]{media/scip_solving_loop_pricing.png}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
@@ -496,8 +590,8 @@ class KnapsackPricer(Pricer):
 % ---------------------------------------------------------
 \begin{frame}{Exercise: Knapsack Pricing}
 \begin{block}{Task}
-Implement the 0--1 knapsack solver used as the pricing subproblem.
-Return \texttt{(optimal\_value, list\_of\_selected\_items)}.
+Implement the pricing subproblem. You already wrote a knapsack solver in
+Part~1. Copy it over and adapt it to return \texttt{(reduced\_cost, pattern)}.
 \end{block}
 \begin{itemize}
   \item File: \texttt{branch\_and\_price/pricing\_knapsack.py}
@@ -512,15 +606,20 @@ Return \texttt{(optimal\_value, list\_of\_selected\_items)}.
 Column generation solves the \textbf{LP relaxation}. To get integer solutions,
 we embed it in \textbf{branch-and-bound}:
 
-\begin{center}
-\includegraphics[height=0.55\textheight]{media/scip_solving_loop_branching.png}
-\end{center}
-
+\smallskip
+\begin{columns}[c]
+\begin{column}{0.35\textwidth}
 \begin{itemize}
   \item At each node: solve LP with column generation
   \item If LP solution is fractional: \textbf{branch}
   \item But \emph{how} should we branch?
 \end{itemize}
+\end{column}
+\begin{column}{0.63\textwidth}
+\centering
+\includegraphics[height=0.6\textheight]{media/scip_solving_loop_branching.png}
+\end{column}
+\end{columns}
 \end{frame}
 
 % ---------------------------------------------------------
@@ -562,7 +661,7 @@ $\Rightarrow$ \textbf{Barely restrictive}
 
   % Left child: z_p = 1 (deep skinny branch)
   \node[nd, fill=green!25] (l1) at (-2.2, -0.9) {};
-  \draw[edge] (root) -- (l1) node[lbl, left, pos=0.6] {$z_p{=}1$};
+  \draw[edge] (root) -- (l1) node[lbl, left, pos=0.4] {$z_p{=}1$};
 
   % Left subtree - pruned quickly
   \node[nd, fill=green!25] (l2) at (-2.2, -1.8) {};
@@ -613,7 +712,7 @@ Result: \textbf{highly unbalanced} tree $\Rightarrow$ very slow convergence
 \begin{frame}{Ryan-Foster Branching}
 Branch on \textbf{pairs of items} $(i, j)$ instead of individual variables:
 
-\medskip
+\smallskip
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
 \begin{block}{Together}
@@ -627,16 +726,17 @@ Items $i$ and $j$ must be in \textbf{different} bins.
 \end{column}
 \end{columns}
 
-\medskip
-\begin{columns}[T]
+\smallskip
+\begin{columns}[c]
 \begin{column}{0.50\textwidth}
 \textbf{How to find a pair:}
-\begin{itemize}
-  \item Compute implicit pair variable: $x_{ij} = \sum_{p:\, i \in p,\, j \in p} z_p$
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item Compute implicit pair variable:\\[2pt]
+        $x_{ij} = \sum_{p:\, i \in p,\, j \in p} z_p$
   \item Choose pair where $0 < x_{ij} < 1$ (fractional)
 \end{itemize}
 
-\medskip
+\smallskip
 $\Rightarrow$ Much more \textbf{balanced} search tree
 \end{column}
 \begin{column}{0.47\textwidth}
@@ -651,7 +751,7 @@ $\Rightarrow$ Much more \textbf{balanced} search tree
 % ---------------------------------------------------------
 \begin{frame}{Exercises: Ryan-Foster Branching}
 \begin{block}{Exercise: Fractional Pairs}
-Implement \texttt{all\_fractional\_pairs()} --- find all item pairs with fractional implicit values.
+Implement \texttt{all\_fractional\_pairs()}: find all item pairs with fractional implicit values.
 \end{block}
 \begin{itemize}
   \item File: \texttt{branch\_and\_price/ryan\_foster.py}
@@ -670,35 +770,14 @@ Complete the child-node creation logic: inherit parent decisions, add new pair.
 % ---------------------------------------------------------
 % Frame 19: Enforcing Branching in Pricing
 % ---------------------------------------------------------
-\begin{frame}[fragile]{Enforcing Branching in Pricing}
-The pricing problem must respect \textbf{all} accumulated branching decisions:
-
-\medskip
-\begin{itemize}
-  \item \textbf{Together} $(i, j)$: add constraint $a_i = a_j$ in knapsack
-  \item \textbf{Apart} $(i, j)$: add constraint $a_i + a_j \le 1$ in knapsack
-\end{itemize}
-
-\medskip
-\begin{lstlisting}
-# Together constraints
-for i, j in together:
-    m.addCons(x[i] == x[j])
-
-# Apart constraints
-for i, j in apart:
-    m.addCons(x[i] + x[j] <= 1)
-\end{lstlisting}
-
-\end{frame}
-
-% ---------------------------------------------------------
-% Frame 20: Exercise --- Constrained Pricing
-% ---------------------------------------------------------
 \begin{frame}{Exercise: Constrained Pricing}
+The pricing problem must respect \textbf{all} accumulated branching decisions
+(\textbf{together} and \textbf{apart}).
+
+\medskip
 \begin{block}{Task}
-Implement \texttt{solve\_knapsack\_with\_constraints()} --- extend the knapsack solver
-with together/apart constraints from Ryan-Foster branching.
+Extend the knapsack pricing to enforce together/apart constraints
+from Ryan-Foster branching.
 \end{block}
 \begin{itemize}
   \item File: \texttt{branch\_and\_price/pricing\_knapsack.py}
@@ -709,6 +788,38 @@ with together/apart constraints from Ryan-Foster branching.
 \begin{block}{Integration Test}
 After all B\&P exercises: \texttt{cd branch\_and\_price \&\& python test\_bnp.py}
 \end{block}
+\end{frame}
+
+% ---------------------------------------------------------
+% Frame: Compact vs Branch-and-Price
+% ---------------------------------------------------------
+\begin{frame}{Compact vs.\ Branch-and-Price}
+\begin{block}{Run the experiments}
+\texttt{python experiments.py} compares both formulations on increasing sizes.
+\end{block}
+
+\medskip
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Compact formulation}
+\begin{itemize}
+  \item Huge symmetry (bin permutations)
+  \item Weak LP relaxation
+  \item Scales poorly beyond $\sim$30 items
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Branch-and-price}
+\begin{itemize}
+  \item No symmetry (patterns are unique)
+  \item Tight LP bound (often fractional optimum $\approx$ integer)
+  \item Scales to 100+ items
+\end{itemize}
+\end{column}
+\end{columns}
+
+\bigskip
+\textbf{Key insight:} The LP bound difference is dramatic.
 \end{frame}
 
 % ---------------------------------------------------------
@@ -771,8 +882,8 @@ LP variables and add cuts when their values sum exceeds 1.
 \medskip
 \textbf{Resources:}
 \begin{itemize}
-  \item \url{https://www.scipopt.org/} --- SCIP documentation
-  \item \url{https://github.com/scipopt/PySCIPOpt} --- PySCIPOpt
+  \item \url{https://www.scipopt.org/} (SCIP documentation)
+  \item \url{https://github.com/scipopt/PySCIPOpt} (PySCIPOpt)
 \end{itemize}
 \end{frame}
 

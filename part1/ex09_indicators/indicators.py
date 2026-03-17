@@ -17,11 +17,12 @@ from pyscipopt import Model, quicksum
 
 def generator_scheduling_bigm(demand, fixed_costs, var_costs, p_min, p_max):
     """Model generator scheduling using big-M constraints.
-    Return model, y, p (not yet optimized)."""
-    n = len(fixed_costs)
 
+    Returns:
+        (model, y, p) — the unsolved model, binary on/off dict y[i], and continuous output dict p[i].
+    """
     # =========================================================================
-    # EXERCISE 11a: Big-M formulation
+    # EXERCISE 9a: Big-M formulation
     # =========================================================================
     #
     # Formulation:
@@ -33,22 +34,31 @@ def generator_scheduling_bigm(demand, fixed_costs, var_costs, p_min, p_max):
     #
     # =========================================================================
 
-    raise NotImplementedError("Exercise 11a: Build the big-M formulation.")
+    n_generators = len(fixed_costs)
+
+    model = Model("generator_bigm")
+
+    raise NotImplementedError("Exercise 9a: Build the big-M formulation.")
 
 
 def generator_scheduling_indicator(demand, fixed_costs, var_costs, p_min, p_max):
     """Model generator scheduling using indicator constraints.
-    Return model, y, p (not yet optimized)."""
-    n = len(fixed_costs)
 
+    Returns:
+        (model, y, p) — the unsolved model, binary on/off dict y[i], and continuous output dict p[i].
+    """
     # =========================================================================
-    # EXERCISE 11b: Indicator constraint formulation
+    # EXERCISE 9b: Indicator constraint formulation
     # =========================================================================
     #
     # Same variables and objective as big-M, but replace the linking
     # constraints with indicator constraints:
-    #   model.addConsIndicator(cons, binvar, activeone=True/False)
+    #   model.addConsIndicator(cons, binvar)
     #
     # =========================================================================
 
-    raise NotImplementedError("Exercise 11b: Build the indicator constraint formulation.")
+    n_generators = len(fixed_costs)
+
+    model = Model("generator_indicator")
+
+    raise NotImplementedError("Exercise 9b: Build the indicator constraint formulation.")

@@ -6,6 +6,8 @@ Run:
     python test_first_model.py
 """
 
+import traceback
+
 from first_model import first_model
 
 
@@ -57,11 +59,11 @@ if __name__ == "__main__":
             failed += 1
         except AssertionError as e:
             print(f"FAIL: {test.__name__}")
-            print(f"      {e}")
+            traceback.print_exc()
             failed += 1
         except Exception as e:
             print(f"ERROR: {test.__name__}")
-            print(f"       {type(e).__name__}: {e}")
+            traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")

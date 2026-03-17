@@ -2,7 +2,7 @@
 Compact MTZ formulation for the Traveling Salesman Problem.
 
 This is the reference solution used in Part 2 for comparison against
-row generation. The exercise stub is in part1/ex11_tsp_mtz/.
+row generation. The exercise stub is in part1/ex06_tsp_mtz/.
 """
 
 from pyscipopt import Model, quicksum

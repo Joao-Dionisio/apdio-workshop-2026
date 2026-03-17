@@ -22,7 +22,11 @@ from pyscipopt import Model, quicksum
 
 
 def graph_coloring(n_nodes, edges, max_colors):
-    """Build and return a graph coloring IP."""
+    """Build and return a graph coloring IP.
+
+    Returns:
+        (model, x, w) — the unsolved model, assignment dict x[(v,k)], and usage dict w[k].
+    """
     # =========================================================================
     # EXERCISE 10: Build a graph coloring IP
     # =========================================================================
@@ -34,4 +38,6 @@ def graph_coloring(n_nodes, edges, max_colors):
     #
     # =========================================================================
 
-    raise NotImplementedError("Exercise 10: Build a graph coloring IP.")
+    model = Model("graph_coloring")
+
+    raise NotImplementedError("Exercise 7: Build a graph coloring IP.")

@@ -1,6 +1,6 @@
 # Part 1: Modeling with PySCIPOpt
 
-Part 1 of this workshop introduces PySCIPOpt through a series of progressively more complex optimization models. Starting from a minimal integer program, we build up to classic optimization problems: transportation, blending, set cover, knapsack, facility location, graph coloring, and indicator constraints. By the end, you will be comfortable creating models, adding variables and constraints, solving, and inspecting solutions.
+Part 1 of this workshop introduces PySCIPOpt through a series of progressively more complex optimization models. Starting from a minimal integer program, we build up to classic optimization problems: transportation, blending, set cover, knapsack, facility location, and graph coloring. By the end, you will be comfortable creating models, adding variables and constraints, solving, and inspecting solutions.
 
 Each section explains the problem and its mathematical formulation, then points to an exercise file where you must implement the model. Every exercise includes a test script to verify correctness.
 
@@ -52,7 +52,7 @@ $$
 \end{align*}
 $$
 
-The function should return the model (not yet optimized) along with the two variables `x` and `y`.
+Return `(model, x, y)` — the unsolved model and the two variables.
 
 **Test:** `python ex01_first_model/test_first_model.py`
 
@@ -160,51 +160,13 @@ In PySCIPOpt, the data for this problem is naturally represented with Python lis
 
 ### Exercise 4: Transportation
 
-**Your task:** Implement the function `transportation(supply, demand, costs)` in `ex03_transportation/transportation.py`.
+**Your task:** Implement the function `transportation(supply, demand, costs)` in `ex04_transportation/transportation.py`.
 
-Return the model (not yet optimized) and a dictionary `x` mapping tuples `(i, j)` to continuous shipping variables.
+Return `(model, x)` — the unsolved model and a dict mapping `(i, j)` to continuous shipping variables.
 
-**Test:** `python ex03_transportation/test_transportation.py`
+**Test:** `python ex04_transportation/test_transportation.py`
 
-## Section 5. Nonlinear Blending (Pooling Problem)
-
-The pooling problem is a classic nonlinear optimization problem from the process industry. Raw materials with known qualities are blended through a mixing pool to produce products that must meet quality specifications. The pool has an unknown quality that depends on the input mix, introducing bilinear terms.
-
-$$
-\begin{align*}
-    \max \quad & \sum_{p} r_p \, d_p - \sum_{s} c_s \left( x_s + \sum_{p} z_{sp} \right) \\
-    \text{subject to} \quad & \sum_{s} x_s = \sum_{p} y_p && \text{(pool balance)} \\
-    & \lambda \sum_{s} x_s = \sum_{s} q_s \, x_s && \text{(pool quality definition)} \\
-    & \lambda \, y_p + \sum_{s} q_s \, z_{sp} \leq \bar{q}_p \, d_p && \forall \, p \quad \text{(product quality)} \\
-    & d_p = y_p + \sum_{s} z_{sp} && \forall \, p \quad \text{(product demand)} \\
-    & x_s, y_p, z_{sp}, \lambda \geq 0
-\end{align*}
-$$
-
-where $\lambda$ is the pool quality, $x_s$ is the flow from source $s$ to the pool, $y_p$ is the flow from the pool to product $p$, and $z_{sp}$ is the direct bypass flow from source $s$ to product $p$. The terms $\lambda \cdot x_s$ and $\lambda \cdot y_p$ are bilinear (nonconvex).
-
-> Unlike previous exercises, this involves **bilinear constraints** — products of two continuous variables. PySCIPOpt supports these as nonlinear constraints. SCIP uses spatial branch-and-bound to solve nonconvex problems to global optimality.
-
-### Exercise 5: Blending
-
-**Your task:** Implement the function `blending(sources, products)` in `ex04_blending/blending.py`.
-
-Return the model (not yet optimized) and the variables `x`, `y`, `z`, `lam`.
-
-**Test:** `python ex04_blending/test_blending.py`
-
-<!-- Section: Set Cover (optional bonus exercise, not covered in slides)
-
-## Set Cover
-
-The set cover problem is a fundamental integer program. Given a universe $U$ of elements and a collection of subsets $S_1, S_2, \ldots, S_n$, each with an associated cost $c_j$, select the cheapest collection of subsets whose union covers the entire universe.
-
-**Your task:** Implement `set_cover(universe, subsets, costs)` in `ex05_set_cover/set_cover.py`.
-
-**Test:** `python ex05_set_cover/test_set_cover.py`
--->
-
-## Section 6. 0-1 Knapsack
+## Section 5. 0-1 Knapsack
 
 The 0-1 knapsack problem is perhaps the most studied problem in combinatorial optimization. Given a set of items, each with a weight $w_i$ and a value $v_i$, and a knapsack with capacity $C$, select items to maximize total value without exceeding the capacity.
 
@@ -220,54 +182,15 @@ Despite its simplicity, the knapsack problem has widespread applications: capita
 
 > The LP relaxation of the knapsack problem has a simple greedy solution: sort items by value-to-weight ratio and pack greedily. The gap between the LP relaxation and the IP optimum is typically small, making branch-and-bound very effective.
 
-### Exercise 6: Knapsack
+### Exercise 5: Knapsack
 
-**Your task:** Implement the function `knapsack(weights, values, capacity)` in `ex06_knapsack/knapsack.py`.
+**Your task:** Implement the function `knapsack(weights, values, capacity)` in `ex05_knapsack/knapsack.py`.
 
-Return the model (not yet optimized) and a dictionary `x` mapping item index to its binary variable.
+Return `(model, x)` — the unsolved model and a dict mapping item index to its binary variable.
 
-**Test:** `python ex06_knapsack/test_knapsack.py`
+**Test:** `python ex05_knapsack/test_knapsack.py`
 
-## Section 7. Bin Packing
-
-The bin packing problem asks how to pack a set of items with given sizes into the fewest number of identical bins without exceeding their capacity. It is closely related to the knapsack problem but shifts the focus from selecting valuable items to efficiently distributing all items.
-
-Assuming an upper bound of $n$ bins (one per item):
-
-$$
-\begin{align*}
-    \min \quad & \sum_{b} y_b \\
-    \text{subject to} \quad & \sum_{b} x_{ib} = 1, \quad & \forall \, i \quad \text{(assignment)} \\
-    & \sum_{i} s_i \, x_{ib} \leq C \, y_b, \quad & \forall \, b \quad \text{(capacity)} \\
-    & x_{ib} \in \{0, 1\}, \quad & \forall \, i, b \\
-    & y_b \in \{0, 1\}, \quad & \forall \, b
-\end{align*}
-$$
-
-The binary variable $y_b$ indicates whether bin $b$ is used, and $x_{ib}$ indicates whether item $i$ is assigned to bin $b$. The capacity constraints link both: items can only be assigned to open bins, and the total size in each bin cannot exceed $C$.
-
-> This compact formulation suffers from symmetry — any permutation of bin labels yields an equivalent solution. In Part 2, we will see how branch-and-price with column generation can solve bin packing much more efficiently by working with packing patterns instead of item-to-bin assignments.
-
-### Exercise 7: Bin Packing
-
-**Your task:** Implement the function `bin_packing(sizes, capacity)` in `ex07_bin_packing/bin_packing.py`.
-
-Return the model (not yet optimized), a dictionary `x` mapping `(i, b)` to binary assignment variables, and a dictionary `y` mapping bin index `b` to binary usage variables.
-
-**Test:** `python ex07_bin_packing/test_bin_packing.py`
-
-<!-- Section: Facility Location (optional bonus exercise, not covered in slides)
-
-## Facility Location
-
-The uncapacitated facility location problem combines fixed costs with variable connection costs.
-
-**Your task:** Implement `facility_location(fixed_costs, connection_costs)` in `ex07_facility_location/facility_location.py`.
-
-**Test:** `python ex07_facility_location/test_facility_location.py`
--->
-
-## Section 8. TSP — Compact MTZ Formulation
+## Section 6. TSP — Compact MTZ Formulation
 
 The Traveling Salesman Problem (TSP) asks for the shortest tour that visits each city exactly once and returns to the start. The Miller-Tucker-Zemlin (MTZ) formulation uses position variables $u_i$ to eliminate subtours with a polynomial number of constraints:
 
@@ -284,15 +207,15 @@ $$
 
 The MTZ constraints enforce a consistent ordering of cities, preventing subtours. This formulation is easy to implement but has a weak LP relaxation. In Part 2, you will see how row generation with stronger subtour elimination constraints can solve TSP much more efficiently.
 
-### Exercise 8: TSP (MTZ)
+### Exercise 6: TSP (MTZ)
 
-**Your task:** Implement the function `tsp_mtz(distances)` in `ex11_tsp_mtz/tsp_mtz.py`.
+**Your task:** Implement the function `tsp_mtz(distances)` in `ex06_tsp_mtz/tsp_mtz.py`.
 
-Return the model (not yet optimized) and a dictionary `x` mapping `(i, j)` to binary edge variables.
+Return `(model, x)` — the unsolved model and a dict mapping `(i, j)` to binary edge variables.
 
-**Test:** `python ex11_tsp_mtz/test_tsp_mtz.py`
+**Test:** `python ex06_tsp_mtz/test_tsp_mtz.py`
 
-## Section 9. Graph Coloring
+## Section 7. Graph Coloring
 
 Given an undirected graph $G = (V, E)$, the graph coloring problem asks for an assignment of colors to nodes such that no two adjacent nodes share the same color, using the minimum number of colors. This minimum is called the chromatic number $\chi(G)$.
 
@@ -320,15 +243,42 @@ This forces colors to be "used in order" (color 1 before color 2, etc.), elimina
 
 > Graph coloring is NP-hard and notoriously difficult for IP solvers due to the inherent symmetry. Symmetry-breaking constraints are essential for practical performance. For large instances, specialized approaches such as column generation (where each column represents an independent set) are often preferred.
 
-### Exercise 9: Graph Coloring
+### Exercise 7: Graph Coloring
 
-**Your task:** Implement the function `graph_coloring(n_nodes, edges, max_colors)` in `ex08_graph_coloring/graph_coloring.py`.
+**Your task:** Implement the function `graph_coloring(n_nodes, edges, max_colors)` in `ex07_graph_coloring/graph_coloring.py`.
 
-Return the model (not yet optimized), a dictionary `x` mapping `(v, k)` to its binary assignment variable, and a dictionary `w` mapping color index `k` to its binary usage variable. Include the symmetry-breaking constraints.
+Return `(model, x, w)` — the unsolved model, a dict `x` mapping `(v, k)` to binary assignment variables, and a dict `w` mapping color index `k` to binary usage variables. Include the symmetry-breaking constraints.
 
-**Test:** `python ex08_graph_coloring/test_graph_coloring.py`
+**Test:** `python ex07_graph_coloring/test_graph_coloring.py`
 
-## Section 10. Indicator Constraints
+## Section 8. Nonlinear Blending (Pooling Problem)
+
+The pooling problem is a classic nonlinear optimization problem from the process industry. Raw materials with known qualities are blended through a mixing pool to produce products that must meet quality specifications. The pool has an unknown quality that depends on the input mix, introducing bilinear terms.
+
+$$
+\begin{align*}
+    \max \quad & \sum_{p} r_p \, d_p - \sum_{s} c_s \left( x_s + \sum_{p} z_{sp} \right) \\
+    \text{subject to} \quad & \sum_{s} x_s = \sum_{p} y_p && \text{(pool balance)} \\
+    & \lambda \sum_{s} x_s = \sum_{s} q_s \, x_s && \text{(pool quality definition)} \\
+    & \lambda \, y_p + \sum_{s} q_s \, z_{sp} \leq \bar{q}_p \, d_p && \forall \, p \quad \text{(product quality)} \\
+    & d_p = y_p + \sum_{s} z_{sp} && \forall \, p \quad \text{(product demand)} \\
+    & x_s, y_p, z_{sp}, \lambda \geq 0
+\end{align*}
+$$
+
+where $\lambda$ is the pool quality, $x_s$ is the flow from source $s$ to the pool, $y_p$ is the flow from the pool to product $p$, and $z_{sp}$ is the direct bypass flow from source $s$ to product $p$. The terms $\lambda \cdot x_s$ and $\lambda \cdot y_p$ are bilinear (nonconvex).
+
+> Unlike previous exercises, this involves **bilinear constraints** — products of two continuous variables. PySCIPOpt supports these as nonlinear constraints. SCIP uses spatial branch-and-bound to solve nonconvex problems to global optimality.
+
+### Exercise 8: Blending
+
+**Your task:** Implement the function `blending(sources, products)` in `ex08_blending/blending.py`.
+
+Return `(model, x, y, z, l)` — the unsolved model and the variable dicts/variable.
+
+**Test:** `python ex08_blending/test_blending.py`
+
+## Section 9. Indicator Constraints
 
 Indicator constraints are a modeling tool for conditional logic: "if binary variable $y = 1$, then constraint $g(x) \leq 0$ must hold." The traditional approach is big-M linearization, which replaces the conditional with $g(x) \leq M(1 - y)$ for a large constant $M$. This works but introduces numerical difficulties and weakens the LP relaxation.
 
@@ -346,28 +296,32 @@ $$
 \end{align*}
 $$
 
-### Exercise 10: Indicator Constraints
+### Exercise 9: Indicator Constraints
 
 **Your task:** Implement both formulations in `ex09_indicators/indicators.py`:
 
 - `generator_scheduling_bigm(...)` — use big-M constraints: $p_i \geq \underline{p}_i \, y_i$
 - `generator_scheduling_indicator(...)` — use `model.addConsIndicator()` for the minimum output constraint
 
-Both functions return `model, y, p` (not yet optimized).
+Both functions return `(model, y, p)` — the unsolved model, binary on/off dicts, and continuous output dicts.
 
 **Test:** `python ex09_indicators/test_indicators.py`
 
-## Section 11. Benchmarking Formulations
+## Section 10. Benchmarking Formulations
 
-Modeling is only half the story — understanding how your formulation affects solver performance is equally important. In this exercise you will systematically compare the big-M and indicator formulations from Exercise 11 on random instances of increasing size.
+Modeling is only half the story — understanding how your formulation affects solver performance is equally important. In this exercise you will systematically compare the big-M and indicator formulations from Exercise 9 on random instances of increasing size.
 
-For each instance, collect:
+### Exercise 10a: Instance Generation
 
-- Solving time
-- Number of branch-and-bound nodes
-- Optimality gap
+**Your task:** Implement `generate_instance(n_generators, seed)` in `ex10_benchmarking/benchmarking.py`.
 
-**Your task:** Implement `benchmark_formulation()` and `compare_formulations()` in `ex10_benchmarking/benchmarking.py`. Use `print_results()` to display the comparison table.
+Given a number of generators and a random seed, return `(demand, fixed_costs, var_costs, p_min, p_max)` — all lists of length `n_generators`, plus a scalar demand set to ~60% of total capacity.
+
+### Exercise 10b: Benchmarking
+
+**Your task:** Implement `benchmark_formulation()` and `compare_formulations()` in `ex10_benchmarking/benchmarking.py`.
+
+For each instance size, generate an instance, solve with both formulations, and collect: solving time, number of B&B nodes, and optimality gap.
 
 **Run:** `python ex10_benchmarking/benchmarking.py`
 **Test:** `python ex10_benchmarking/test_benchmarking.py`

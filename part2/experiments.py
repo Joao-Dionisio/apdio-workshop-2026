@@ -69,30 +69,42 @@ def run_experiments():
     seed = 42
     time_limit = 120
 
-    # =========================================================================
-    # EXERCISE 3: Run computational experiments
-    # =========================================================================
-    #
-    # For each n in sizes:
-    #   1. Generate an instance with random_euclidean_tsp(n, seed=seed)
-    #   2. Solve with MTZ:   solve_and_collect(tsp_mtz, distances, time_limit)
-    #   3. Solve with SEC:   solve_and_collect(tsp_rowgen, distances, time_limit)
-    #   4. Store the results
-    #
-    # Then print a comparison table with columns:
-    #   n | MTZ time | MTZ nodes | SEC time | SEC nodes | MTZ LP | SEC LP | Opt
-    #
-    # Hints:
-    #   - Use f-strings with alignment for clean formatting
-    #   - Handle the case where a solver hits the time limit (status != "optimal")
-    #   - The LP bound (dual bound) reveals the strength of each relaxation
-    #
-    # =========================================================================
+    results = []
+    for n in sizes:
+        print(f"Solving n={n}...", end=" ", flush=True)
+        distances = random_euclidean_tsp(n, seed=seed)
+        mtz = solve_and_collect(tsp_mtz, distances, time_limit)
+        sec = solve_and_collect(tsp_rowgen, distances, time_limit)
+        results.append({"n": n, "mtz": mtz, "sec": sec})
+        print("done")
 
-    raise NotImplementedError(
-        "Exercise 3: Implement the experiment loop and print a comparison table.\n"
-        "Compare MTZ vs SEC on instances of increasing size."
+    print()
+    print_results(results)
+
+
+def print_results(results):
+    """Print experiment results as a formatted table."""
+    row_fmt = "{:>4s} | {:>9s} {:>7s} {:>8s} | {:>9s} {:>7s} {:>8s} | {:>6s}"
+    header = row_fmt.format(
+        "n", "MTZ time", "nodes", "LP bound",
+        "SEC time", "nodes", "LP bound", "opt",
     )
+    sep = "-" * len(header)
+    print(sep)
+    print(header)
+    print(sep)
+    for r in results:
+        mtz, sec = r["mtz"], r["sec"]
+        opt = f"{sec['obj']:.0f}" if sec["obj"] is not None else "---"
+        print(row_fmt.format(
+            str(r["n"]),
+            f"{mtz['time']:.2f}s", str(mtz["nodes"]),
+            f"{mtz['lp_bound']:.1f}",
+            f"{sec['time']:.2f}s", str(sec["nodes"]),
+            f"{sec['lp_bound']:.1f}",
+            opt,
+        ))
+    print(sep)
 
 
 if __name__ == "__main__":

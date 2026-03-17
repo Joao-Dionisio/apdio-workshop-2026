@@ -6,7 +6,34 @@ Run:
     python test_knapsack.py
 """
 
+import random
+import traceback
+
 from knapsack import knapsack
+
+
+def random_knapsack_instance(n_items, seed=0):
+    """
+    Generate a random 0-1 knapsack instance.
+
+    Args:
+        n_items: Number of items.
+        seed: Random seed for reproducibility.
+
+    Returns:
+        weights: List of item weights (length n_items).
+        values: List of item values (length n_items).
+        capacity: Knapsack capacity (int).
+    """
+    random.seed(seed)
+
+    weights = [random.randint(1, 30) for _ in range(n_items)]
+    values = [random.randint(1, 50) for _ in range(n_items)]
+
+    # Capacity is roughly half the total weight
+    capacity = sum(weights) // 2
+
+    return weights, values, capacity
 
 
 def test_small_instance():
@@ -67,8 +94,6 @@ def test_classic_instance():
 
 def test_generated_instance():
     """Solve a generated instance."""
-    from generator import random_knapsack_instance
-
     weights, values, capacity = random_knapsack_instance(10, seed=42)
     model, x = knapsack(weights, values, capacity)
     model.hideOutput()
@@ -81,8 +106,6 @@ def test_generated_instance():
 
 def test_generated_larger():
     """Solve a larger generated instance (20 items)."""
-    from generator import random_knapsack_instance
-
     weights, values, capacity = random_knapsack_instance(20, seed=99)
     model, x = knapsack(weights, values, capacity)
     model.hideOutput()
@@ -101,8 +124,6 @@ def test_generated_larger():
 
 def test_generated_medium():
     """Solve a medium generated instance (15 items)."""
-    from generator import random_knapsack_instance
-
     weights, values, capacity = random_knapsack_instance(15, seed=7)
     model, x = knapsack(weights, values, capacity)
     model.hideOutput()
@@ -138,11 +159,11 @@ if __name__ == "__main__":
             failed += 1
         except AssertionError as e:
             print(f"FAIL: {test.__name__}")
-            print(f"      {e}")
+            traceback.print_exc()
             failed += 1
         except Exception as e:
             print(f"ERROR: {test.__name__}")
-            print(f"       {type(e).__name__}: {e}")
+            traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")

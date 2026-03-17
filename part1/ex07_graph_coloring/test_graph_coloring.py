@@ -6,7 +6,53 @@ Run:
     python test_graph_coloring.py
 """
 
+import random
+import traceback
+
 from graph_coloring import graph_coloring
+
+
+def random_graph_coloring_instance(n_nodes, edge_prob=0.3, seed=0):
+    """
+    Generate a random graph for coloring (Erdos-Renyi model).
+
+    Args:
+        n_nodes: Number of nodes.
+        edge_prob: Probability that each edge exists.
+        seed: Random seed for reproducibility.
+
+    Returns:
+        n_nodes: Number of nodes.
+        edges: List of (i, j) tuples with i < j.
+    """
+    random.seed(seed)
+
+    edges = []
+    for i in range(n_nodes):
+        for j in range(i + 1, n_nodes):
+            if random.random() < edge_prob:
+                edges.append((i, j))
+
+    return n_nodes, edges
+
+
+def petersen_graph():
+    """
+    Return the Petersen graph (10 nodes, 15 edges, chromatic number = 3).
+
+    Returns:
+        n_nodes: 10
+        edges: List of 15 edges.
+    """
+    edges = [
+        # Outer cycle
+        (0, 1), (1, 2), (2, 3), (3, 4), (4, 0),
+        # Inner pentagram
+        (5, 7), (7, 9), (9, 6), (6, 8), (8, 5),
+        # Spokes
+        (0, 5), (1, 6), (2, 7), (3, 8), (4, 9),
+    ]
+    return 10, edges
 
 
 def test_triangle():
@@ -70,8 +116,6 @@ def test_no_adjacent_share_color():
 
 def test_petersen_graph():
     """The Petersen graph has chromatic number 3."""
-    from generator import petersen_graph
-
     n_nodes, edges = petersen_graph()
     max_colors = n_nodes
 
@@ -105,8 +149,6 @@ def test_complete_graph_k4():
 
 def test_generated_sparse():
     """Solve a randomly generated sparse graph."""
-    from generator import random_graph_coloring_instance
-
     n_nodes, edges = random_graph_coloring_instance(8, edge_prob=0.3, seed=42)
     max_colors = n_nodes
 
@@ -132,8 +174,6 @@ def test_generated_sparse():
 
 def test_generated_dense():
     """Solve a randomly generated dense graph."""
-    from generator import random_graph_coloring_instance
-
     n_nodes, edges = random_graph_coloring_instance(6, edge_prob=0.6, seed=99)
     max_colors = n_nodes
 
@@ -172,11 +212,11 @@ if __name__ == "__main__":
             failed += 1
         except AssertionError as e:
             print(f"FAIL: {test.__name__}")
-            print(f"      {e}")
+            traceback.print_exc()
             failed += 1
         except Exception as e:
             print(f"ERROR: {test.__name__}")
-            print(f"       {type(e).__name__}: {e}")
+            traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")

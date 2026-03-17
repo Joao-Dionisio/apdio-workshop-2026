@@ -6,7 +6,47 @@ Run:
     python test_transportation.py
 """
 
+import random
+import traceback
+
 from transportation import transportation
+
+
+def random_transportation_instance(n_suppliers, n_customers, seed=0):
+    """
+    Generate a random transportation problem instance.
+
+    Args:
+        n_suppliers: Number of suppliers.
+        n_customers: Number of customers.
+        seed: Random seed for reproducibility.
+
+    Returns:
+        supply: List of supply amounts (length n_suppliers).
+        demand: List of demand amounts (length n_customers).
+        costs: n_suppliers x n_customers cost matrix (list of lists).
+    """
+    random.seed(seed)
+
+    # Generate supply and demand ensuring feasibility (total supply >= total demand)
+    supply = [random.randint(10, 50) for _ in range(n_suppliers)]
+    demand = [random.randint(5, 30) for _ in range(n_customers)]
+
+    # Scale supply so that total supply = total demand (balanced)
+    total_demand = sum(demand)
+    total_supply = sum(supply)
+    scale = total_demand / total_supply
+    supply = [int(round(s * scale)) for s in supply]
+
+    # Adjust to make exactly balanced
+    diff = total_demand - sum(supply)
+    supply[0] += diff
+
+    # Random transportation costs
+    costs = [[random.randint(1, 20) for _ in range(n_customers)]
+             for _ in range(n_suppliers)]
+
+    return supply, demand, costs
 
 
 def test_small_instance():
@@ -69,8 +109,6 @@ def test_demand_constraints():
 
 def test_generated_instance():
     """Solve a generated instance."""
-    from generator import random_transportation_instance
-
     supply, demand, costs = random_transportation_instance(3, 4, seed=42)
     model, x = transportation(supply, demand, costs)
     model.hideOutput()
@@ -83,8 +121,6 @@ def test_generated_instance():
 
 def test_generated_larger():
     """Solve a larger generated instance (5 suppliers, 8 customers)."""
-    from generator import random_transportation_instance
-
     supply, demand, costs = random_transportation_instance(5, 8, seed=99)
     model, x = transportation(supply, demand, costs)
     model.hideOutput()
@@ -102,8 +138,6 @@ def test_generated_larger():
 
 def test_generated_unbalanced():
     """Solve an instance with few suppliers and many customers."""
-    from generator import random_transportation_instance
-
     supply, demand, costs = random_transportation_instance(2, 6, seed=7)
     model, x = transportation(supply, demand, costs)
     model.hideOutput()
@@ -139,11 +173,11 @@ if __name__ == "__main__":
             failed += 1
         except AssertionError as e:
             print(f"FAIL: {test.__name__}")
-            print(f"      {e}")
+            traceback.print_exc()
             failed += 1
         except Exception as e:
             print(f"ERROR: {test.__name__}")
-            print(f"       {type(e).__name__}: {e}")
+            traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")

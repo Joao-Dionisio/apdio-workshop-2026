@@ -16,6 +16,9 @@ from pyscipopt import Model
 def first_model():
     """Build and return a PySCIPOpt Model for a small binary IP.
 
+    Returns:
+        (model, x, y) — the unsolved model and the two binary variables.
+
     The model is:
         max  3x + 2y
         s.t. x + y  <= 1
@@ -42,8 +45,10 @@ def first_model():
     #
     # =========================================================================
 
+    model = Model("first_model")
+
     raise NotImplementedError(
         "Exercise 1: Build a small binary IP.\n"
-        "Hint: Create a Model, add two binary variables with obj coefficients,\n"
+        "Hint: Add two binary variables with obj coefficients,\n"
         "add two constraints, and call setMaximize()."
     )
