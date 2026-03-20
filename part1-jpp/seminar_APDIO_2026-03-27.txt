@@ -1,0 +1,285 @@
+#+TITLE: Modeling languages: alpha and omega
+# #+SUBTITLE:
+#+AUTHOR: João Pedro PEDROSO|DIONÍSIO
+#+DATE: APDIO, 27-MAR-2026
+#+EMAIL: jpp@fc.up.pt
+#+BEAMER_HEADER: \institute[FCUP]{Faculty of Sciences, University of Porto}
+#+BEAMER_HEADER: \titlegraphic{\includegraphics[height=1.5cm]{../../papers/cmup-info.png}}
+#+DESCRIPTION: 
+#+KEYWORDS: 
+#+LANGUAGE: american
+#+OPTIONS: H:2 toc:t \n:nil @:t ::t |:t ^:t *:t TeX:t LaTeX:t
+#+LATEX_CLASS: beamer
+# #+LATEX_CLASS_OPTIONS: [presentation]
+#+LATEX_CLASS_OPTIONS: [presentation, aspectratio=169]
+#+LATEX_HEADER: \mode<beamer>{\usetheme{Madrid}}
+#+LATEX_HEADER: \usepackage{tikz}
+#+LATEX_HEADER: \usetikzlibrary{shapes,backgrounds,positioning,arrows.meta}
+#+LATEX_HEADER: \mode<beamer>{\usetheme{Madrid}}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \DeclareMathOperator*{\maxim}{maximize}
+#+LaTeX_HEADER: \DeclareMathOperator*{\minim}{minimize}
+# #+LATEX_HEADER: \AtBeginPart{\frame{\partpage}}
+# #+LATEX_HEADER: \AtBeginSection[]{\begin{frame}<beamer>{Outline}\tableofcontents[currentsection]\end{frame}}
+#+BEAMER_THEME: default
+#+BEAMER_FONT_THEME: default
+#+BEAMER_COLOR_THEME: default
+#+COLUMNS: %45ITEM %10BEAMER_ENV(Env) %10BEAMER_ACT(Act) %4BEAMER_COL(Col) %8BEAMER_OPT(Opt)
+#+STARTUP: beamer
+#+header: :file (by-backend (html "tree.svg") (t 'nil))
+#+header: :imagemagick
+#+header: :results (by-backend (pdf "latex") (t "raw"))
+
+
+
+# * Tikz test
+# Here's a tree, exported to both html and pdf.
+# \usetikzlibrary{trees}
+# \begin{tikzpicture}
+# \node [circle, draw, fill=red!20] at (0,0) {1}
+# child { node [circle, draw, fill=blue!30] {2}
+# child { node [circle, draw, fill=green!30] {3} }
+# child { node [circle, draw, fill=yellow!30] {4} }};
+# \end{tikzpicture}
+
+# * 
+# #+begin_center
+# #+ATTR_LaTeX: :width 1.\textwidth :options angle=0
+#   [[file:LFIGS/Portada.jpg]]
+# #+end_center
+
+* The "Alpha" of Optimization
+
+** The Pre-History: Joseph Fourier (1826)
+*** The Concept of Projection
+Before Simplex, Fourier devised a method for solving systems of linear inequalities:
+- **Method**: Fourier–Motzkin Elimination.
+- **Goal**: Determining the feasibility of undetermined systems.
+- **Insight**: Optimization (min-max) is equivalent to solving inequalities.
+
+*** Comparing "Walking" vs. "Projecting"
+- **Fourier (1826)**: Project the $n$ -dimensional feasible region onto lower dimensions.
+  - *Problem*: Inequality count grows doubly exponentially ($2^{2^n}$).
+- **Dantzig (1947)**: Move between vertices of the $n$ -dimensional region.
+  - *Advantage*: Usually requires only $m$ to $3m$ iterations (where $m$ is the number of constraints).
+
+*** Historical Note
+# Dantzig was unaware of Fourier's work in 1947. He later noted that had he known, he might have been discouraged by the perceived complexity of inequality systems.
+
+Dantzig noted that had he known FME he might have been discouraged by the perceived complexity of inequality systems.
+
+** Visualizing the Two Approaches
+*** Vertex Walk vs. Projection
+#+begin_export latex
+\begin{tikzpicture}[scale=1.5]
+  % Left side: Simplex (Vertex Walk)
+  \begin{scope}[xshift=-2cm]
+    \draw[thick, fill=blue!10] (0,0) -- (1.5,0.2) -- (2,1.2) -- (1,2) -- (0,1.5) -- cycle;
+    \draw[->, ultra thick, red] (0,0) -- (1.5,0.2);
+    \draw[->, ultra thick, red] (1.5,0.2) -- (2,1.2);
+    \node at (1, -0.5) {Simplex: Vertex Walk};
+    \node[red] at (2.2, 1.2) {Optimal};
+  \end{scope}
+
+  % Right side: Fourier-Motzkin (Projection)
+  \begin{scope}[xshift=2cm]
+    \draw[thick, fill=blue!10] (0,0) -- (1.5,0.2) -- (2,1.2) -- (1,2) -- (0,1.5) -- cycle;
+    \draw[dashed, gray] (0,1.5) -- (0,-0.5);
+    \draw[dashed, gray] (2,1.2) -- (2,-0.5);
+    \draw[ultra thick, green!60!black] (0,-0.5) -- (2,-0.5);
+    \node at (1, -0.8) {Fourier: Projection};
+    \node[green!60!black] at (1, -0.3) {Feasible Interval};
+  \end{scope}
+\end{tikzpicture}
+#+end_export
+
+** Why Fourier's Method "Explodes"
+- **Simplex**: Complexity depends on the number of *vertices* (usually efficient).
+- **Fourier-Motzkin**: Each variable elimination creates a new set of inequalities.
+  - If you have $m$ inequalities, eliminating one variable can result in up to $(m/2)^2$ new ones.
+  - **The Omega of manual methods**: Impossible for Stigler's 77 variables, but theoretically vital for proving the **Farkas Lemma**.
+    
+
+** The "Alpha" of Optimization: The Stigler Diet (1947)
+*** The Problem
+    George Stigler (1945) sought the minimum cost to feed a 154lb man.
+    - **Goal**: Minimize daily cost of food.
+    - **Scale**: 77 candidate foods, 9 nutritional constraints.
+
+*** The Mathematical Formulation
+    - Minimize $Z = \sum_{j=1}^{77} c_j x_j$
+
+    - Subject to: $\sum_{j=1}^{77} a_{ij} x_j \ge b_i \quad \forall i \in \{1, \dots, 9\}$, \qquad
+      $x_j \ge 0 \quad \forall j \in \{1, \dots, 77\}$
+
+    - Where:
+      - $c_j$: Cost of food $j$
+      - $a_{ij}$: Amount of nutrient $i$ in food $j$
+      - $b_i$: RDA for nutrient $i$ (Calories, Protein, Calcium, Iron, Vit A, B1, B2, Niacin, Vit C)
+
+** The Human "Computer": Jack Laderman's Feat
+*** Before Machines
+In 1947, the "Simplex Method" was brand new (Dantzig). There was no "software."
+- **Team**: 9 human clerks at the National Bureau of Standards.
+- **Hardware**: Hand-operated desk calculators
+- **Effort**: **120 man-days** of computation.
+
+*** Results
+- Stigler’s heuristic guess: $39.93/year (1939 prices).
+- Laderman’s Simplex solution: $39.69/year.
+- *Fun Fact*: The "optimal" diet consisted mostly of wheat flour, evaporated milk, cabbage, spinach, and navy beans. Stigler called it the "human dog biscuit."
+
+** The First Machine Implementation: SEAC & IBM 701
+*** SEAC (1951) - The First Electronic Solver
+- **Machine**: Standards Eastern Automatic Computer (NBS).
+- **Implementation**: First general-purpose Simplex code for a stored-program computer.
+- **Language**: **Machine Code / Binary** (no high-level languages like Fortran existed yet).
+- **Scale**: Solved a 48x71 Air Force model in minutes.
+
+*** IBM 701 (1954) - The First "Commercial" Code
+- **Developer**: William Orchard-Hays at RAND.
+- **Language**: **Assembly** (highly optimized for the 701's architecture).
+- **Impact**: Could handle ~100 constraints. This code (and the later RSLP1 for IBM 704) moved LP from research to the oil industry (refining/blending).
+- **The "Omega" Seed**: This was the start of **Matrix Generators**, the tedious precursors to the modeling languages we use today.
+
+
+** Before Modeling Languages: Physical Data Entry
+*** The Punched Card Era (1950s)
+In the "Alpha" phase, there was no ~model.lp~ or ~model.py~. 
+Data was physical.
+
+- **Storage**: IBM 80-column punched cards.
+- **Method**: One non-zero coefficient per card.
+- **Hardware**: IBM 026 Keypunch & 056 Verifier.
+
+
+#+begin_center
+#+ATTR_LaTeX: :width .6\textwidth :options angle=0
+  [[file:FIGS/Used_Punchcard.jpg]]
+#+end_center
+
+
+** Before Modeling Languages: Workflow
+1. **Mathematical Model**: Written on paper.
+2. **Matrix Tabulation**: Coefficients mapped to row/column indices.
+3. **Keypunching**: Manual transcription to cards.
+4. **Verification**: Mechanical "double-checking" of holes.
+
+*** Technical Bottleneck
+- A typo in one card meant the Simplex algorithm would diverge or find a wrong solution.
+- There was no "Algebraic" check—only a mechanical one.
+- **Transition**: This pain directly to the creation of *Matrix Generators* in the 1960s.
+ 
+
+** References
+- Bixby, R. E. (2012). A brief history of linear and mixed-integer programming computation. Documenta Mathematica Series, 107–121. https://doi.org/10.4171/dms/6/16
+- Dantzig, G. B. (2020). Impact of linear programming on computer development. Computers in Mathematics, 233–240. https://doi.org/10.1201/9781003072157-6
+- Gass, S. I. (2002). The first linear-programming shoppe. Operations Research, 50(1), 61–68. https://doi.org/10.1287/opre.50.1.61.17781
+
+  
+
+** The Representation Gap: Alpha vs. Machine
+*** From Human Thought to Solver Input
+Before AMLs (like AMPL or JuMP), there was a "lost in translation" phase. 
+To a mathematician, the model is a set of summations; to the computer, it is a flat list of entries.
+
+*** Comparison: The Stigler Diet Problem
+#+ATTR_LATEX: :align |l|p{7cm}|l|
+| Format                   | Representation of $a_{ij}x_j \ge b_i$                      | Readability |
+|--------------------------+------------------------------------------------------------+-------------|
+| **Matrix Generator**     | ~FOR I=1 TO 9: WRITE(6,10) ROW(I), RHS(I)~                 | Zero        |
+| **MPS (Machine)**        | ~COL001    NUTRIENT01  0.0034~                             |             |
+| **Algebraic ($\alpha$)** | $\sum_{j \in J} a_{ij} x_j \ge b_i, \quad \forall i \in I$ | High        |
+
+
+** The "Middle Ages": Matrix Generators
+*** The "Logic" of 1965
+    - Instead of writing math, you wrote code to print strings and formatted numbers.
+*** Why this was fragile:
+    - **Formatting**: The `130 FORMAT` statement strictly controls the 80-column spacing. One mistake here makes the MPS file unreadable.
+    - **Maintenance**: To add a nutrient, you must change the `DATA` statements, the `DO` loop limits, and potentially the `FORMAT` strings.
+      
+
+** The "Middle Ages"
+:PROPERTIES:
+:BEAMER_OPT: fragile
+:END:
+
+A Matrix Generator (Fortran)
+
+#+begin_export latex
+{\scriptsize
+#+end_export
+#+begin_example
+C     FORTRAN MATRIX GENERATOR FOR STIGLER DIET
+      DATA FOODS/'WHEAT', 'CORNM', 'EVAPM', 'MARGA'/
+      DATA NUTRI/'COST ', 'CALOR', 'PROT ', 'CALCI'/
+      
+      WRITE(6, 100) 'NAME', 'STIGLER'
+      WRITE(6, 110) 'ROWS'
+      WRITE(6, 120) ' N ', 'COST'
+      DO 10 I=2, 5
+   10 WRITE(6, 120) ' G ', NUTRI(I)
+   
+      WRITE(6, 110) 'COLUMNS'
+      DO 20 J=1, 77
+C       INNER LOOP FETCHES DATA FROM ARRAYS AND FORMATS FOR MPS
+        WRITE(6, 130) FOODS(J), 'COST', COST(J), 'CALOR', CAL(J)
+   20 CONTINUE
+   
+  100 FORMAT(A4, 10X, A8)
+  110 FORMAT(A)
+  120 FORMAT(A3, 2X, A8)
+  130 FORMAT(4X, A8, 2X, A8, F12.4, 2X, A8, F12.4)
+#+end_example
+#+begin_export latex
+}
+#+end_export
+
+  
+
+** The "Machine" Language: MPS Format
+
+Stigler Diet in 80 Columns
+- Before AMLs, this is what a solver "saw." Note the rigid column alignment (Columns 1, 5, 15, 25, 40, 50).
+
+#+begin_export latex
+{\scriptsize
+#+end_export
+#+begin_example
+NAME          STIGLER
+ROWS
+ N  COST
+ G  CALORIES
+ G  PROTEIN
+ G  CALCIUM
+COLUMNS
+    WHEAT     COST            0.036     CALORIES       3.3
+    WHEAT     PROTEIN         13.3      CALCIUM        0.9
+    CORNMEAL  COST            0.018     CALORIES       3.0
+    CORNMEAL  PROTEIN         10.0      CALCIUM        2.0
+RHS
+    RHS1      CALORIES        3.0       PROTEIN        70.0
+    RHS1      CALCALCIUM      0.8
+ENDATA
+#+end_example
+#+begin_export latex
+}
+#+end_export
+
+
+** Anatomy of a Nightmare
+- **Fixed Width**: If "WHEAT" was shifted one space to the right, the parser would fail.
+- **Flat Structure**: The summation $\sum a_{ij}x_j$ is gone; every $(i, j)$ pair is an individual line.
+  - This is exactly the format that was once physically punched into cards.
+  - Legacy: Gurobi, CPLEX, ... still read this today for benchmarking.
+
+  
+** The "Technical Debt" of the 1970s
+- **Decoupling**: In the algebraic form, data ($a_{ij}$) is separate from logic ($\sum$).
+- **The MPS Nightmare**: In MPS, data and logic are "fused". 
+- If you add one nutrient to the diet, you must recalculate and re-punch the entire file.
+- **The Result**: Modeling was slow, error-prone, and required "Model Librarians".
+
+
