@@ -1,7 +1,6 @@
 # APDIO Workshop 2026 — Optimization Software & Practice
 
-An APDIO-organized workshop on Optimization with [PySCIPOpt](https://github.com/scipopt/PySCIPOpt), the Python interface to the [SCIP](https://www.scipopt.org/) solver.
-More information about the event [here](https://www.apdio.pt/2026/03/03/2026-apdio-workshop-optimization-software-practice/).
+An APDIO-organized workshop on Optimization using [PySCIPOpt](https://github.com/scipopt/PySCIPOpt), the Python interface to the [SCIP](https://www.scipopt.org/) solver. More information about the event [here](https://www.apdio.pt/2026/03/03/2026-apdio-workshop-optimization-software-practice/).
 
 ## Setup
 
@@ -41,7 +40,7 @@ For background on SCIP itself, see the overview presentation in `slides/scip_pre
 
 ## Structure
 
-The workshop is divided into three parts:
+The workshop is divided into three parts. It is VERY BIG, and you are not expected to complete all exercises in one sitting. Go at your own pace, and feel free to jump around the exercises. These are divided into three parts:
 
 ### Part 1: Modeling
 
