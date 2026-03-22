@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests for Exercise 5: Nonlinear blending (pooling problem).
+Tests for Exercise 8: Nonlinear blending (pooling problem).
 
 Run:
     python test_blending.py

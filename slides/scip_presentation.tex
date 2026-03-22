@@ -378,8 +378,38 @@ model.optimize()
       \plugin{event handler}      & event handling \\
       \plugin{node selector}      & node selection strategy \\
       \plugin{display}            & custom solver output \\
+      \plugin{symmetry handler}   & symmetry handling (upcoming) \\
     \end{tabular}
   \end{center}
+\end{frame}
+
+\section{Research}
+
+\begin{frame}{Two Sides of Research}
+  \textbf{Research on Modeling}
+  \begin{itemize}
+  \item how to formulate a problem as a mathematical program
+  \item comparing formulations: strength, size, solvability
+  \item developing valid inequalities and reformulation techniques
+  \end{itemize}
+
+  \vfill
+
+  \textbf{Research on Optimization}
+  \begin{itemize}
+  \item how to solve mathematical programs more efficiently
+  \item new branching, cutting, presolving, or decomposition strategies
+  \item algorithm design, complexity, and computational experiments
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{SCIP Enables Research on Optimization}
+  \begin{itemize}
+  \item plugin architecture allows implementing and testing new ideas within a mature solver
+  \item full access to solving process internals (bounds, LP solutions, tree structure)
+  \item benchmark new methods against state-of-the-art techniques
+  \item open-source: inspect, modify, and extend any component
+  \end{itemize}
 \end{frame}
 
 \begin{frame}

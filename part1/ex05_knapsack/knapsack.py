@@ -1,7 +1,7 @@
 """
 0-1 Knapsack problem.
 
-Exercise 6: Build a 0-1 knapsack IP.
+Exercise 5: Build a 0-1 knapsack IP.
 
 Given a set of items, each with a weight and a value, and a knapsack
 with limited capacity, select items to maximize total value without

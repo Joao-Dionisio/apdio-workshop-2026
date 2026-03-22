@@ -1,6 +1,6 @@
 # Part 3: Branch-and-Price for Bin Packing
 
-> **Good to know:** For a comprehensive reference on branch-and-price, see [*Branch-and-Price*](https://link.springer.com/book/10.1007/978-3-031-96917-1) (Springer, 2025).
+> **Good to know:** For a comprehensive reference on branch-and-price, see [*Branch-and-Price*](https://link.springer.com/book/10.1007/978-3-031-96917-1) (Springer, 2025). A companion document on implementing B&P in PySCIPOpt is available at `BnP_in_PySCIPOpt.pdf` in this directory.
 
 ## Introduction
 This section is dedicated to implementing a branch-and-price algorithm in PySCIPOpt. We will use the well-known [bin packing problem](https://www.wikiwand.com/en/articles/Bin_packing_problem) as an example. If you need a refresher, you can also go over the Bin packing exercises in the [modeling section](../part1/README.md). Bin packing is a combinatorial optimization problem where a finite number of items of different sizes must be packed into bins or containers each with a fixed capacity. The goal is to minimize the number of bins used. The problem is NP-hard and has many applications in logistics and resource allocation.
@@ -8,8 +8,6 @@ This section is dedicated to implementing a branch-and-price algorithm in PySCIP
 The first two chapters will give a light overview of bin packing, both its compact and extended formulations. Implementation exercises start in Chapter 3.
 
 If you try to run the branch-and-price code, you will encounter errors. That is because some code is missing and must be implemented by you. The error messages tell you what you should do. Eg: "The knapsack solver is not implemented yet" implies that you should implement the knapsack solver.
-
-> **Good to know:** For a comprehensive reference on branch-and-price, see [*Branch-and-Price*](https://link.springer.com/book/10.1007/978-3-031-96917-1) (Springer, 2025).
 
 ## Section 1. Compact formulation: Modeling with assignments
 The bin packing problem is a classic optimization problem that asks:

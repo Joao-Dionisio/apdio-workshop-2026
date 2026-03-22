@@ -1,7 +1,7 @@
 """
 Graph coloring problem.
 
-Exercise 8: Build a graph coloring IP.
+Exercise 7: Build a graph coloring IP.
 
 Given an undirected graph, assign a color to each node such that no two
 adjacent nodes share the same color, using the minimum number of colors.

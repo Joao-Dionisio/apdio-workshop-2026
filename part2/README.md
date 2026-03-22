@@ -8,7 +8,7 @@ Given $n$ cities and distances $d_{ij}$ between each pair, find the shortest tou
 
 For symmetric TSP: $d_{ij} = d_{ji}$ (undirected edges).
 
-> **Prerequisite:** Complete Exercise 13 (TSP MTZ) in Part 1 first. The compact formulation is used here as a baseline for comparison.
+> **Prerequisite:** Complete Exercise 6 (TSP MTZ) in Part 1 first. The compact formulation is used here as a baseline for comparison.
 
 ---
 
@@ -60,11 +60,12 @@ Given an integer solution (selected edges), we need to detect subtours:
 3. If multiple components exist, each is a subtour
 
 **Example:**
-```
-Selected edges: {(0,1), (1,2), (2,0), (3,4), (4,5), (5,3)}
-Components: {0,1,2} and {3,4,5}
-Both are subtours (violate SECs)
-```
+
+<p align="center">
+  <img src="media/tour_vs_subtours.png" width="550">
+</p>
+
+A valid tour (left) has a single connected component. Subtours (right) have multiple — each violates an SEC.
 
 #### Exercise 1: Implement Subtour Detection
 
@@ -98,29 +99,30 @@ SCIP's constraint handler interface allows adding constraints lazily:
 |----------|---------|
 | `conscheck` | Verify if a solution is feasible |
 | `consenfolp` | Enforce constraints, add cuts if violated |
-| `conslock` | Lock variables (required, can be empty) |
 
 #### Exercise 2: Implement the Constraint Handler
 
 Complete the callbacks in `conshdlr_subtour.py`:
 
-**Part A: `conscheck`**
+**Part A: `conscheck`** — verify an integer solution
 ```python
 def conscheck(self, constraints, solution, ...):
     # 1. Extract selected edges from solution
+    #    Use self.model.getSolVal(solution, var) to get a variable's value
     # 2. Call find_subtours()
-    # 3. Return FEASIBLE or INFEASIBLE
+    # 3. Return {"result": SCIP_RESULT.FEASIBLE} or INFEASIBLE
 ```
 
-**Part B: `consenfolp`**
+**Part B: `consenfolp`** — enforce constraints on the LP solution
 ```python
 def consenfolp(self, constraints, nusefulconss, solinfeasible):
-    # 1. Get LP solution values
+    # 1. Get LP values — use self.model.getVal(var) (no solution argument)
     # 2. Find subtours in edges with x > 0.5
-    # 3. For each subtour S, add SEC:
-    #    sum_{e in E(S)} x_e <= |S| - 1
-    # 4. Return FEASIBLE or CONSADDED
+    # 3. For each subtour S, add SEC with self.model.addCons(...)
+    # 4. Return {"result": SCIP_RESULT.CONSADDED} or FEASIBLE
 ```
+
+**Key API differences:** `conscheck` receives a `solution` object and uses `getSolVal(solution, var)`. `consenfolp` works on the current LP and uses `getVal(var)` directly.
 
 **Test your implementation:**
 ```bash
@@ -129,19 +131,9 @@ python test_tsp.py
 
 ### 2.3 How It Works Together
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    SCIP Solver                          │
-├─────────────────────────────────────────────────────────┤
-│  1. Solve LP relaxation (degree constraints only)       │
-│  2. Branch-and-bound on fractional variables            │
-│  3. For integer solutions:                              │
-│     └─> Call conscheck() - is this a valid tour?        │
-│         └─> If subtours found: INFEASIBLE               │
-│             └─> Call consenfolp() - add SEC cuts        │
-│  4. Repeat until optimal tour found                     │
-└─────────────────────────────────────────────────────────┘
-```
+<p align="center">
+  <img src="media/row_generation_loop.png" width="350">
+</p>
 
 ---
 
@@ -164,23 +156,34 @@ Solve the same TSP instances with MTZ and row generation across increasing sizes
 
 ## 3. Bonus Exercises
 
-### 4.1 Min-Cut Separation (Advanced)
+### 3.1 Min-Cut Separation
 
-For fractional LP solutions, connected components may not detect violations. Use min-cut:
+Our current `consenfolp` only separates **integer** solutions by finding connected components. This misses violated SECs in **fractional** LP solutions, where every node may be connected but a subset $S$ still violates $\sum_{e \in E(S)} x_e \leq |S| - 1$.
 
-1. For each node pair $(s, t)$, compute min-cut with capacities = $x_e$ values
-2. If min-cut < 2, add violated SEC
+The fix is min-cut separation:
 
-### 4.2 Stronger Valid Inequalities
+1. Build a graph with edge capacities equal to the LP values $x_e$.
+2. For each pair of nodes $(s, t)$, compute a minimum $s$-$t$ cut.
+3. If the min-cut value is $< 2$, the cut defines a violated SEC — add it.
 
-Beyond SECs, other cuts can strengthen the LP:
-- **2-matching inequalities**: Handle "comb" structures
-- **Comb inequalities**: Generalization of 2-matching
+**Implementation hints:**
+- Use `networkx.minimum_cut` or implement max-flow yourself.
+- Add a `conssepalp` callback to the constraint handler (called on fractional LP solutions, unlike `consenfolp` which is called on integer solutions).
+- Compare solve times with and without fractional separation.
 
-### 4.3 Alternative Compact Formulations
+### 3.2 Stronger Valid Inequalities
 
-- **DFJ (Dantzig-Fulkerson-Johnson)**: Original SEC formulation
-- **Flow-based**: Single-commodity or multi-commodity flow
+SECs are not the only cuts that help for TSP. Two important families:
+
+- **2-matching inequalities:** Imagine a tour crosses a "blob" of cities — it must cross the boundary an even number of times. 2-matching inequalities exploit situations where the LP relaxation cheats by using fractional values that violate this parity. They cut off fractional solutions that SECs alone cannot.
+
+- **Comb inequalities:** A generalization of 2-matching. Picture a "handle" (a set of cities) with several "teeth" (smaller sets that straddle the handle boundary). The tour must use enough edges to enter and leave each tooth, which gives a lower bound on edge usage. Comb inequalities are the main workhorse of Concorde, the state-of-the-art exact TSP solver.
+
+<p align="center">
+  <img src="media/comb_inequality.png" width="400">
+</p>
+
+Finding violated combs is hard in general, but heuristic separation works well in practice. See Applegate et al. (2006) for details.
 
 ---
 

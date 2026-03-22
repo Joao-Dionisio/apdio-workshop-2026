@@ -79,6 +79,14 @@ class SubtourElimination(Conshdlr):
         #
         # =====================================================================
 
+
+        selected_edges = []
+        for i,j in self.x:
+            if self.model.getSolVal(solution, self.x[i,j]) > 0.5:
+                selected_edges.append((i,j))
+
+        subtours = find_subtours(selected_edges, self.n)
+
         raise NotImplementedError(
             "Exercise 2a: Implement conscheck callback.\n"
             "Extract selected edges from solution, use find_subtours(),\n"

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests for Exercise 11: Indicator constraints for generator scheduling.
+Tests for Exercise 9: Indicator constraints for generator scheduling.
 
 Run:
     python test_indicators.py

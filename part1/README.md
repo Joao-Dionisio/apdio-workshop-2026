@@ -1,6 +1,6 @@
 # Part 1: Modeling with PySCIPOpt
 
-Part 1 of this workshop introduces PySCIPOpt through a series of progressively more complex optimization models. Starting from a minimal integer program, we build up to classic optimization problems: transportation, blending, set cover, knapsack, facility location, and graph coloring. By the end, you will be comfortable creating models, adding variables and constraints, solving, and inspecting solutions.
+Part 1 of this workshop introduces PySCIPOpt through a series of progressively more complex optimization models. Starting from a minimal integer program, we build up to classic optimization problems: transportation, knapsack, TSP, graph coloring, and nonlinear blending. By the end, you will be comfortable creating models, adding variables and constraints, solving, and inspecting solutions.
 
 Each section explains the problem and its mathematical formulation, then points to an exercise file where you must implement the model. Every exercise includes a test script to verify correctness.
 

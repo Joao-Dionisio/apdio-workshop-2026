@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests for Exercise 12: Benchmarking formulations.
+Tests for Exercise 10: Benchmarking formulations.
 
 Run:
     python test_benchmarking.py

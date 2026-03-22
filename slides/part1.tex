@@ -104,8 +104,8 @@ By the end of Part~1 you will be able to:
   \item Translate a mathematical model into Python code.
   \item Solve classical optimization problems:
     \begin{itemize}
-      \item Transportation, Portfolio Optimization, Set Cover,
-      \item Knapsack, Facility Location, Graph Coloring.
+      \item Transportation, Knapsack, TSP,
+      \item Graph Coloring, Nonlinear Blending.
     \end{itemize}
   \item Extract solutions and solver statistics.
 \end{itemize}
@@ -326,10 +326,10 @@ model.optimize()
 \begin{block}{Task}
 Implement two functions for configuring and solving models:
 \begin{itemize}
-  \item \texttt{solve\_with\_params(model, params)}: apply a dict of SCIP parameters
-        (e.g.\ \texttt{\{"limits/time": 60\}}) and solve.
-  \item \texttt{load\_and\_solve(filepath, params)}: read an \texttt{.mps}/\texttt{.lp}
-        file and solve (reuse the function above!).
+  \item \texttt{solve\_with\_params(model, params)}: apply a dict of SCIP parameter
+        name/value pairs and solve.
+  \item \texttt{load\_and\_solve(filepath, params)}: load an \texttt{.mps}/\texttt{.lp}
+        file and solve with optional parameters.
 \end{itemize}
 The tests exercise time limits, gap limits, emphasis settings, and MIPLIB instances.
 \end{block}
@@ -991,14 +991,11 @@ Solve with both big-M and indicator formulations. Compare:
 \begin{itemize}
   \item The PySCIPOpt modeling lifecycle: variables, constraints, objective.
   \item Solving, parameters, and reading models from file.
-  \item Classical LP/IP/MIP formulations:
+  \item Classical LP/IP/MIP/NLP formulations:
     \begin{itemize}
-      \item Transportation (LP)
+      \item Transportation (LP), Knapsack (IP)
+      \item TSP with MTZ (IP), Graph Coloring (IP)
       \item Nonlinear Blending (NLP)
-      \item Set Cover (IP)
-      \item Knapsack (IP)
-      \item Facility Location (MIP)
-      \item Graph Coloring (IP)
     \end{itemize}
   \item Indicator constraints as an alternative to big-M.
   \item Benchmarking formulations on random and MIPLIB instances.

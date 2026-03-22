@@ -505,8 +505,8 @@ Populate the RMP with initial columns using the one-item-per-bin approach:
 for each item, create a pattern containing only that item.
 \end{block}
 \begin{itemize}
-  \item File: \texttt{branch\_and\_price/initial\_columns.py}
-  \item Test: \texttt{cd branch\_and\_price \&\& python test\_initial\_columns.py}
+  \item File: \texttt{part3/initial\_columns.py}
+  \item Test: \texttt{cd part3 \&\& python test\_initial\_columns.py}
 \end{itemize}
 
 \end{frame}
@@ -594,8 +594,8 @@ Implement the pricing subproblem. You already wrote a knapsack solver in
 Part~1. Copy it over and adapt it to return \texttt{(reduced\_cost, pattern)}.
 \end{block}
 \begin{itemize}
-  \item File: \texttt{branch\_and\_price/pricing\_knapsack.py}
-  \item Test: \texttt{cd branch\_and\_price \&\& python test\_pricing\_knapsack.py}
+  \item File: \texttt{part3/pricing\_knapsack.py}
+  \item Test: \texttt{cd part3 \&\& python test\_pricing\_knapsack.py}
 \end{itemize}
 \end{frame}
 
@@ -754,8 +754,8 @@ $\Rightarrow$ Much more \textbf{balanced} search tree
 Implement \texttt{all\_fractional\_pairs()}: find all item pairs with fractional implicit values.
 \end{block}
 \begin{itemize}
-  \item File: \texttt{branch\_and\_price/ryan\_foster.py}
-  \item Test: \texttt{cd branch\_and\_price \&\& python test\_fractional\_pairs.py}
+  \item File: \texttt{part3/ryan\_foster.py}
+  \item Test: \texttt{cd part3 \&\& python test\_fractional\_pairs.py}
 \end{itemize}
 
 \medskip
@@ -763,7 +763,7 @@ Implement \texttt{all\_fractional\_pairs()}: find all item pairs with fractional
 Complete the child-node creation logic: inherit parent decisions, add new pair.
 \end{block}
 \begin{itemize}
-  \item File: \texttt{branch\_and\_price/ryan\_foster.py}
+  \item File: \texttt{part3/ryan\_foster.py}
 \end{itemize}
 \end{frame}
 
@@ -780,13 +780,13 @@ Extend the knapsack pricing to enforce together/apart constraints
 from Ryan-Foster branching.
 \end{block}
 \begin{itemize}
-  \item File: \texttt{branch\_and\_price/pricing\_knapsack.py}
-  \item Test: \texttt{cd branch\_and\_price \&\& python test\_knapsack\_with\_constraints.py}
+  \item File: \texttt{part3/pricing\_knapsack.py}
+  \item Test: \texttt{cd part3 \&\& python test\_knapsack\_with\_constraints.py}
 \end{itemize}
 
 \medskip
 \begin{block}{Integration Test}
-After all B\&P exercises: \texttt{cd branch\_and\_price \&\& python test\_bnp.py}
+After all B\&P exercises: \texttt{cd part3 \&\& python test\_bnp.py}
 \end{block}
 \end{frame}
 
@@ -854,8 +854,8 @@ Implement the subset-row separator: enumerate triples of fractional
 LP variables and add cuts when their values sum exceeds 1.
 \end{block}
 \begin{itemize}
-  \item File: \texttt{separator/subset\_row/subset\_row.py}
-  \item Test: \texttt{cd separator/subset\_row \&\& python test\_subset\_row.py}
+  \item File: \texttt{part3/subset\_row.py}
+  \item Test: \texttt{cd part3 \&\& python test\_subset\_row.py}
 \end{itemize}
 \end{frame}
 
@@ -872,7 +872,7 @@ LP variables and add cuts when their values sum exceeds 1.
 \end{itemize}
 
 \medskip
-\textbf{Bonus exercises} (see \texttt{branch\_and\_price/README.md}):
+\textbf{Bonus exercises} (see \texttt{part3/README.md}):
 \begin{itemize}
   \item Dual stabilization, Lagrangian bound
   \item Better initialization, faster pricing

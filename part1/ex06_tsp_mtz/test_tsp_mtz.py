@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests for Exercise 8: TSP compact MTZ formulation.
+Tests for Exercise 6: TSP compact MTZ formulation.
 
 Run:
     python test_tsp_mtz.py

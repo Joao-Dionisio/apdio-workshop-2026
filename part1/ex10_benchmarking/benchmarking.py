@@ -75,7 +75,7 @@ def benchmark_formulation(build_fn, demand, fixed_costs, var_costs, p_min, p_max
     #      - "gap":       model.getGap()
     # =========================================================================
 
-    raise NotImplementedError("Exercise 12: Implement benchmark_formulation.")
+    raise NotImplementedError("Exercise 10b: Implement benchmark_formulation.")
 
 
 def compare_formulations(sizes, seed=42, time_limit=60.0):
@@ -89,7 +89,7 @@ def compare_formulations(sizes, seed=42, time_limit=60.0):
     Returns:
         list of dicts, each with keys: n, bigm (stats dict), indicator (stats dict)
     """
-    # Import the formulations from Exercise 11
+    # Import the formulations from Exercise 9
     import sys
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "ex09_indicators"))
     from indicators import generator_scheduling_bigm, generator_scheduling_indicator

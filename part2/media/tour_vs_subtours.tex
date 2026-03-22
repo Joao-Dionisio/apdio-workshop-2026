@@ -1,0 +1,54 @@
+\documentclass[tikz,border=10pt]{standalone}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{xcolor}
+\pagecolor{white}
+\begin{document}
+\begin{tikzpicture}[
+  city/.style={circle, draw=blue!80, fill=blue!60, inner sep=0pt,
+               minimum size=10pt, font=\scriptsize\bfseries, text=white},
+  tour/.style={very thick, red!70!black},
+  subtour/.style={very thick},
+  label/.style={font=\small\bfseries, below=8pt},
+]
+  % --- Valid tour (left) ---
+  \begin{scope}
+    \node[city] (a1) at (0, 2)   {1};
+    \node[city] (a2) at (1.5, 2.5) {2};
+    \node[city] (a3) at (2.5, 1.2) {3};
+    \node[city] (a4) at (1.8,-0.2) {4};
+    \node[city] (a5) at (0.3, 0.5) {5};
+    \node[city] (a6) at (-0.5,1)  {6};
+
+    \draw[tour] (a1) -- (a2) -- (a3) -- (a4) -- (a5) -- (a6) -- (a1);
+
+    \node[label, green!50!black] at (1, -1) {Valid tour (1 component)};
+  \end{scope}
+
+  % --- Subtours (right) ---
+  \begin{scope}[xshift=5.5cm]
+    \node[city] (b1) at (0, 2)   {1};
+    \node[city] (b2) at (1.5, 2.5) {2};
+    \node[city] (b3) at (2.5, 1.2) {3};
+    \node[city] (b4) at (1.8,-0.2) {4};
+    \node[city] (b5) at (0.3, 0.5) {5};
+    \node[city] (b6) at (-0.5,1)  {6};
+
+    % Subtour 1: {1,2,3}
+    \draw[subtour, orange!80!black] (b1) -- (b2) -- (b3) -- (b1);
+
+    % Subtour 2: {4,5,6}
+    \draw[subtour, violet!80!black] (b4) -- (b5) -- (b6) -- (b4);
+
+    % Dashed ovals
+    \draw[orange!60, thick, dashed, rounded corners=12pt]
+      (-0.4, 1.5) rectangle (3.0, 3.0);
+    \draw[violet!60, thick, dashed, rounded corners=12pt]
+      (-1.0, -0.7) rectangle (2.3, 1.2);
+
+    \node[font=\tiny, orange!70!black] at (1.3, 3.2) {$S_1 = \{1,2,3\}$};
+    \node[font=\tiny, violet!70!black] at (0.65, -0.9) {$S_2 = \{4,5,6\}$};
+
+    \node[label, red!60!black] at (1, -1.5) {Subtours (2 components)};
+  \end{scope}
+\end{tikzpicture}
+\end{document}

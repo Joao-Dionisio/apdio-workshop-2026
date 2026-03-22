@@ -37,28 +37,30 @@ Each part of the workshop follows the same flow:
 
 Work through the slides and README side by side, implementing each exercise as it comes up.
 
+For background on SCIP itself, see the overview presentation in `slides/scip_presentation_v2.pdf`.
+
 ## Structure
 
 The workshop is divided into three parts:
 
 ### Part 1: Modeling
 
-Build and solve MINLPs in PySCIPOpt through twelve progressively complex exercises:
+Build and solve MINLPs in PySCIPOpt through ten progressively complex exercises:
 
 1. **First Model** — build a small binary IP
 2. **Solving** — optimize and inspect solutions
-3. **Parameters** — time limits, gap limits, and emphasis settings
-   - **MIPLIB Instances** — load and solve real benchmark instances
+3. **Parameters** — time limits, gap limits, and emphasis settings; MIPLIB instances
 4. **Transportation** — LP with supply/demand constraints
-5. **Blending** — nonlinear pooling problem with bilinear constraints
-6. **Knapsack** — classic 0-1 knapsack
-7. **Bin Packing** — IP with assignment and capacity constraints
-8. **TSP (MTZ)** — compact formulation for the Traveling Salesman Problem
-9. **Graph Coloring** — IP with symmetry-breaking
-10. **Indicator Constraints** — big-M vs indicator formulations
-11. **Benchmarking** — compare big-M vs indicator formulations at scale
+5. **Knapsack** — classic 0-1 knapsack
+6. **TSP (MTZ)** — compact formulation for the Traveling Salesman Problem
+7. **Graph Coloring** — IP with symmetry-breaking
+8. **Blending** — nonlinear pooling problem with bilinear constraints
+9. **Indicator Constraints** — big-M vs indicator formulations
+10. **Benchmarking** — compare big-M vs indicator formulations at scale
 
 All exercises are in `part1/`. Each has a stub file (with `NotImplementedError`), a test, and (for exercises 4–10) a random instance generator.
+
+> **Prerequisites:** Part 1 requires basic Python and optimization literacy. Parts 2 and 3 require familiarity with LP duality, branch-and-bound, and LP relaxations.
 
 ### Part 2: Row Generation
 
@@ -90,12 +92,12 @@ python ex01_first_model/test_first_model.py
 python ex02_solving/test_solving.py
 python ex03_parameters/test_parameters.py
 python ex04_transportation/test_transportation.py
-python ex08_blending/test_blending.py
 python ex05_knapsack/test_knapsack.py
+python ex06_tsp_mtz/test_tsp_mtz.py
 python ex07_graph_coloring/test_graph_coloring.py
+python ex08_blending/test_blending.py
 python ex09_indicators/test_indicators.py
 python ex10_benchmarking/test_benchmarking.py
-python ex06_tsp_mtz/test_tsp_mtz.py
 
 # Part 2: Row Generation
 cd part2
@@ -106,5 +108,8 @@ python test_tsp.py
 cd part3
 python test_initial_columns.py
 python test_pricing_knapsack.py
+python test_fractional_pairs.py
+python test_knapsack_with_constraints.py
+python test_bnp.py
 python test_bpc.py
 ```
