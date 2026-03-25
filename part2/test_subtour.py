@@ -17,7 +17,7 @@ def test_single_tour_square():
     edges = [(0, 1), (1, 2), (2, 3), (0, 3)]
     subtours = find_subtours(edges, 4)
     assert subtours == [], f"Expected no subtours for valid tour, got {subtours}"
-    print("PASS: test_single_tour_square")
+    print("[92mPASS:[0m test_single_tour_square")
 
 
 def test_single_tour_pentagon():
@@ -26,7 +26,7 @@ def test_single_tour_pentagon():
     edges = [(0, 1), (1, 2), (2, 3), (3, 4), (0, 4)]
     subtours = find_subtours(edges, 5)
     assert subtours == [], f"Expected no subtours for valid tour, got {subtours}"
-    print("PASS: test_single_tour_pentagon")
+    print("[92mPASS:[0m test_single_tour_pentagon")
 
 
 def test_two_triangles():
@@ -42,7 +42,7 @@ def test_two_triangles():
     subtour_sets = [frozenset(s) for s in subtours]
     assert frozenset({0, 1, 2}) in subtour_sets, "Missing subtour {0,1,2}"
     assert frozenset({3, 4, 5}) in subtour_sets, "Missing subtour {3,4,5}"
-    print("PASS: test_two_triangles")
+    print("[92mPASS:[0m test_two_triangles")
 
 
 def test_three_components():
@@ -59,7 +59,7 @@ def test_three_components():
     assert frozenset({0, 1}) in subtour_sets
     assert frozenset({2, 3}) in subtour_sets
     assert frozenset({4, 5}) in subtour_sets
-    print("PASS: test_three_components")
+    print("[92mPASS:[0m test_three_components")
 
 
 def test_isolated_node():
@@ -76,7 +76,7 @@ def test_isolated_node():
     for s in subtours:
         all_nodes.update(s)
     assert all_nodes == {0, 1, 2, 3}, f"All nodes should be in some subtour"
-    print("PASS: test_isolated_node")
+    print("[92mPASS:[0m test_isolated_node")
 
 
 def test_empty_edges():
@@ -86,7 +86,7 @@ def test_empty_edges():
 
     # All 3 nodes are isolated
     assert len(subtours) == 3, f"Expected 3 isolated subtours, got {len(subtours)}"
-    print("PASS: test_empty_edges")
+    print("[92mPASS:[0m test_empty_edges")
 
 
 def test_edge_order_invariance():
@@ -100,7 +100,7 @@ def test_edge_order_invariance():
 
     assert subtours1 == [], "edges1 should form valid tour"
     assert subtours2 == [], "edges2 should form valid tour"
-    print("PASS: test_edge_order_invariance")
+    print("[92mPASS:[0m test_edge_order_invariance")
 
 
 if __name__ == "__main__":
@@ -118,26 +118,31 @@ if __name__ == "__main__":
 
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      {e}")
+            print(f"[93mSKIP:[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = str(e)
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            print(f"      {e}")
+            print(f"[91mFAIL:[0m {test.__name__}")
+            if not hint:
+                hint = str(e)
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"[91mERROR:[0m {test.__name__}")
             print(f"       {type(e).__name__}: {e}")
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: [92m{passed} passed[0m, [91m{failed} failed[0m")
 
     if failed == 0:
         print("All subtour detection tests passed!")

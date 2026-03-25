@@ -23,7 +23,8 @@ def _solve(model, y, p):
     """Solve and extract results."""
     model.hideOutput()
     model.optimize()
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     n = len(y)
     obj = model.getObjVal()
     on = [model.getVal(y[i]) > 0.5 for i in range(n)]
@@ -40,7 +41,7 @@ def test_bigm_feasible():
     assert obj > 0, "Objective should be positive"
     total = sum(output)
     assert total >= DEMAND - 1e-6, f"Demand not met: {total} < {DEMAND}"
-    print(f"PASS: test_bigm_feasible (obj={obj:.1f})")
+    print(f"[92mPASS:[0m test_bigm_feasible (obj={obj:.1f})")
 
 
 def test_bigm_min_output():
@@ -58,7 +59,7 @@ def test_bigm_min_output():
             assert output[i] <= 1e-6, (
                 f"Generator {i} is off but output {output[i]:.1f} > 0"
             )
-    print("PASS: test_bigm_min_output")
+    print("[92mPASS:[0m test_bigm_min_output")
 
 
 def test_indicator_feasible():
@@ -70,7 +71,7 @@ def test_indicator_feasible():
     assert obj > 0, "Objective should be positive"
     total = sum(output)
     assert total >= DEMAND - 1e-6, f"Demand not met: {total} < {DEMAND}"
-    print(f"PASS: test_indicator_feasible (obj={obj:.1f})")
+    print(f"[92mPASS:[0m test_indicator_feasible (obj={obj:.1f})")
 
 
 def test_indicator_min_output():
@@ -88,7 +89,7 @@ def test_indicator_min_output():
             assert output[i] <= 1e-6, (
                 f"Generator {i} is off but output {output[i]:.1f} > 0"
             )
-    print("PASS: test_indicator_min_output")
+    print("[92mPASS:[0m test_indicator_min_output")
 
 
 def test_same_objective():
@@ -110,7 +111,7 @@ def test_same_objective():
     assert abs(obj1 - obj2) < 1e-4, (
         f"Objectives differ: big-M={obj1:.2f}, indicator={obj2:.2f}"
     )
-    print(f"PASS: test_same_objective (both={obj1:.1f})")
+    print(f"[92mPASS:[0m test_same_objective (both={obj1:.1f})")
 
 
 if __name__ == "__main__":
@@ -126,23 +127,26 @@ if __name__ == "__main__":
 
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      {e}")
+            print(f"[93mSKIP:[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = str(e)
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            traceback.print_exc()
+            print(f"[91mFAIL:[0m {test.__name__} - {e}")
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"[91mERROR:[0m {test.__name__}")
             traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: [92m{passed} passed[0m, [91m{failed} failed[0m")

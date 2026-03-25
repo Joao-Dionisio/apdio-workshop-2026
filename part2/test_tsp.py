@@ -2,9 +2,6 @@
 """
 Integration tests for TSP row generation.
 
-These tests verify that the row generation approach produces the same
-optimal solution as the compact MTZ formulation.
-
 Run these tests after completing Exercises 1 and 2:
     python test_tsp.py
 """
@@ -22,7 +19,7 @@ def test_small_tsp():
 
     # Solve with MTZ (reference)
     model_mtz, x_mtz = tsp_mtz(distances)
-    model_mtz.hideOutput()  # Suppress solver output
+    model_mtz.hideOutput()
     model_mtz.optimize()
     opt_mtz = model_mtz.getObjVal()
     print(f"  MTZ optimal: {opt_mtz:.0f}")
@@ -38,7 +35,7 @@ def test_small_tsp():
     assert abs(opt_mtz - opt_rg) < 1e-6, \
         f"Solutions differ: MTZ={opt_mtz}, RowGen={opt_rg}"
 
-    print("PASS: test_small_tsp")
+    print("\x1b[92mPASS:\x1b[0m test_small_tsp")
     return opt_rg
 
 
@@ -72,7 +69,7 @@ def test_medium_tsp():
     assert tour[0] == tour[-1] == 0, "Tour should start and end at city 0"
     assert set(tour[:-1]) == set(range(20)), "Tour should visit all cities"
 
-    print("PASS: test_medium_tsp")
+    print("\x1b[92mPASS:\x1b[0m test_medium_tsp")
     return opt_rg
 
 
@@ -105,7 +102,7 @@ def test_tour_validity():
         f"Tour cost {tour_cost} doesn't match objective {obj_val}"
 
     print(f"  Tour: {' -> '.join(map(str, tour[:6]))} ... (length={tour_cost:.0f})")
-    print("PASS: test_tour_validity")
+    print("\x1b[92mPASS:\x1b[0m test_tour_validity")
 
 
 def test_deterministic():
@@ -124,12 +121,34 @@ def test_deterministic():
     assert results[0] == results[1], \
         f"Same instance gave different results: {results}"
 
-    print("PASS: test_deterministic")
+    print("\x1b[92mPASS:\x1b[0m test_deterministic")
+
+
+def _check_conshdlr_implemented():
+    """Pre-check that conscheck/consenfolp don't raise NotImplementedError."""
+    from conshdlr_subtour import SubtourElimination
+    dummy_x = {(0, 1): None}
+    hdlr = SubtourElimination(dummy_x, 2)
+    for method, args in [("conscheck", ([], None, None, None, None, None)),
+                         ("consenfolp", ([], 0, False))]:
+        try:
+            getattr(hdlr, method)(*args)
+        except NotImplementedError:
+            return False, method
+        except Exception:
+            pass
+    return True, None
 
 
 if __name__ == "__main__":
     print("Running TSP integration tests...\n")
     print("=" * 50)
+
+    ready, missing = _check_conshdlr_implemented()
+    if not ready:
+        print(f"SKIP: {missing} is not implemented yet.")
+        print("Complete Exercise 2 (conshdlr_subtour.py) before running these tests.")
+        exit(0)
 
     tests = [
         test_small_tsp,
@@ -140,28 +159,31 @@ if __name__ == "__main__":
 
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      Hint: Complete Exercises 1 and 2 (and Exercise 6 in Part 1) first.")
+            print(f"\x1b[93mSKIP:\x1b[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = "Hint: Complete Exercises 1 and 2 (and Exercise 6 in Part 1) first."
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            print(f"      {e}")
+            print(f"\x1b[91mFAIL:\x1b[0m {test.__name__}")
+            if not hint:
+                hint = str(e)
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"\x1b[91mERROR:\x1b[0m {test.__name__}")
             print(f"       {type(e).__name__}: {e}")
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: \x1b[92m{passed} passed\x1b[0m, \x1b[91m{failed} failed\x1b[0m")
 
     if failed == 0:
         print("\nAll tests passed! Row generation is working correctly.")
-    else:
-        print("\nSome tests failed. Make sure Exercises 1 and 2 (and Exercise 6 in Part 1) are complete.")

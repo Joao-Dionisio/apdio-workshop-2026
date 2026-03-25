@@ -28,7 +28,7 @@ def test_status():
     model = _build_test_model()
     result = solve_and_report(model)
     assert result["status"] == "optimal", f"Expected optimal, got {result['status']}"
-    print("PASS: test_status")
+    print("[92mPASS:[0m test_status")
 
 
 def test_objective():
@@ -38,7 +38,7 @@ def test_objective():
     assert abs(result["objective"] - 3.0) < 1e-6, (
         f"Expected obj=3, got {result['objective']}"
     )
-    print("PASS: test_objective")
+    print("[92mPASS:[0m test_objective")
 
 
 def test_variables():
@@ -48,7 +48,7 @@ def test_variables():
     assert isinstance(result["variables"], dict), "variables should be a dict"
     assert "x" in result["variables"], "x should be in variables"
     assert result["variables"]["x"] > 0.5, f"Expected x=1, got {result['variables']['x']}"
-    print("PASS: test_variables")
+    print("[92mPASS:[0m test_variables")
 
 
 def test_statistics():
@@ -57,7 +57,7 @@ def test_statistics():
     result = solve_and_report(model)
     assert result["n_nodes"] >= 0, f"n_nodes should be >= 0, got {result['n_nodes']}"
     assert result["time"] >= 0, f"time should be >= 0, got {result['time']}"
-    print("PASS: test_statistics")
+    print("[92mPASS:[0m test_statistics")
 
 
 def test_required_keys():
@@ -66,7 +66,7 @@ def test_required_keys():
     result = solve_and_report(model)
     for key in ["status", "objective", "variables", "n_nodes", "time"]:
         assert key in result, f"Missing key: {key}"
-    print("PASS: test_required_keys")
+    print("[92mPASS:[0m test_required_keys")
 
 
 if __name__ == "__main__":
@@ -82,23 +82,26 @@ if __name__ == "__main__":
 
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      {e}")
+            print(f"[93mSKIP:[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = str(e)
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            traceback.print_exc()
+            print(f"[91mFAIL:[0m {test.__name__} - {e}")
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"[91mERROR:[0m {test.__name__}")
             traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: [92m{passed} passed[0m, [91m{failed} failed[0m")

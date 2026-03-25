@@ -1,0 +1,25 @@
+\frametitle{The "Machine" Language: MPS Format}
+Stigler Diet in 80 Columns
+\begin{itemize}
+\item Before AMLs, this is what a solver "saw." Note the rigid column alignment (Columns 1, 5, 15, 25, 40, 50).
+\end{itemize}
+
+{\scriptsize
+\begin{verbatim}
+NAME          STIGLER
+ROWS
+ N  COST
+ G  CALORIES
+ G  PROTEIN
+ G  CALCIUM
+COLUMNS
+    WHEAT     COST            0.036     CALORIES       3.3
+    WHEAT     PROTEIN         13.3      CALCIUM        0.9
+    CORNMEAL  COST            0.018     CALORIES       3.0
+    CORNMEAL  PROTEIN         10.0      CALCIUM        2.0
+RHS
+    RHS1      CALORIES        3.0       PROTEIN        70.0
+    RHS1      CALCALCIUM      0.8
+ENDATA
+\end{verbatim}
+}

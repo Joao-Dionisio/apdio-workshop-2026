@@ -5,13 +5,7 @@ __pycache__/
 .pytest_cache/
 
 # LaTeX build artifacts
-*.aux
-*.log
-*.nav
-*.out
-*.snm
-*.toc
-*.vrb
+slides/aux/
 *.fls
 *.fdb_latexmk
 *.synctex.gz

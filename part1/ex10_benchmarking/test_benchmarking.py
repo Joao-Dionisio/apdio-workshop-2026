@@ -27,7 +27,7 @@ def test_generate_instance():
     assert len(vc) == 20
     assert all(pmin[i] <= pmax[i] for i in range(20))
     assert demand > 0
-    print("PASS: test_generate_instance")
+    print("[92mPASS:[0m test_generate_instance")
 
 
 def test_benchmark_single():
@@ -42,7 +42,7 @@ def test_benchmark_single():
     assert stats["status"] in ("optimal", "timelimit")
     assert stats["time"] >= 0
     assert stats["n_nodes"] >= 0
-    print(f"PASS: test_benchmark_single (obj={stats['objective']:.1f}, "
+    print(f"[92mPASS:[0m test_benchmark_single (obj={stats['objective']:.1f}, "
           f"time={stats['time']:.2f}s, nodes={stats['n_nodes']})")
 
 
@@ -56,7 +56,7 @@ def test_compare_small():
         assert "indicator" in r
         assert r["bigm"]["status"] in ("optimal", "timelimit")
         assert r["indicator"]["status"] in ("optimal", "timelimit")
-    print("PASS: test_compare_small")
+    print("[92mPASS:[0m test_compare_small")
 
 
 if __name__ == "__main__":
@@ -70,23 +70,26 @@ if __name__ == "__main__":
 
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      {e}")
+            print(f"[93mSKIP:[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = str(e)
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            traceback.print_exc()
+            print(f"[91mFAIL:[0m {test.__name__} - {e}")
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"[91mERROR:[0m {test.__name__}")
             traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: [92m{passed} passed[0m, [91m{failed} failed[0m")

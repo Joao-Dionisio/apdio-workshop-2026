@@ -13,7 +13,7 @@ def test_correct_number():
     """Should produce one pattern per item."""
     cols = initial_columns(5)
     assert len(cols) == 5, f"Expected 5 patterns, got {len(cols)}"
-    print("PASS: test_correct_number")
+    print("[92mPASS:[0m test_correct_number")
 
 
 def test_one_item_per_pattern():
@@ -21,7 +21,7 @@ def test_one_item_per_pattern():
     cols = initial_columns(4)
     for i, pat in enumerate(cols):
         assert len(pat) == 1, f"Pattern {i} has {len(pat)} items, expected 1"
-    print("PASS: test_one_item_per_pattern")
+    print("[92mPASS:[0m test_one_item_per_pattern")
 
 
 def test_all_items_covered():
@@ -33,7 +33,7 @@ def test_all_items_covered():
         for item in pat:
             covered.add(item)
     assert covered == set(range(n)), f"Expected items {{0..{n-1}}}, got {covered}"
-    print("PASS: test_all_items_covered")
+    print("[92mPASS:[0m test_all_items_covered")
 
 
 def test_single_item():
@@ -41,7 +41,7 @@ def test_single_item():
     cols = initial_columns(1)
     assert len(cols) == 1
     assert 0 in cols[0]
-    print("PASS: test_single_item")
+    print("[92mPASS:[0m test_single_item")
 
 
 if __name__ == "__main__":
@@ -56,23 +56,28 @@ if __name__ == "__main__":
 
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      {e}")
+            print(f"[93mSKIP:[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = str(e)
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            print(f"      {e}")
+            print(f"[91mFAIL:[0m {test.__name__}")
+            if not hint:
+                hint = str(e)
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"[91mERROR:[0m {test.__name__}")
             print(f"       {type(e).__name__}: {e}")
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: [92m{passed} passed[0m, [91m{failed} failed[0m")

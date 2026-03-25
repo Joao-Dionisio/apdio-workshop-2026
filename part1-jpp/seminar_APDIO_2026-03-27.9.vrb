@@ -1,0 +1,18 @@
+\frametitle{Before Modeling Languages: Physical Data Entry}
+\begin{block}{The Punched Card Era (1950s)}
+In the "Alpha" phase, there was no \texttt{model.lp} or \texttt{model.py}.
+Data was physical.
+
+\begin{itemize}
+\item \alert{\alert{Storage}}: IBM 80-column punched cards.
+\item \alert{\alert{Method}}: One non-zero coefficient per card.
+\item \alert{\alert{Hardware}}: IBM 026 Keypunch \& 056 Verifier.
+\end{itemize}
+
+
+\begin{center}
+\begin{center}
+\includegraphics[angle=0,width=.6\textwidth]{FIGS/Used_Punchcard.jpg}
+\end{center}
+\end{center}
+\end{block}

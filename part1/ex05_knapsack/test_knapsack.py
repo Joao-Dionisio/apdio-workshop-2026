@@ -46,14 +46,15 @@ def test_small_instance():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
 
     # Items 0 (w=2,v=3) + 2 (w=4,v=5) = w=6 <= 7, v=8
     # Items 1 (w=3,v=4) + 2 (w=4,v=5) = w=7 <= 7, v=9
     assert abs(model.getObjVal() - 9.0) < 1e-4, (
         f"Expected obj=9, got {model.getObjVal()}"
     )
-    print("PASS: test_small_instance")
+    print("[92mPASS:[0m test_small_instance")
 
 
 def test_capacity_respected():
@@ -72,7 +73,7 @@ def test_capacity_respected():
     assert total_weight <= capacity + 1e-6, (
         f"Weight {total_weight} exceeds capacity {capacity}"
     )
-    print("PASS: test_capacity_respected")
+    print("[92mPASS:[0m test_capacity_respected")
 
 
 def test_classic_instance():
@@ -89,7 +90,7 @@ def test_classic_instance():
     assert abs(model.getObjVal() - 220.0) < 1e-4, (
         f"Expected obj=220, got {model.getObjVal()}"
     )
-    print("PASS: test_classic_instance")
+    print("[92mPASS:[0m test_classic_instance")
 
 
 def test_generated_instance():
@@ -99,9 +100,10 @@ def test_generated_instance():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert model.getObjVal() >= 0, "Objective should be non-negative"
-    print("PASS: test_generated_instance")
+    print("[92mPASS:[0m test_generated_instance")
 
 
 def test_generated_larger():
@@ -111,7 +113,8 @@ def test_generated_larger():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
 
     total_weight = sum(
         weights[i] * model.getVal(x[i]) for i in range(20)
@@ -119,7 +122,7 @@ def test_generated_larger():
     assert total_weight <= capacity + 1e-6, (
         f"Weight {total_weight} exceeds capacity {capacity}"
     )
-    print("PASS: test_generated_larger")
+    print("[92mPASS:[0m test_generated_larger")
 
 
 def test_generated_medium():
@@ -129,9 +132,10 @@ def test_generated_medium():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert model.getObjVal() >= 0, "Objective should be non-negative"
-    print("PASS: test_generated_medium")
+    print("[92mPASS:[0m test_generated_medium")
 
 
 if __name__ == "__main__":
@@ -148,23 +152,26 @@ if __name__ == "__main__":
 
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      {e}")
+            print(f"[93mSKIP:[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = str(e)
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            traceback.print_exc()
+            print(f"[91mFAIL:[0m {test.__name__} - {e}")
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"[91mERROR:[0m {test.__name__}")
             traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: [92m{passed} passed[0m, [91m{failed} failed[0m")

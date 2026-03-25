@@ -27,7 +27,7 @@ def test_builds():
     """Model should build without error."""
     model, x, y, z, lam = blending(SOURCES, PRODUCTS)
     assert model is not None, "Model should not be None"
-    print("PASS: test_builds")
+    print("[92mPASS:[0m test_builds")
 
 
 def test_solves():
@@ -35,8 +35,9 @@ def test_solves():
     model, x, y, z, lam = blending(SOURCES, PRODUCTS)
     model.hideOutput()
     model.optimize()
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
-    print(f"PASS: test_solves (obj={model.getObjVal():.2f})")
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
+    print(f"[92mPASS:[0m test_solves (obj={model.getObjVal():.2f})")
 
 
 def test_quality_respected():
@@ -61,7 +62,7 @@ def test_quality_respected():
                 f"Product {p}: quality {effective_quality:.3f} > "
                 f"max {PRODUCTS[p]['max_quality']}"
             )
-    print("PASS: test_quality_respected")
+    print("[92mPASS:[0m test_quality_respected")
 
 
 def test_positive_profit():
@@ -70,7 +71,7 @@ def test_positive_profit():
     model.hideOutput()
     model.optimize()
     assert model.getObjVal() > 0, f"Expected positive profit, got {model.getObjVal()}"
-    print(f"PASS: test_positive_profit (profit={model.getObjVal():.2f})")
+    print(f"[92mPASS:[0m test_positive_profit (profit={model.getObjVal():.2f})")
 
 
 if __name__ == "__main__":
@@ -85,23 +86,26 @@ if __name__ == "__main__":
 
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      {e}")
+            print(f"[93mSKIP:[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = str(e)
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            traceback.print_exc()
+            print(f"[91mFAIL:[0m {test.__name__} - {e}")
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"[91mERROR:[0m {test.__name__}")
             traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: [92m{passed} passed[0m, [91m{failed} failed[0m")

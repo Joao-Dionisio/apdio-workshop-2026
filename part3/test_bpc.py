@@ -18,9 +18,10 @@ def test_bpc():
     model, *_ = extended_binpacking(sizes, capacity, separator=separator)
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert model.getObjVal() >= 1, f"Expected at least 1 bin, got {model.getObjVal()}"
-    print(f"PASS: test_bpc (obj={model.getObjVal()}, cuts={len(separator.cuts)})")
+    print(f"[92mPASS:[0m test_bpc (obj={model.getObjVal()}, cuts={len(separator.cuts)})")
 
 
 def test_bpc_matches_bnp():
@@ -41,7 +42,7 @@ def test_bpc_matches_bnp():
 
     assert obj_bpc <= obj_bnp + 1e-6, (
         f"BPC obj ({obj_bpc}) should be <= B&P obj ({obj_bnp})")
-    print(f"PASS: test_bpc_matches_bnp (B&P={obj_bnp}, BPC={obj_bpc}, cuts={len(separator.cuts)})")
+    print(f"[92mPASS:[0m test_bpc_matches_bnp (B&P={obj_bnp}, BPC={obj_bpc}, cuts={len(separator.cuts)})")
 
 
 def test_bpc_different_seed():
@@ -53,9 +54,10 @@ def test_bpc_different_seed():
     model, *_ = extended_binpacking(sizes, capacity, separator=separator)
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert model.getObjVal() >= 1, f"Expected at least 1 bin, got {model.getObjVal()}"
-    print(f"PASS: test_bpc_different_seed (obj={model.getObjVal()}, cuts={len(separator.cuts)})")
+    print(f"[92mPASS:[0m test_bpc_different_seed (obj={model.getObjVal()}, cuts={len(separator.cuts)})")
 
 
 def test_bpc_small():
@@ -67,8 +69,9 @@ def test_bpc_small():
     model, *_ = extended_binpacking(sizes, capacity, separator=separator)
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
-    print(f"PASS: test_bpc_small (obj={model.getObjVal()}, cuts={len(separator.cuts)})")
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
+    print(f"[92mPASS:[0m test_bpc_small (obj={model.getObjVal()}, cuts={len(separator.cuts)})")
 
 
 def test_bpc_seed7():
@@ -80,8 +83,9 @@ def test_bpc_seed7():
     model, *_ = extended_binpacking(sizes, capacity, separator=separator)
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
-    print(f"PASS: test_bpc_seed7 (obj={model.getObjVal()}, cuts={len(separator.cuts)})")
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
+    print(f"[92mPASS:[0m test_bpc_seed7 (obj={model.getObjVal()}, cuts={len(separator.cuts)})")
 
 
 if __name__ == "__main__":
@@ -90,23 +94,28 @@ if __name__ == "__main__":
 
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      {e}")
+            print(f"[93mSKIP:[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = str(e)
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            print(f"      {e}")
+            print(f"[91mFAIL:[0m {test.__name__}")
+            if not hint:
+                hint = str(e)
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"[91mERROR:[0m {test.__name__}")
             print(f"       {type(e).__name__}: {e}")
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: [92m{passed} passed[0m, [91m{failed} failed[0m")

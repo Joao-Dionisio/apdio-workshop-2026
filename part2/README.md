@@ -67,7 +67,7 @@ Given an integer solution (selected edges), we need to detect subtours:
 
 A valid tour (left) has a single connected component. Subtours (right) have multiple — each violates an SEC.
 
-#### Exercise 1: Implement Subtour Detection
+#### Exercise 1 (optional): Subtour Detection
 
 Complete `find_subtours()` in `subtour.py`:
 
@@ -85,6 +85,15 @@ def find_subtours(selected_edges, n_nodes):
 - Build an adjacency list from edges
 - Use DFS/BFS to find connected components
 - Alternative: Union-Find data structure
+
+> **Shortcut:** Use [NetworkX](https://networkx.org/) (`pip install networkx`):
+> ```python
+> import networkx as nx
+> G = nx.Graph()
+> G.add_nodes_from(range(n_nodes))
+> G.add_edges_from(selected_edges)
+> components = list(nx.connected_components(G))
+> ```
 
 **Test your implementation:**
 ```bash
@@ -151,39 +160,6 @@ Solve the same TSP instances with MTZ and row generation across increasing sizes
 - How does the LP relaxation bound compare between the two formulations?
 - At what instance size does the difference in B&B nodes become significant?
 - Which formulation is faster for small instances? For large instances?
-
----
-
-## 3. Bonus Exercises
-
-### 3.1 Min-Cut Separation
-
-Our current `consenfolp` only separates **integer** solutions by finding connected components. This misses violated SECs in **fractional** LP solutions, where every node may be connected but a subset $S$ still violates $\sum_{e \in E(S)} x_e \leq |S| - 1$.
-
-The fix is min-cut separation:
-
-1. Build a graph with edge capacities equal to the LP values $x_e$.
-2. For each pair of nodes $(s, t)$, compute a minimum $s$-$t$ cut.
-3. If the min-cut value is $< 2$, the cut defines a violated SEC — add it.
-
-**Implementation hints:**
-- Use `networkx.minimum_cut` or implement max-flow yourself.
-- Add a `conssepalp` callback to the constraint handler (called on fractional LP solutions, unlike `consenfolp` which is called on integer solutions).
-- Compare solve times with and without fractional separation.
-
-### 3.2 Stronger Valid Inequalities
-
-SECs are not the only cuts that help for TSP. Two important families:
-
-- **2-matching inequalities:** Imagine a tour crosses a "blob" of cities — it must cross the boundary an even number of times. 2-matching inequalities exploit situations where the LP relaxation cheats by using fractional values that violate this parity. They cut off fractional solutions that SECs alone cannot.
-
-- **Comb inequalities:** A generalization of 2-matching. Picture a "handle" (a set of cities) with several "teeth" (smaller sets that straddle the handle boundary). The tour must use enough edges to enter and leave each tooth, which gives a lower bound on edge usage. Comb inequalities are the main workhorse of Concorde, the state-of-the-art exact TSP solver.
-
-<p align="center">
-  <img src="media/comb_inequality.png" width="400">
-</p>
-
-Finding violated combs is hard in general, but heuristic separation works well in practice. See Applegate et al. (2006) for details.
 
 ---
 

@@ -23,7 +23,7 @@ def test_no_cuts_matches_base():
 
     assert abs(base[0] - with_cuts[0]) < 1e-6, (
         f"Empty cuts should match base: {base[0]} vs {with_cuts[0]}")
-    print("PASS: test_no_cuts_matches_base")
+    print("[92mPASS:[0m test_no_cuts_matches_base")
 
 
 def test_cut_penalizes_pattern():
@@ -48,7 +48,7 @@ def test_cut_penalizes_pattern():
     # With the heavy penalty, solver should avoid picking 2+ of {0,1,2}
     overlap = len(set(packing) & {0, 1, 2})
     assert overlap <= 1, f"Cut should discourage picking 2+ of {{0,1,2}}, got {packing}"
-    print(f"PASS: test_cut_penalizes_pattern (packing={packing}, obj={obj})")
+    print(f"[92mPASS:[0m test_cut_penalizes_pattern (packing={packing}, obj={obj})")
 
 
 if __name__ == "__main__":

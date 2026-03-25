@@ -78,7 +78,7 @@ def test_small_instance():
         current = next_city[current]
     assert len(visited) == n, f"Tour visits {len(visited)} cities, expected {n}"
 
-    print(f"PASS: test_small_instance (obj={model.getObjVal():.0f})")
+    print(f"[92mPASS:[0m test_small_instance (obj={model.getObjVal():.0f})")
 
 
 def test_10_cities():
@@ -89,7 +89,7 @@ def test_10_cities():
     model.optimize()
 
     assert model.getStatus() == "optimal"
-    print(f"PASS: test_10_cities (obj={model.getObjVal():.0f}, "
+    print(f"[92mPASS:[0m test_10_cities (obj={model.getObjVal():.0f}, "
           f"nodes={model.getNNodes()}, time={model.getSolvingTime():.2f}s)")
 
 
@@ -99,23 +99,26 @@ if __name__ == "__main__":
     tests = [test_small_instance, test_10_cities]
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      {e}")
+            print(f"[93mSKIP:[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = str(e)
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            traceback.print_exc()
+            print(f"[91mFAIL:[0m {test.__name__} - {e}")
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"[91mERROR:[0m {test.__name__}")
             traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: [92m{passed} passed[0m, [91m{failed} failed[0m")

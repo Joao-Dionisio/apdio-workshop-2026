@@ -2,10 +2,12 @@
 
 An APDIO-organized workshop on Optimization using [PySCIPOpt](https://github.com/scipopt/PySCIPOpt), the Python interface to the [SCIP](https://www.scipopt.org/) solver. More information about the event [here](https://www.apdio.pt/2026/03/03/2026-apdio-workshop-optimization-software-practice/).
 
+> **Tip:** The READMEs contain syntax that only renders properly in a viewer. On GitHub they render automatically. In VS Code, press `Ctrl+Shift+V` (`Cmd+Shift+V` on Mac) to open the Markdown preview. In PyCharm, click the split editor icon (top-right of the editor) or right-click the file and select *Open Preview*.
+
 ## Setup
 
 ```bash
-python -m pip install -r requirements.txt
+python -m pip install pyscipopt
 ```
 
 On some Linux distributions (e.g. Debian/Ubuntu), installing packages globally with `pip` is restricted. If you get an `externally-managed-environment` error, create a virtual environment first. This is probably not required for most users (Windows/macOS).
@@ -13,7 +15,7 @@ On some Linux distributions (e.g. Debian/Ubuntu), installing packages globally w
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements.txt
+python -m pip install pyscipopt
 ```
 
 Verify installation:
@@ -24,19 +26,6 @@ m = Model()
 m.optimize()
 print("PySCIPOpt is ready!")
 ```
-
-## How It Works
-
-Each part of the workshop follows the same flow:
-
-1. **Slides** introduce the concepts and formulations (`slides/`).
-2. **The README** in each part provides detailed explanations, mathematical formulations, and pointers to exercises (`part1/README.md`, `part2/README.md`, `part3/README.md`).
-3. **Exercise stubs** contain skeleton code with `NotImplementedError` and you fill in the missing pieces.
-4. **Tests** verify your implementation. Run them with `python test_*.py` or `python -m pytest`.
-
-Work through the slides and README side by side, implementing each exercise as it comes up.
-
-For background on SCIP itself, see the overview presentation in `slides/scip_presentation_v2.pdf`.
 
 ## Structure
 
@@ -81,6 +70,19 @@ Use the **bin packing problem** to build a full branch-and-price algorithm:
 | Ryan-Foster branching | `part3/` |
 | Constrained pricing | `part3/` |
 | Branch-price-and-cut (subset-row cuts) | `part3/` |
+
+## How It Works
+
+Each part of the workshop follows the same flow:
+
+1. **Slides** introduce the concepts and formulations (`slides/`).
+2. **The README** in each part provides detailed explanations, mathematical formulations, and pointers to exercises (`part1/README.md`, `part2/README.md`, `part3/README.md`).
+3. **Exercise stubs** contain skeleton code with `NotImplementedError` and you fill in the missing pieces.
+4. **Tests** verify your implementation. Run them with `python test_*.py` or `python -m pytest`.
+
+Work through the slides and README side by side, implementing each exercise as it comes up.
+
+For background on SCIP itself, see the overview presentation in `slides/scip_presentation.pdf`.
 
 ## Running Tests
 

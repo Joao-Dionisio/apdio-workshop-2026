@@ -6,18 +6,10 @@ from pyscipopt import Model
 def pricing_solver(sizes: List[int], capacity: int, dual_solution: dict[int, float], together: set[tuple[int, int]],
                    apart: set[tuple[int, int]], subset_row_cuts=None) -> tuple[float, List[int]]:
     """
-    Solve the pricing problem for the knapsack problem (with branching constraints)
-
-    Parameters:
-    sizes: List[int] - the sizes of the items
-    capacity: int - the capacity of the knapsack
-    dual_solution: dict[int, float] - the dual solution of the linear relaxation
-    together: set[tuple[int, int]] - the pairs of items that must be together
-    apart: set[tuple[int, int]] - the pairs of items that must be apart
-    subset_row_cuts: list of (triple, dual_value) for active subset row cuts, or None
+    Solve the pricing problem (knapsack with branching constraints).
 
     Returns:
-    tuple[float, List[int]] - the minimum reduced cost and the packing of the items
+        (min_reduced_cost, packing)
     """
 
     profits = [dual_solution[i] for i in range(len(sizes))]
@@ -35,17 +27,7 @@ def pricing_solver(sizes: List[int], capacity: int, dual_solution: dict[int, flo
 
 
 def solve_knapsack(sizes: List[int], values: List[float], capacity: int) -> tuple[float, List[int]]:
-    """
-    Solve the knapsack problem
-
-    Parameters:
-    sizes: List[int] - the sizes of the items
-    values: List[float] - the values of the items
-    capacity: int - the capacity of the knapsack
-
-    Returns:
-    tuple[float, List[int]] - the optimal value and the packing of the items
-    """
+    """Solve the basic knapsack problem. Returns (optimal_value, packing)."""
 
     m = Model("knapsack")
     m.hideOutput()
@@ -66,40 +48,13 @@ def solve_knapsack_with_constraints(
         sizes: List[int], values: List[float], capacity: int, together: set[tuple[int, int]],
         apart: set[tuple[int, int]]
 ) -> tuple[float, List[int]]:
+    """Solve knapsack with branching constraints.
+
+    Together: x[i] == x[j].  Apart: x[i] + x[j] <= 1.
     """
-    Solve the knapsack problem with branching constraints
+    # EXERCISE: Copy solve_knapsack and add together/apart constraints
 
-    Parameters:
-    sizes: List[int] - the sizes of the items
-    values: List[float] - the values of the items
-    capacity: int - the capacity of the knapsack
-    together: set[tuple[int, int]] - the pairs of items that must be together
-    apart: set[tuple[int, int]] - the pairs of items that must be apart
-
-    Returns:
-    tuple[float, List[int]] - the optimal value and the packing of the items
-    """
-    # =========================================================================
-    # EXERCISE: Implement pricing with branching constraints
-    # =========================================================================
-    #
-    # Start from solve_knapsack and add constraints for:
-    #
-    # Together pairs: items i and j must both be selected or both not.
-    #     x[i] == x[j]
-    #
-    # Apart pairs: items i and j cannot both be selected.
-    #     x[i] + x[j] <= 1
-    #
-    # Note: "apart" does not forbid both items being absent from the packing.
-    #
-    # =========================================================================
-
-    raise NotImplementedError(
-        "Exercise: Implement knapsack pricing with branching constraints.\n"
-        "Copy solve_knapsack and add together (x[i] == x[j]) and\n"
-        "apart (x[i] + x[j] <= 1) constraints."
-    )
+    raise NotImplementedError("Implement knapsack pricing with branching constraints.")
 
 
 def solve_knapsack_with_subset_row_cuts(
@@ -107,48 +62,12 @@ def solve_knapsack_with_subset_row_cuts(
         together: set[tuple[int, int]], apart: set[tuple[int, int]],
         subset_row_cuts: list
 ) -> tuple[float, List[int]]:
+    """Solve knapsack pricing with branching + subset row cuts.
+
+    For each (triple, dual) in subset_row_cuts:
+        z = addVar(vtype="B", obj=dual)
+        addCons(z >= x[i] + x[j] + x[k] - 1)
     """
-    Solve the knapsack pricing problem with branching + subset row cuts.
+    # EXERCISE: Extend solve_knapsack_with_constraints with subset row penalties
 
-    This extends solve_knapsack_with_constraints to also handle
-    subset row cut duals in the pricing problem.
-
-    For each active subset row cut on triple S = {i, j, k} with dual μ_S:
-    - Add binary variable z_S with objective coefficient μ_S
-    - Add constraint: z_S >= x_i + x_j + x_k - 1
-      (forces z_S = 1 when 2+ items from S are selected)
-
-    Since μ_S <= 0, the solver naturally sets z_S = 0 when possible,
-    penalizing patterns that cover 2+ items from any cut triple.
-
-    Parameters:
-    sizes: List[int] - item sizes
-    values: List[float] - item profits (dual values)
-    capacity: int - bin capacity
-    together: set[tuple[int, int]] - pairs that must be together
-    apart: set[tuple[int, int]] - pairs that must be apart
-    subset_row_cuts: list of (triple, dual_value) for active subset row cuts
-
-    Returns:
-    tuple[float, List[int]] - optimal value and selected items
-    """
-    # =========================================================================
-    # EXERCISE: Implement pricing with subset row cuts
-    # =========================================================================
-    #
-    # Start from solve_knapsack_with_constraints and add:
-    #
-    # For each (triple, dual) in subset_row_cuts:
-    #     i, j, k = triple
-    #     z = m.addVar(vtype="B", obj=dual)          # penalty variable
-    #     m.addCons(z >= x[i] + x[j] + x[k] - 1)    # active when 2+ selected
-    #
-    # The rest is identical to solve_knapsack_with_constraints.
-    #
-    # =========================================================================
-
-    raise NotImplementedError(
-        "BPC Exercise: Implement pricing with subset row cuts.\n"
-        "Extend the knapsack to add a penalty variable z_S for each cut\n"
-        "with constraint z_S >= x_i + x_j + x_k - 1."
-    )
+    raise NotImplementedError("Implement pricing with subset row cuts.")

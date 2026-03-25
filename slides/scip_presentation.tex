@@ -1,10 +1,22 @@
 \documentclass{beamer}
-% \usetheme[nogauge,amurmapleblue,sidebar]{Amurmaple}
-\usetheme[nogauge,amurmapleblue]{Amurmaple}
+\usetheme{Madrid}
 
-\usepackage{todonotes}
+% ---- SCIP blue color scheme --------------------------------
+\definecolor{scipblue}{RGB}{30,60,190}
+\setbeamercolor{structure}{fg=scipblue}
+\setbeamercolor{palette primary}{bg=scipblue, fg=white}
+\setbeamercolor{palette secondary}{bg=scipblue!85!black, fg=white}
+\setbeamercolor{palette tertiary}{bg=scipblue!70!black, fg=white}
+\setbeamercolor{palette quaternary}{bg=scipblue, fg=white}
+\setbeamercolor{frametitle}{bg=scipblue!10, fg=scipblue}
+\setbeamercolor{title}{fg=white, bg=scipblue}
+\setbeamercolor{item}{fg=scipblue}
+
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tikz}
 
 \lstset{
   language=Python,
@@ -13,7 +25,7 @@
   stringstyle=\color[RGB]{163,21,21},
   commentstyle=\color[RGB]{106,153,85}\itshape,
   emphstyle=\color[RGB]{78,154,6}\bfseries,
-  emph={Model,addVar,addCons,setObjective,optimize},
+  emph={Model,addVar,addCons,setObjective,optimize,quicksum},
   showstringspaces=false,
   frame=single,
   numbers=none,
@@ -23,10 +35,19 @@
 \newcommand{\plugin}[1]{\texttt{#1}}
 
 \title{Let's SCIP it!}
-\author{João Dionísio}
-\titlegraphic{\includegraphics[width=3.5cm]{media/sciplogo.png}}
-% \logo{\hspace{1mm}\includegraphics[width=1.8cm]{newscippy.png}}
-\logo{\hspace{1mm}\includegraphics[width=1.8cm]{media/sciplogo.png}}
+\subtitle{APDIO Workshop: Optimization Software \& Practice}
+\author{Jo\~{a}o Dion\'{i}sio}
+\date{March 27, 2026}
+\titlegraphic{%
+  \begin{minipage}{\textwidth}
+    \centering
+    \raisebox{0.4cm}{\includegraphics[height=0.5cm]{media/uporto_logo.jpg}}%
+    \hspace{1.2cm}%
+    \includegraphics[height=1.2cm]{media/sciplogo.png}%
+    \hspace{1.2cm}%
+    \raisebox{0.2cm}{\includegraphics[height=0.7cm]{media/apdio_logo.png}}%
+  \end{minipage}%
+}
 
 \begin{document}
 
@@ -34,398 +55,212 @@
   \maketitle
 \end{frame}
 
-\section{Out-of-the-box Solver}
+% ---------------------------------------------------------
+\begin{frame}{What is SCIP?}
 
-\begin{frame}{SCIP as a Black-Box Solver}
-  \begin{itemize}
-  \item SCIP is a solver for finding globally optimal solutions of
-    \begin{itemize}
-    \item mixed-integer (nonlinear) programs
-    \item satisfiability problems
-    \item constraint integer programs
-    \end{itemize}
-  \item supports exact arithmetic for mixed-integer linear programs
-  \end{itemize}
+\textbf{SCIP} --- \emph{Solving Constraint Integer Programs}
+
+\medskip
+\begin{itemize}
+  \item Fastest non-commercial solver for mixed-integer nonlinear programs (MINLPs)
+  \item Also handles satisfiability and constraint integer programs
+  \item Supports exact arithmetic for MILPs (mathematical proofs)
+  \item Open-source under Apache 2.0 license
+  \item Under active development for over 20 years (mostly at Zuse Institute Berlin)
+  \item SCIP alumni work on Gurobi, Xpress, COPT, Hexaly, \ldots
+\end{itemize}
+
+\bigskip
+\textbf{Interfaces:}
+\raisebox{-0.2em}{\includegraphics[height=1.3em]{media/c_logo}}\enspace
+\raisebox{-0.2em}{\includegraphics[height=1.3em]{media/cpp_logo}}\enspace
+\raisebox{-0.2em}{\includegraphics[height=1.3em]{media/python_logo}}\enspace
+\raisebox{-0.2em}{\includegraphics[height=1.3em]{media/julia_logo}}\enspace
+\raisebox{-0.2em}{\includegraphics[height=1.3em]{media/rust_logo}}\enspace
+\raisebox{-0.2em}{\includegraphics[height=1.3em]{media/java_logo}}\enspace
+\raisebox{-0.2em}{\includegraphics[height=1.3em]{media/matlab_logo}}
+
 \end{frame}
 
-\begin{frame}{Interfaces}
-  SCIP has interfaces to many popular programming languages
-  \begin{itemize}
-  \item C/C++
-  \item Python
-  \item Julia
-  \item Rust
-  \item Matlab
-  \item Java
-  \end{itemize}
+% ---------------------------------------------------------
+{
+\setbeamertemplate{frametitle}{}
+\setbeamertemplate{navigation symbols}{}
+\begin{frame}[plain]
+\centering
+\begin{tikzpicture}
+  % Row 1 (h=2.2cm, 3 photos): widths 3.30, 3.08, 4.30
+  \node[inner sep=0] at (-3.79, 3.75) {\includegraphics[height=2.2cm]{media/photos/satw/Seychellen-Scippy}};
+  \node[inner sep=0] at (-0.50, 3.75) {\includegraphics[height=2.2cm,trim=50 50 80 50,clip]{media/photos/satw/Banff-99}};
+  \node[inner sep=0] at ( 3.29, 3.75) {\includegraphics[height=2.2cm,trim=100 100 0 110,clip]{media/photos/satw/IMG_9031}};
+
+  % Row 2 (h=2.8cm, 4 photos): widths 1.58, 1.97, 5.36, 1.57
+  \node[inner sep=0] at (-4.60, 1.15) {\includegraphics[height=2.8cm]{media/photos/satw/auckland}};
+  \node[inner sep=0] at (-2.73, 1.15) {\includegraphics[height=2.8cm,trim=250 500 300 150,clip]{media/photos/satw/walt_scippy}};
+  \node[inner sep=0] at ( 1.04, 1.15) {\includegraphics[height=2.8cm,trim=30 100 80 400,clip]{media/photos/devteam2024}};
+  \node[inner sep=0] at ( 4.61, 1.15) {\includegraphics[height=2.8cm]{media/photos/satw/Benny-Niederlande}};
+
+  % Row 3 (h=2.2cm, 3 photos): widths 2.64, 2.93, 4.47
+  \node[inner sep=0] at (-3.80,-1.45) {\includegraphics[height=2.2cm,trim=0 1300 0 1200,clip]{media/photos/satw/Vienna1895}};
+  \node[inner sep=0] at (-0.92,-1.45) {\includegraphics[height=2.2cm]{media/photos/satw/20141207_ScippyLondon}};
+  \node[inner sep=0] at ( 2.88,-1.45) {\includegraphics[height=2.2cm,trim=0 1200 600 0,clip]{media/photos/satw/IMG_9516}};
+
+  % Row 4 (h=2.2cm): widths 4.79, 2.68, 2.93
+  \node[inner sep=0] at (-2.91,-3.75) {\includegraphics[height=2.2cm,trim=300 200 250 1000,clip]{media/photos/satw/Pittsburgh_ISMP2015}};
+  \node[inner sep=0] at ( 0.93,-3.75) {\includegraphics[height=2.2cm,trim=400 0 0 0,clip]{media/photos/satw/Takafumi_VeneziaSanMarco_Italy}};
+  \node[inner sep=0] at ( 3.84,-3.75) {\includegraphics[height=2.2cm]{media/photos/satw/20170221_172232}};
+\end{tikzpicture}
+\end{frame}
+}
+
+% ---------------------------------------------------------
+
+\begin{frame}{Why do research on optimization?}
+
+Existing solvers are impressive, but they have limits:
+
+\medskip
+\begin{itemize}
+  \item \textbf{Generic vs.\ specific:} solvers use general-purpose techniques.
+  Exploiting problem structure can be orders of magnitude faster
+  \item \textbf{Modeling power:} some formulations only become tractable with custom decomposition (e.g., Dantzig-Wolfe, Benders)
+  \item \textbf{Beyond MIP:} many real-world problems have side constraints, nonlinearities, or combinatorial substructure that generic solvers cannot exploit effectively
+\end{itemize}
+
 \end{frame}
 
-\begin{frame}[fragile]{SCIP is Easy to Use}
-  \begin{itemize}
-  \item executable can read many popular file formats (mps, lp, etc.)
-  \item modeling problems via SCIP's interfaces is very easy
-  \end{itemize}
-  \begin{lstlisting}
-from pyscipopt import Model
+% ---------------------------------------------------------
+\begin{frame}{Black-Box vs.\ Open-Source Solvers for Research}
 
-model = Model()
+\textbf{Modeling research}
+\begin{itemize}
+  \item Black-box: compare formulations by solving time, but can't explain \emph{why} one is faster --- lucky heuristic? tighter LP bound?
+  \item Open-source: inspect LP bounds at each node, track which cuts are applied, count nodes per subtree --- understand what drives performance
+\end{itemize}
 
-x = model.addVar("x", vtype="C", lb=0)
-y = model.addVar("y", vtype="I", lb=0)
+\medskip
+\textbf{Algorithmic research}
+\begin{itemize}
+  \item Black-box: internals are closed, callbacks are limited
+  \item Open-source: implement and test new branching rules, cutting planes, propagation, pricing, presolving, all inside the solver
+  \item Access conflict analysis, LP warmstarts, and node statistics to evaluate your changes
+\end{itemize}
 
-model.addCons(x + 2*y <= 10)
-model.setObjective(x + y, "maximize")
-
-model.optimize()
-  \end{lstlisting}
 \end{frame}
 
-\sepframe[title={Branch-and-Price},image={\includegraphics[width=6cm]{media/scip-bap.png}}]
+% ---------------------------------------------------------
+\begin{frame}{Plugin-Based Architecture}
 
-\section{Branch-and-Price}
+SCIP's real strength: a \textbf{modular plugin system} that lets you
+customize every aspect of the solving process.
 
-\begin{frame}{Branch-and-Price}
-  required functionality
-  \begin{itemize}
-  \item column generation
-  \item embedding of column generation in branch-and-bound
-  \item custom branching rules
-  \end{itemize}
+\medskip
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+\textbf{Core framework:}
+\begin{itemize}
+  \item Branch-and-bound tree
+  \item LP solver (SoPlex)
+  \item Solution \& cut pools
+  \item Conflict analysis
+  \item Clique table
+\end{itemize}
+\end{column}
+\begin{column}{0.50\textwidth}
+\textbf{Plugins are modular:}
+\begin{itemize}
+  \item Each type has a defined interface
+  \item Called by priority order
+  \item Multiple plugins per type
+  \item Extend in C, C++, or Python
+\end{itemize}
+\end{column}
+\end{columns}
 
-  \vfill
-
-  SCIP naturally supports these features by
-  \begin{itemize}
-  \item plugin for generating new columns (\plugin{pricer})
-  \item automatic handling of branch-and-bound tree including warm start and heuristics
-  \item plugin for custom branching rules (\plugin{branching rule})
-  \end{itemize}
-
-  \vfill
+\bigskip
+$\Rightarrow$ Not just a solver --- a \textbf{framework} for building solvers
 \end{frame}
 
-\section{Custom Bounds}
-
-\begin{frame}{Custom Bounds}
-  required functionality
-  \begin{itemize}
-  \item access to variables with local bounds (modified during
-    solving process)
-  \item embedding of custom bound in branch-and-bound
-  \end{itemize}
-
-  \vfill
-
-  SCIP naturally supports these features by
-  \begin{itemize}
-  \item plugin for computing custom bound (\plugin{relaxator})
-  \item automatic embedding in branch-and-bound
-  \end{itemize}
-
-  \vfill
-\end{frame}
-
-\section{Separation}
-
-\begin{frame}{Cutting Planes}
-  required functionality
-  \begin{itemize}
-  \item access to solution
-  \item creating and adding custom cutting planes
-  \end{itemize}
-
-  \vfill
-
-  SCIP naturally supports these features by
-  \begin{itemize}
-  \item plugin for custom cutting planes (\plugin{separator})
-  \item automatic embedding in branch-and-bound, including cut storage and selection
-  \item full control of timing of cut generation
-    \begin{itemize}
-    \item only at root node
-    \item every~$k$-th level of the branch-and-bound tree
-    \end{itemize}
-  \end{itemize}
-
-  \vfill
-\end{frame}
-
-\section{Propagation}
-
-\begin{frame}{Variable Bound Propagation}
-  required functionality
-  \begin{itemize}
-  \item access to local variable bounds (during solving process)
-  \item possibility to change local variable bounds
-  \end{itemize}
-
-  \vfill
-
-  SCIP naturally supports these features by
-  \begin{itemize}
-  \item plugin for propagation methods (\plugin{propagator})
-  \item automatic embedding in branch-and-bound
-  \item full control of timing of propagation
-    \begin{itemize}
-    \item only at root node
-    \item every~$k$-th level of the branch-and-bound tree
-    \item before or after solving LP relaxation
-    \end{itemize}
-  \end{itemize}
-
-  \vfill
-\end{frame}
-
-\section{Presolving}
-
-\begin{frame}{Presolving}
-  required functionality
-  \begin{itemize}
-  \item custom rules for simplifying a problem
-  \end{itemize}
-
-  \vfill
-
-  SCIP naturally supports these features by
-  \begin{itemize}
-  \item plugin for presolving methods (\plugin{presolver})
-  \item synchronization with other presolving routines
-  \item full control of presolving behavior
-    \begin{itemize}
-    \item maximum number of rounds
-    \item classification of expected required time (fast, medium, exhaustive)
-    \end{itemize}
-  \end{itemize}
-
-  \vfill
-\end{frame}
-
-\section{Heuristics}
-
-\begin{frame}{Heuristics}
-  required functionality
-  \begin{itemize}
-  \item access to local or global variable bounds
-  \item embedding of heuristic search within branch-and-bound
-  \end{itemize}
-
-  \vfill
-
-  SCIP naturally supports these features by
-  \begin{itemize}
-  \item plugin for heuristics (\plugin{heuristic})
-  \item automatically called during solving process
-  \item automatic check whether solution is feasible
-  \item full control of behavior
-    \begin{itemize}
-    \item frequency of calling heuristic
-    \item before/after solving LP, before/during/after presolving
-    \end{itemize}
-  \end{itemize}
-
-  \vfill
-\end{frame}
-
-\section{Branching Rules}
-
-\begin{frame}{Branching Rules}
-  required functionality
-  \begin{itemize}
-  \item access to LP solution and local variable bounds
-  \item add branching decision
-  \end{itemize}
-
-  \vfill
-
-  SCIP naturally supports these features by
-  \begin{itemize}
-  \item plugin for branching rules (\plugin{branching rule})
-  \item automatic embedding in branch-and-bound
-  \item supports
-    \begin{itemize}
-    \item variable branching
-    \item constraint-based branching
-    \end{itemize}
-  \end{itemize}
-
-  \vfill
-\end{frame}
-
-\section{Benders Decomposition}
-
-\begin{frame}{Benders Decomposition}
-  required functionality
-  \begin{itemize}
-  \item access to LP or IP solution
-  \item embedding of Benders cuts in branch-and-bound
-  \end{itemize}
-
-  \vfill
-
-  SCIP naturally supports these features by
-  \begin{itemize}
-  \item plugin for custom Benders decomposition (\plugin{benders})
-  \item plugin for custom Benders cuts (\plugin{benderscut})
-  \item automatic embedding of Benders cuts into branch-and-bound
-  \end{itemize}
-
-  \vfill
-\end{frame}
-
-\section{Custom Constraints}
-
-\begin{frame}{Custom Constraints}
-  required functionality
-  \begin{itemize}
-  \item abstract mechanism to define constraints (not necessarily
-    represented by linear inequalities)
-  \item accept or reject solutions
-  \end{itemize}
-
-  \vfill
-
-  SCIP naturally supports these features by
-  \begin{itemize}
-  \item plugin for custom constraints (\plugin{constraint handler})
-  \item features
-    \begin{itemize}
-    \item mechanism to accept or reject (heuristic) solutions
-    \item presolving reductions
-    \item cutting plane separation
-    \item propagation
-    \end{itemize}
-  \end{itemize}
-
-  \vfill
-\end{frame}
-
-\section{Event Handling}
-
-\begin{frame}{Event Handler}
-  required functionality
-  \begin{itemize}
-  \item react to events during solving (new incumbent, node solved, LP solved, etc.)
-  \end{itemize}
-
-  \vfill
-
-  SCIP naturally supports these features by
-  \begin{itemize}
-  \item plugin for event handling (\plugin{event handler})
-  \item wide range of events (new best solution, node processing, variable changes)
-  \item lightweight mechanism for monitoring and reacting
-  \end{itemize}
-
-  \vfill
-\end{frame}
-
-\section{Node Selection}
-
-\begin{frame}{Node Selector}
-  required functionality
-  \begin{itemize}
-  \item custom strategy for selecting the next node in the branch-and-bound tree
-  \end{itemize}
-
-  \vfill
-
-  SCIP naturally supports these features by
-  \begin{itemize}
-  \item plugin for node selection (\plugin{node selector})
-  \item access to all open nodes and their bounds
-  \item supports best-first, depth-first, or custom strategies
-  \end{itemize}
-
-  \vfill
-\end{frame}
-
-\section{Custom Display}
-
-\begin{frame}{Table / Display}
-  required functionality
-  \begin{itemize}
-  \item custom output during solving process
-  \item monitoring solver progress
-  \end{itemize}
-
-  \vfill
-
-  SCIP naturally supports these features by
-  \begin{itemize}
-  \item plugin for custom display columns (\plugin{display})
-  \item automatic integration with solver output
-  \item full control of display frequency
-  \end{itemize}
-
-  \vfill
-\end{frame}
-
-\section{Plugin Architecture}
-
-\begin{frame}{Plugin Architecture}
+% ---------------------------------------------------------
+\begin{frame}{Structure of SCIP}
   \begin{center}
-    \begin{tabular}{l l}
-      \plugin{pricer}             & column generation \\
-      \plugin{relaxator}          & custom bounds \\
-      \plugin{separator}          & cutting planes \\
-      \plugin{propagator}         & variable bound propagation \\
-      \plugin{presolver}          & presolving reductions \\
-      \plugin{heuristic}          & primal heuristics \\
-      \plugin{branching rule}     & branching decisions \\
-      \plugin{benders}            & Benders decomposition \\
-      \plugin{benderscut}         & Benders cuts \\
-      \plugin{constraint handler} & custom constraints \\
-      \plugin{event handler}      & event handling \\
-      \plugin{node selector}      & node selection strategy \\
-      \plugin{display}            & custom solver output \\
-      \plugin{symmetry handler}   & symmetry handling (upcoming) \\
-    \end{tabular}
+    \includegraphics[width=.85\textwidth]{media/scip_structure}
   \end{center}
 \end{frame}
 
-\section{Research}
+% ---------------------------------------------------------
+\begin{frame}{Plugin Types}
 
-\begin{frame}{Two Sides of Research}
-  \textbf{Research on Modeling}
-  \begin{itemize}
-  \item how to formulate a problem as a mathematical program
-  \item comparing formulations: strength, size, solvability
-  \item developing valid inequalities and reformulation techniques
-  \end{itemize}
+{\small
+\begin{tabular}{@{} l @{\hspace{1em}} l @{\hspace{1em}} l @{}}
+\toprule
+\textbf{Plugin} & \textbf{Purpose} & \textbf{When} \\
+\midrule
+\alt<2>{\color{blue!70!black}\bfseries \plugin{constraint handler} & \color{blue!70!black}\bfseries feasibility, cuts, propagation & \color{blue!70!black}\bfseries throughout}{\plugin{constraint handler} & feasibility, cuts, propagation & throughout} \\
+\alt<2>{\color{blue!70!black}\bfseries \plugin{pricer} & \color{blue!70!black}\bfseries column generation & \color{blue!70!black}\bfseries after LP solve}{\plugin{pricer} & column generation & after LP solve} \\
+\alt<2>{\color{blue!70!black}\bfseries \plugin{branching rule} & \color{blue!70!black}\bfseries split subproblems & \color{blue!70!black}\bfseries at fractional node}{\plugin{branching rule} & split subproblems & at fractional node} \\
+\alt<2>{\color{blue!70!black}\bfseries \plugin{separator} & \color{blue!70!black}\bfseries cutting planes & \color{blue!70!black}\bfseries after LP solve}{\plugin{separator} & cutting planes & after LP solve} \\
+\plugin{heuristic}          & find feasible solutions        & configurable \\
+\plugin{propagator}         & tighten variable bounds        & at each node \\
+\plugin{presolver}          & simplify before solving        & before B\&B \\
+\plugin{relaxator}          & custom relaxation bounds       & at each node \\
+\plugin{benders}            & Benders decomposition          & throughout \\
+\plugin{event handler}      & react to solving events        & on trigger \\
+\plugin{node selector}      & pick next subproblem           & after node solved \\
+\plugin{symmetry handler}  & symmetry handling (upcoming)  & presolving / nodes \\
+\bottomrule
+\end{tabular}
+}
 
-  \vfill
-
-  \textbf{Research on Optimization}
-  \begin{itemize}
-  \item how to solve mathematical programs more efficiently
-  \item new branching, cutting, presolving, or decomposition strategies
-  \item algorithm design, complexity, and computational experiments
-  \end{itemize}
+% ---------------------------------------------------------
+\only<2>{\smallskip\centering\textbf{\color{blue!70!black} We will implement these in Parts 2 \& 3!}}
 \end{frame}
 
-\begin{frame}{SCIP Enables Research on Optimization}
-  \begin{itemize}
-  \item plugin architecture allows implementing and testing new ideas within a mature solver
-  \item full access to solving process internals (bounds, LP solutions, tree structure)
-  \item benchmark new methods against state-of-the-art techniques
-  \item open-source: inspect, modify, and extend any component
-  \end{itemize}
+% ---------------------------------------------------------
+\begin{frame}{Why SCIP?}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{As a black-box solver}
+\begin{itemize}
+  \item State-of-the-art MINLP performance
+  \item 2000+ tunable parameters
+  \item Rich presolving \& heuristics
+  \item Reads standard formats
+  \item Supports main programming languages
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{As a framework}
+\begin{itemize}
+  \item Branch-and-price
+  \item Row generation
+  \item Benders decomposition
+  \item Custom branching rules
+  \item Event-driven callbacks
+  \item Per-plugin statistics: see exactly which components contribute and by how much
+\end{itemize}
+\end{column}
+\end{columns}
+
+\bigskip
+\textbf{You implement the problem-specific logic; SCIP handles the rest.}
+
 \end{frame}
 
-\begin{frame}
-  You wonder how to solve mixed-integer (nonlinear) programs?
+% ---------------------------------------------------------
+\begin{frame}{Today's Workshop}
+\begin{enumerate}
+  \item \textbf{Part 1 --- Modeling:} build and solve MINLPs in PySCIPOpt
+  \item \textbf{Part 2 --- Row Generation:} implement a constraint handler for TSP
+  \item \textbf{Part 3 --- Branch-and-Price:} implement a pricer and branching rule for bin packing
+\end{enumerate}
 
-  \vfill
-  \uncover<2->
-  {
-    \flushright \LARGE \textbf{Let's SCIP it!}
-  }
+\vfill
+\begin{center}
+  \includegraphics[height=4cm]{media/pyscipopt_logo}\\[-0.5cm]
+  \LARGE \textbf{Let's {\usebeamercolor[fg]{structure}SCIP} it!}
+\end{center}
 \end{frame}
 
 \end{document}
-
-%%% Local Variables:
-%%% coding: utf-8
-%%% mode: latex
-%%% TeX-master: t
-%%% End:

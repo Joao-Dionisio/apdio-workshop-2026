@@ -65,11 +65,12 @@ def test_triangle():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert abs(model.getObjVal() - 3.0) < 1e-4, (
         f"Expected chromatic number 3, got {model.getObjVal()}"
     )
-    print("PASS: test_triangle")
+    print("[92mPASS:[0m test_triangle")
 
 
 def test_bipartite():
@@ -82,11 +83,12 @@ def test_bipartite():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert abs(model.getObjVal() - 2.0) < 1e-4, (
         f"Expected chromatic number 2, got {model.getObjVal()}"
     )
-    print("PASS: test_bipartite")
+    print("[92mPASS:[0m test_bipartite")
 
 
 def test_no_adjacent_share_color():
@@ -111,7 +113,7 @@ def test_no_adjacent_share_color():
         assert coloring[u] != coloring[v], (
             f"Adjacent nodes {u} and {v} both have color {coloring[u]}"
         )
-    print("PASS: test_no_adjacent_share_color")
+    print("[92mPASS:[0m test_no_adjacent_share_color")
 
 
 def test_petersen_graph():
@@ -123,11 +125,12 @@ def test_petersen_graph():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert abs(model.getObjVal() - 3.0) < 1e-4, (
         f"Expected chromatic number 3 for Petersen graph, got {model.getObjVal()}"
     )
-    print("PASS: test_petersen_graph")
+    print("[92mPASS:[0m test_petersen_graph")
 
 
 def test_complete_graph_k4():
@@ -140,11 +143,12 @@ def test_complete_graph_k4():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert abs(model.getObjVal() - 4.0) < 1e-4, (
         f"Expected chromatic number 4 for K4, got {model.getObjVal()}"
     )
-    print("PASS: test_complete_graph_k4")
+    print("[92mPASS:[0m test_complete_graph_k4")
 
 
 def test_generated_sparse():
@@ -156,7 +160,8 @@ def test_generated_sparse():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
 
     # Verify no adjacent nodes share a color
     coloring = {}
@@ -169,7 +174,7 @@ def test_generated_sparse():
         assert coloring[u] != coloring[v], (
             f"Adjacent nodes {u} and {v} both have color {coloring[u]}"
         )
-    print("PASS: test_generated_sparse")
+    print("[92mPASS:[0m test_generated_sparse")
 
 
 def test_generated_dense():
@@ -181,9 +186,10 @@ def test_generated_dense():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert model.getObjVal() >= 1, "Should need at least 1 color"
-    print("PASS: test_generated_dense")
+    print("[92mPASS:[0m test_generated_dense")
 
 
 if __name__ == "__main__":
@@ -201,23 +207,26 @@ if __name__ == "__main__":
 
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      {e}")
+            print(f"[93mSKIP:[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = str(e)
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            traceback.print_exc()
+            print(f"[91mFAIL:[0m {test.__name__} - {e}")
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"[91mERROR:[0m {test.__name__}")
             traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: [92m{passed} passed[0m, [91m{failed} failed[0m")

@@ -19,9 +19,10 @@ def test_bnp_small():
     model, *_ = extended_binpacking(sizes, capacity)
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert model.getObjVal() >= 1, f"Expected at least 1 bin, got {model.getObjVal()}"
-    print(f"PASS: test_bnp_small (obj={model.getObjVal()})")
+    print(f"[92mPASS:[0m test_bnp_small (obj={model.getObjVal()})")
 
 
 def test_bnp_different_seed():
@@ -32,9 +33,10 @@ def test_bnp_different_seed():
     model, *_ = extended_binpacking(sizes, capacity)
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert model.getObjVal() >= 1, f"Expected at least 1 bin, got {model.getObjVal()}"
-    print(f"PASS: test_bnp_different_seed (obj={model.getObjVal()})")
+    print(f"[92mPASS:[0m test_bnp_different_seed (obj={model.getObjVal()})")
 
 
 if __name__ == "__main__":

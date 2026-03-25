@@ -292,6 +292,168 @@ A \textbf{solution} = choose a subset of patterns that covers every item exactly
 \end{frame}
 
 % ---------------------------------------------------------
+% Frame: Compact vs Extended
+% ---------------------------------------------------------
+\begin{frame}{Two Ways to Model a Solution}
+\begin{columns}[c]
+
+% ===== COMPACT =====
+\begin{column}{0.48\textwidth}
+\centering
+{\large\bfseries Compact}\\[1pt]
+{\scriptsize\color{black!60} ``Which bin does each item go to?''}
+
+\smallskip
+\begin{tikzpicture}[
+  itm/.style={rounded corners=2pt, draw=black!30, minimum width=0.6cm,
+              minimum height=0.38cm, font=\scriptsize\bfseries, text=white, inner sep=0pt},
+  arr/.style={-{Stealth[length=2.5pt]}, black!40, thin}
+]
+  % Items
+  \node[itm, fill=red!65!black]  (i1) at (0, 2.75) {1};
+  \node[itm, fill=blue!70!black]   (i2) at (0, 2.25) {2};
+  \node[itm, fill=green!60!black]   (i3) at (0, 1.75) {3};
+  \node[itm, fill=orange!75!black] (i4) at (0, 1.25) {4};
+  \node[itm, fill=violet!65!black]   (i5) at (0, 0.75) {5};
+  \node[itm, fill=yellow!70!black]    (i6) at (0, 0.25) {6};
+
+  % Bin outlines - top row (1,2,3)
+  \foreach \b/\xb in {1/1.4, 2/2.2, 3/3.0} {
+    \fill[black!4, rounded corners=2pt] (\xb, 1.7) rectangle ++(0.6, 1.3);
+    \draw[black!50, rounded corners=2pt]
+      (\xb, 3.0) -- (\xb, 1.7) -- (\xb+0.6, 1.7) -- (\xb+0.6, 3.0);
+    \draw[black!20, densely dashed] (\xb, 3.0) -- (\xb+0.6, 3.0);
+    \node[font=\tiny, black!60] at (\xb+0.3, 1.5) {\b};
+  }
+  % Bottom row (4,5,6)
+  \foreach \b/\xb in {4/1.4, 5/2.2, 6/3.0} {
+    \fill[black!4, rounded corners=2pt] (\xb, -0.1) rectangle ++(0.6, 1.3);
+    \draw[black!50, rounded corners=2pt]
+      (\xb, 1.2) -- (\xb, -0.1) -- (\xb+0.6, -0.1) -- (\xb+0.6, 1.2);
+    \draw[black!20, densely dashed] (\xb, 1.2) -- (\xb+0.6, 1.2);
+    \node[font=\tiny, black!60] at (\xb+0.3, -0.3) {\b};
+  }
+
+  % Arrows: items -> bins
+  \draw[arr] (i1.east) -- (1.4, 2.7);
+  \draw[arr] (i2.east) -- (1.4, 2.4);
+  \draw[arr] (i4.east) -- (1.4, 2.1);
+  \draw[arr] (i3.east) -- (3.0, 0.7);
+  \draw[arr] (i5.east) -- (3.0, 0.4);
+  \draw[arr] (i6.east) -- (1.4, 0.4);
+
+  % x variables
+  \node[font=\ttfamily\tiny, anchor=west, text=black!75] at (3.9, 2.7) {x[1,1]=1};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!75] at (3.9, 2.4) {x[2,1]=1};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!75] at (3.9, 2.1) {x[4,1]=1};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!75] at (3.9, 1.8) {x[3,6]=1};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!75] at (3.9, 1.5) {x[5,6]=1};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!75] at (3.9, 1.2) {x[6,4]=1};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!35] at (3.9, 0.7) {x[1,2]=0};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!35] at (3.9, 0.4) {x[5,3]=0};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!35] at (3.9, 0.1) {x[6,6]=0};
+  \node[font=\tiny, text=black!35] at (4.3, -0.2) {$\cdots$};
+\end{tikzpicture}
+\end{column}
+
+% ===== EXTENDED =====
+\begin{column}{0.48\textwidth}
+\centering
+{\large\bfseries Extended}\\[1pt]
+{\scriptsize\color{black!60} ``Enumerate packings, choose a subset''}
+
+\smallskip
+\begin{tikzpicture}
+  \def\bw{0.55}
+  \def\bh{1.1}
+
+  % Pattern containers - 2 rows of 4
+  \foreach \x/\y in {0/1.5, 0.85/1.5, 1.70/1.5, 2.55/1.5,
+                      0/0.0, 0.85/0.0, 1.70/0.0, 2.55/0.0} {
+    \fill[black!4, rounded corners=2pt] (\x, \y) rectangle ++(\bw, \bh);
+    \draw[black!50, rounded corners=2pt]
+      (\x, \y+\bh) -- (\x, \y) -- (\x+\bw, \y) -- (\x+\bw, \y+\bh);
+    \draw[black!20, densely dashed] (\x, \y+\bh) -- (\x+\bw, \y+\bh);
+  }
+
+  % Ellipsis for more patterns
+  \node[font=\normalsize, black!40] at (3.4, 1.3) {$\cdots$};
+
+  % Highlight selected patterns: p1, p6, p8
+  \draw[red!60, very thick, rounded corners=3pt]
+    (-0.06, 1.44) rectangle ++(\bw+0.12, \bh+0.12);
+  \draw[red!60, very thick, rounded corners=3pt]
+    (0.79, -0.06) rectangle ++(\bw+0.12, \bh+0.12);
+  \draw[red!60, very thick, rounded corners=3pt]
+    (2.49, -0.06) rectangle ++(\bw+0.12, \bh+0.12);
+
+  % --- Items inside patterns ---
+  % p1 (selected): {1,2,4}
+  \fill[red!65!black, rounded corners=1pt] (0.04, 1.55) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (0.275, 1.665) {1};
+  \fill[blue!70!black, rounded corners=1pt]  (0.04, 1.83) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (0.275, 1.945) {2};
+  \fill[orange!75!black, rounded corners=1pt](0.04, 2.11) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (0.275, 2.225) {4};
+
+  % p2: {1,3}
+  \fill[red!65!black, rounded corners=1pt] (0.89, 1.55) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (1.125, 1.665) {1};
+  \fill[green!60!black, rounded corners=1pt]  (0.89, 1.83) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (1.125, 1.945) {3};
+
+  % p3: {2,5,6}
+  \fill[blue!70!black, rounded corners=1pt]  (1.74, 1.55) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (1.975, 1.665) {2};
+  \fill[violet!65!black, rounded corners=1pt]  (1.74, 1.83) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (1.975, 1.945) {5};
+  \fill[yellow!70!black, rounded corners=1pt]   (1.74, 2.11) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (1.975, 2.225) {6};
+
+  % p4: {3,4}
+  \fill[green!60!black, rounded corners=1pt]   (2.59, 1.55) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (2.825, 1.665) {3};
+  \fill[orange!75!black, rounded corners=1pt] (2.59, 1.83) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (2.825, 1.945) {4};
+
+  % p5: {4,5}
+  \fill[orange!75!black, rounded corners=1pt] (0.04, 0.05) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (0.275, 0.165) {4};
+  \fill[violet!65!black, rounded corners=1pt]   (0.04, 0.33) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (0.275, 0.445) {5};
+
+  % p6 (selected): {3,5}
+  \fill[green!60!black, rounded corners=1pt]  (0.89, 0.05) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (1.125, 0.165) {3};
+  \fill[violet!65!black, rounded corners=1pt]  (0.89, 0.33) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (1.125, 0.445) {5};
+
+  % p7: {1,5}
+  \fill[red!65!black, rounded corners=1pt] (1.74, 0.05) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (1.975, 0.165) {1};
+  \fill[violet!65!black, rounded corners=1pt]  (1.74, 0.33) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (1.975, 0.445) {5};
+
+  % p8 (selected): {6}
+  \fill[yellow!70!black, rounded corners=1pt] (2.59, 0.05) rectangle ++(0.47, 0.23);
+  \node[font=\tiny\bfseries, text=white] at (2.825, 0.165) {6};
+
+  % z variables
+  \node[font=\ttfamily\tiny, anchor=west, text=red!60!black] at (3.7, 2.4) {$z_1 = 1$};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!35]     at (3.7, 2.1) {$z_2 = 0$};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!35]     at (3.7, 1.8) {$z_3 = 0$};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!35]     at (3.7, 1.5) {$\cdots$};
+  \node[font=\ttfamily\tiny, anchor=west, text=red!60!black] at (3.7, 1.1) {$z_6 = 1$};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!35]     at (3.7, 0.8) {$\cdots$};
+  \node[font=\ttfamily\tiny, anchor=west, text=red!60!black] at (3.7, 0.5) {$z_8 = 1$};
+  \node[font=\ttfamily\tiny, anchor=west, text=black!35]     at (3.7, 0.2) {$\cdots$};
+\end{tikzpicture}
+\end{column}
+
+\end{columns}
+\end{frame}
+
+% ---------------------------------------------------------
 % Frame 6: Integer Master Problem
 % ---------------------------------------------------------
 \begin{frame}{Integer Master Problem}
@@ -314,7 +476,7 @@ For all feasible patterns $\mathcal{P}$, let $a_i^p = 1$ if item $i$ is in patte
 % ---------------------------------------------------------
 % Frame 7: Game Plan
 % ---------------------------------------------------------
-\begin{frame}{Game Plan}
+\begin{frame}{Approach}
 \begin{enumerate}
   \item Solve the LP relaxation with \textbf{column generation}
   \item Embed in branch-and-bound to get an optimal \textbf{integer} solution
@@ -376,7 +538,7 @@ The \textbf{reduced cost} of variable $j$ measures its ``attractiveness'':
 \end{itemize}
 
 \medskip
-\textbf{Simplex method:} at each iteration, pivot on a variable with $\bar{c}_j < 0$.
+\textbf{Simplex method:} at each iteration, pivot on a variable with $\bar{c}_j < 0$ (e.g., Dantzig's rule).
 
 When none exists $\Rightarrow$ optimality certificate.
 \end{frame}
@@ -832,7 +994,7 @@ Strengthen branch-and-price by adding \textbf{cutting planes}.
 \textbf{Subset-row inequalities} for set partitioning:
 
 For any triple of items $S = \{i, j, k\}$, consider all packings covering
-$\ge 2$ items in $S$. If their LP values sum $> 1$:
+$\ge 2$ items in $S$. If their LP values sum exceeds $1$:
 \[
   \sum_{p:\, |p \cap S| \ge 2} z_p \le 1
 \]

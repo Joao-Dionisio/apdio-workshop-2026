@@ -37,7 +37,7 @@ def test_return_format():
     assert isinstance(result, dict), "Should return a dict"
     for key in REQUIRED_KEYS:
         assert key in result, f"Missing key: {key}"
-    print("PASS: test_return_format")
+    print("[92mPASS:[0m test_return_format")
 
 
 def test_time_limit():
@@ -46,7 +46,7 @@ def test_time_limit():
     result = solve_with_params(model, {"limits/time": 60})
     assert result["time"] <= 61, "Solving time should respect the limit"
     assert result["status"] == "optimal"
-    print("PASS: test_time_limit")
+    print("[92mPASS:[0m test_time_limit")
 
 
 def test_gap_limit():
@@ -54,7 +54,7 @@ def test_gap_limit():
     model = _build_simple_model()
     result = solve_with_params(model, {"limits/gap": 0.1})
     assert result["gap"] <= 0.1 + 1e-6, f"Gap should be <= 0.1, got {result['gap']}"
-    print("PASS: test_gap_limit")
+    print("[92mPASS:[0m test_gap_limit")
 
 
 def test_emphasis():
@@ -67,7 +67,7 @@ def test_emphasis():
         assert result["status"] == "optimal", (
             f"Expected optimal with {emphasis} emphasis, got {result['status']}"
         )
-    print("PASS: test_emphasis")
+    print("[92mPASS:[0m test_emphasis")
 
 
 def test_no_solution_objective():
@@ -80,7 +80,7 @@ def test_no_solution_objective():
     assert result["objective"] is None, (
         f"Expected None for infeasible, got {result['objective']}"
     )
-    print("PASS: test_no_solution_objective")
+    print("[92mPASS:[0m test_no_solution_objective")
 
 
 # ---------- load_and_solve tests ----------
@@ -114,7 +114,7 @@ def test_load_and_solve():
 
     os.remove(filepath)
     os.rmdir(os.path.dirname(filepath))
-    print("PASS: test_load_and_solve")
+    print("[92mPASS:[0m test_load_and_solve")
 
 
 def test_load_no_params():
@@ -136,14 +136,14 @@ def test_load_no_params():
 
     os.remove(filepath)
     os.rmdir(tmpdir)
-    print("PASS: test_load_no_params")
+    print("[92mPASS:[0m test_load_no_params")
 
 
 def test_load_miplib():
     """Load a MIPLIB instance if available."""
     miplib_path = os.path.join(os.path.dirname(__file__), "miplib_data", "p0033.mps.gz")
     if not os.path.exists(miplib_path):
-        print("SKIP: test_load_miplib - miplib_data/p0033.mps.gz not found")
+        print("[93mSKIP:[0m test_load_miplib - miplib_data/p0033.mps.gz not found")
         return
 
     result = load_and_solve(miplib_path, params={"limits/time": 30})
@@ -151,7 +151,7 @@ def test_load_miplib():
         f"Unexpected status: {result['status']}"
     )
     assert result["objective"] is not None, "p0033 should find a solution"
-    print("PASS: test_load_miplib")
+    print("[92mPASS:[0m test_load_miplib")
 
 
 if __name__ == "__main__":
@@ -170,23 +170,26 @@ if __name__ == "__main__":
 
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      {e}")
+            print(f"[93mSKIP:[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = str(e)
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            traceback.print_exc()
+            print(f"[91mFAIL:[0m {test.__name__} - {e}")
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"[91mERROR:[0m {test.__name__}")
             traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: [92m{passed} passed[0m, [91m{failed} failed[0m")

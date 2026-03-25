@@ -1,0 +1,27 @@
+\frametitle{The "Middle Ages"}
+A Matrix Generator (Fortran)
+
+{\scriptsize
+\begin{verbatim}
+C     FORTRAN MATRIX GENERATOR FOR STIGLER DIET
+      DATA FOODS/'WHEAT', 'CORNM', 'EVAPM', 'MARGA'/
+      DATA NUTRI/'COST ', 'CALOR', 'PROT ', 'CALCI'/
+
+      WRITE(6, 100) 'NAME', 'STIGLER'
+      WRITE(6, 110) 'ROWS'
+      WRITE(6, 120) ' N ', 'COST'
+      DO 10 I=2, 5
+   10 WRITE(6, 120) ' G ', NUTRI(I)
+
+      WRITE(6, 110) 'COLUMNS'
+      DO 20 J=1, 77
+C       INNER LOOP FETCHES DATA FROM ARRAYS AND FORMATS FOR MPS
+        WRITE(6, 130) FOODS(J), 'COST', COST(J), 'CALOR', CAL(J)
+   20 CONTINUE
+
+  100 FORMAT(A4, 10X, A8)
+  110 FORMAT(A)
+  120 FORMAT(A3, 2X, A8)
+  130 FORMAT(4X, A8, 2X, A8, F12.4, 2X, A8, F12.4)
+\end{verbatim}
+}

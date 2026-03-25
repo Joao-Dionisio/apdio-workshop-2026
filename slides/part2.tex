@@ -98,7 +98,7 @@
   \item We will compare two formulations:
     \begin{enumerate}
       \item Compact MTZ (polynomial constraints, weak LP)
-      \item Edge formulation + SECs (exponential constraints, strong LP)
+      \item Extended DFJ (exponential constraints, strong LP)
     \end{enumerate}
 \end{itemize}
 \end{column}
@@ -221,12 +221,12 @@
 % Frame 5: Exercise --- Compact MTZ
 % ---------------------------------------------------------
 \begin{frame}{Reference: Compact MTZ}
-\begin{block}{Already Implemented}
-Study the MTZ formulation as a baseline before implementing row generation.
+\begin{block}{Prerequisite}
+Implement the MTZ formulation in Part 1 (Exercise 6) before starting Part 2.
 \end{block}
 \begin{itemize}
-  \item File: \texttt{part2/compact\_mtz.py}
-  \item Run: \texttt{cd part2 \&\& python compact\_mtz.py}
+  \item File: \texttt{part1/ex06\_tsp\_mtz/tsp\_mtz.py}
+  \item Test: \texttt{python part1/ex06\_tsp\_mtz/test\_tsp\_mtz.py}
 \end{itemize}
 \end{frame}
 
@@ -365,12 +365,13 @@ class SubtourElimination(Conshdlr):
 % Frame 9: Exercise --- Subtour + Conshdlr
 % ---------------------------------------------------------
 \begin{frame}{Exercises: Subtour Detection \& Constraint Handler}
-\begin{block}{Exercise 1: Subtour Detection}
+\begin{block}{Exercise 1 (optional): Subtour Detection}
 Implement \texttt{find\_subtours()}: find connected components in the edge graph.
 \end{block}
 \begin{itemize}
   \item File: \texttt{part2/subtour.py}
   \item Test: \texttt{python part2/test\_subtour.py}
+  \item Shortcut: use \texttt{networkx.connected\_components()} instead
 \end{itemize}
 
 \medskip
@@ -413,7 +414,7 @@ Implement \texttt{conscheck} and \texttt{consenfolp} callbacks.
 
 \bigskip
 \textbf{Key insight:} The LP relaxation bound is what matters. MTZ's LP
-can be arbitrarily weak, while the SEC LP bound is tight.
+is significantly weaker, while the SEC LP bound is tight.
 This gap widens as instance size grows.
 \end{frame}
 
@@ -432,7 +433,7 @@ This gap widens as instance size grows.
 \medskip
 \textbf{Key takeaway:}
 \begin{itemize}
-  \item A strong LP relaxation can make a huge difference in solving time
+  \item A strong LP relaxation can make a substantial difference in solving time
   \item Row generation lets us use formulations with exponentially many constraints
 \end{itemize}
 

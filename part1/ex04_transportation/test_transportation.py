@@ -61,14 +61,15 @@ def test_small_instance():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
 
     # Optimal: ship 20 from S0->C0, 5 from S1->C0, 25 from S1->C1 = 80+30+75 = 185
     # Actually: S0->C0: 20 (cost 80), S1->C0: 5 (cost 30), S1->C1: 25 (cost 75) = 185
     assert abs(model.getObjVal() - 185.0) < 1e-4, (
         f"Expected obj=185, got {model.getObjVal()}"
     )
-    print("PASS: test_small_instance")
+    print("[92mPASS:[0m test_small_instance")
 
 
 def test_supply_constraints():
@@ -86,7 +87,7 @@ def test_supply_constraints():
         assert shipped <= supply[i] + 1e-6, (
             f"Supplier {i} shipped {shipped} > supply {supply[i]}"
         )
-    print("PASS: test_supply_constraints")
+    print("[92mPASS:[0m test_supply_constraints")
 
 
 def test_demand_constraints():
@@ -104,7 +105,7 @@ def test_demand_constraints():
         assert received >= demand[j] - 1e-6, (
             f"Customer {j} received {received} < demand {demand[j]}"
         )
-    print("PASS: test_demand_constraints")
+    print("[92mPASS:[0m test_demand_constraints")
 
 
 def test_generated_instance():
@@ -114,9 +115,10 @@ def test_generated_instance():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert model.getObjVal() >= 0, "Objective should be non-negative"
-    print("PASS: test_generated_instance")
+    print("[92mPASS:[0m test_generated_instance")
 
 
 def test_generated_larger():
@@ -126,14 +128,15 @@ def test_generated_larger():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
 
     # Verify all demand is met
     n_suppliers, n_customers = len(supply), len(demand)
     for j in range(n_customers):
         received = sum(model.getVal(x[i, j]) for i in range(n_suppliers))
         assert received >= demand[j] - 1e-6, f"Customer {j} demand not met"
-    print("PASS: test_generated_larger")
+    print("[92mPASS:[0m test_generated_larger")
 
 
 def test_generated_unbalanced():
@@ -143,9 +146,10 @@ def test_generated_unbalanced():
     model.hideOutput()
     model.optimize()
 
-    assert model.getStatus() == "optimal", f"Expected optimal, got {model.getStatus()}"
+    status = model.getStatus()
+    assert status == "optimal", f"Expected optimal, got {status}"
     assert model.getObjVal() >= 0, "Objective should be non-negative"
-    print("PASS: test_generated_unbalanced")
+    print("[92mPASS:[0m test_generated_unbalanced")
 
 
 if __name__ == "__main__":
@@ -162,23 +166,26 @@ if __name__ == "__main__":
 
     passed = 0
     failed = 0
+    hint = ""
 
     for test in tests:
         try:
             test()
             passed += 1
         except NotImplementedError as e:
-            print(f"SKIP: {test.__name__} - Exercise not implemented yet")
-            print(f"      {e}")
+            print(f"[93mSKIP:[0m {test.__name__} - Exercise not implemented yet")
+            if not hint:
+                hint = str(e)
             failed += 1
         except AssertionError as e:
-            print(f"FAIL: {test.__name__}")
-            traceback.print_exc()
+            print(f"[91mFAIL:[0m {test.__name__} - {e}")
             failed += 1
         except Exception as e:
-            print(f"ERROR: {test.__name__}")
+            print(f"[91mERROR:[0m {test.__name__}")
             traceback.print_exc()
             failed += 1
 
     print(f"\n{'='*50}")
-    print(f"Results: {passed} passed, {failed} failed")
+    if hint:
+        print(hint)
+    print(f"Results: [92m{passed} passed[0m, [91m{failed} failed[0m")
