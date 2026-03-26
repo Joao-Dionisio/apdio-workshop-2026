@@ -1,10 +1,10 @@
 #+TITLE: Modeling languages: alpha and omega
 # #+SUBTITLE:
 #+AUTHOR: João Pedro PEDROSO|DIONÍSIO
-#+DATE: APDIO, 27-MAR-2026
+#+DATE: **2026 APDIO Workshop: Optimization Software & Practice\newline University of Minho, 27-MAR-2026**
 #+EMAIL: jpp@fc.up.pt
 #+BEAMER_HEADER: \institute[FCUP]{Faculty of Sciences, University of Porto}
-#+BEAMER_HEADER: \titlegraphic{\includegraphics[height=1.5cm]{../../papers/cmup-info.png}}
+#+BEAMER_HEADER: \titlegraphic{\includegraphics[height=1.5cm]{FIGS/cmup-info.png}}
 #+DESCRIPTION: 
 #+KEYWORDS: 
 #+LANGUAGE: american
@@ -51,24 +51,28 @@
 
 * The "Alpha" of Optimization
 
+** Background
+   - We have a system of linear inequalities.
+   - How can we find a feasible solution?
+   - In particular, can we choose a feasible solution that optimizes some (linear) criterion?
+     - /note: that amounts to optimizing an expression, which can be assigned to a variable./
+
+       
 ** The Pre-History: Joseph Fourier (1826)
 *** The Concept of Projection
-Before Simplex, Fourier devised a method for solving systems of linear inequalities:
-- **Method**: Fourier–Motzkin Elimination.
-- **Goal**: Determining the feasibility of undetermined systems.
-- **Insight**: Optimization (min-max) is equivalent to solving inequalities.
+    Before the Simplex Method: Fourier devised a method for solving systems of linear inequalities:
+    - **Method**: Fourier–Motzkin Elimination.
+    - **Goal**: Determining the feasibility of undetermined systems.
+    - **Insight**: Optimization (min-max) is equivalent to solving inequalities.
 
-*** Comparing "Walking" vs. "Projecting"
-- **Fourier (1826)**: Project the $n$ -dimensional feasible region onto lower dimensions.
-  - *Problem*: Inequality count grows doubly exponentially ($2^{2^n}$).
-- **Dantzig (1947)**: Move between vertices of the $n$ -dimensional region.
-  - *Advantage*: Usually requires only $m$ to $3m$ iterations (where $m$ is the number of constraints).
+      
+** Comparing "Projecting" vs. "Walking"
+   - Fourier (1826):
+     - Project the $n\text{-dimensional}$ feasible region onto lower dimensions.
+   - Dantzig (1947):
+     - /*Simplex Method:*/ Move between vertices of the $n\text{-dimensional}$ region.
 
-*** Historical Note
-# Dantzig was unaware of Fourier's work in 1947. He later noted that had he known, he might have been discouraged by the perceived complexity of inequality systems.
-
-Dantzig noted that had he known FME he might have been discouraged by the perceived complexity of inequality systems.
-
+       
 ** Visualizing the Two Approaches
 *** Vertex Walk vs. Projection
 #+begin_export latex
@@ -94,20 +98,26 @@ Dantzig noted that had he known FME he might have been discouraged by the percei
 \end{tikzpicture}
 #+end_export
 
-** Why Fourier's Method "Explodes"
-- **Simplex**: Complexity depends on the number of *vertices* (usually efficient).
-- **Fourier-Motzkin**: Each variable elimination creates a new set of inequalities.
-  - If you have $m$ inequalities, eliminating one variable can result in up to $(m/2)^2$ new ones.
-  - **The Omega of manual methods**: Impossible for Stigler's 77 variables, but theoretically vital for proving the **Farkas Lemma**.
-    
 
-** The "Alpha" of Optimization: The Stigler Diet (1947)
-*** The Problem
+** Fourier's Method "Explodes"
+   - *Fourier-Motzkin*: Each variable elimination creates a new set of inequalities.
+     - If we have $m$ inequalities, eliminating one variable can result in up to $(m/2)^2$ new ones.
+     - Impractical for the next example (Stigler's 77 variables).
+     - Theoretically important (e.g., for proving the Farkas Lemma).
+   - *Simplex*: Complexity depends on the number of *vertices* (usually efficient).
+    
+*** Historical Note
+# Dantzig was unaware of Fourier's work in 1947. He later noted that had he known, he might have been discouraged by the perceived complexity of inequality systems.
+   Dantzig noted that had he known Fourier–Motzkin Elimination he might have been discouraged by the perceived complexity of inequality systems.
+
+   
+** The Stigler Diet Problem (1947)
+*** A Problem in the "Alpha" Era
     George Stigler (1945) sought the minimum cost to feed a 154lb man.
     - **Goal**: Minimize daily cost of food.
     - **Scale**: 77 candidate foods, 9 nutritional constraints.
 
-*** The Mathematical Formulation
+*** Mathematical Formulation
     - Minimize $Z = \sum_{j=1}^{77} c_j x_j$
 
     - Subject to: $\sum_{j=1}^{77} a_{ij} x_j \ge b_i \quad \forall i \in \{1, \dots, 9\}$, \qquad
@@ -116,42 +126,48 @@ Dantzig noted that had he known FME he might have been discouraged by the percei
     - Where:
       - $c_j$: Cost of food $j$
       - $a_{ij}$: Amount of nutrient $i$ in food $j$
-      - $b_i$: RDA for nutrient $i$ (Calories, Protein, Calcium, Iron, Vit A, B1, B2, Niacin, Vit C)
+      - $b_i$: recommended daily allowance for nutrient $i$ \\
+        calories, protein, calcium, iron, vitamin A, B1, B2, niacin, vitamin C
 
-** The Human "Computer": Jack Laderman's Feat
+        
+** The Human "Computer": Jack Laderman's Achievement
 *** Before Machines
-In 1947, the "Simplex Method" was brand new (Dantzig). There was no "software."
-- **Team**: 9 human clerks at the National Bureau of Standards.
-- **Hardware**: Hand-operated desk calculators
-- **Effort**: **120 man-days** of computation.
+    In 1947, the "Simplex Method" was brand new (Dantzig). There was no "software."
+    - **Team**: 9 human clerks at the National Bureau of Standards.
+    - **Hardware**: Hand-operated desk calculators
+    - **Effort**: **120 man-days** of computation.
 
 *** Results
-- Stigler’s heuristic guess: $39.93/year (1939 prices).
-- Laderman’s Simplex solution: $39.69/year.
-- *Fun Fact*: The "optimal" diet consisted mostly of wheat flour, evaporated milk, cabbage, spinach, and navy beans. Stigler called it the "human dog biscuit."
+    - Stigler’s heuristic guess: $39.93/year (1939 prices).
+    - Laderman’s Simplex solution: $39.69/year.
+    - *Fun Fact*: The "optimal" diet consisted mostly of wheat flour, evaporated milk, cabbage, spinach, and navy beans. Stigler called it the "human dog biscuit."
 
-** The First Machine Implementation: SEAC & IBM 701
+      
+** First Machine Implementations: SEAC and IBM 701
 *** SEAC (1951) - The First Electronic Solver
-- **Machine**: Standards Eastern Automatic Computer (NBS).
-- **Implementation**: First general-purpose Simplex code for a stored-program computer.
-- **Language**: **Machine Code / Binary** (no high-level languages like Fortran existed yet).
-- **Scale**: Solved a 48x71 Air Force model in minutes.
+    - **Machine**: Standards Eastern Automatic Computer (National Bureau of Standards).
+    - **Implementation**: First general-purpose Simplex code for a stored-program computer.
+    - **Language**: **Machine Code / Binary** (no high-level languages like Fortran existed yet).
+    - **Scale**: Solved a $48 \times 71$ Air Force model in minutes.
 
 *** IBM 701 (1954) - The First "Commercial" Code
-- **Developer**: William Orchard-Hays at RAND.
-- **Language**: **Assembly** (highly optimized for the 701's architecture).
-- **Impact**: Could handle ~100 constraints. This code (and the later RSLP1 for IBM 704) moved LP from research to the oil industry (refining/blending).
-- **The "Omega" Seed**: This was the start of **Matrix Generators**, the tedious precursors to the modeling languages we use today.
+    - Developed at RAND Corporation.
+    - Language: **Assembly** (highly optimized for the 701's architecture).
+    - Could handle ~100 constraints
+      - moved LP from research to the oil industry (refining/blending).
+    - Beginning of **Matrix Generators**
+      - (tedious) precursors to the modeling languages we use today.
 
 
 ** Before Modeling Languages: Physical Data Entry
 *** The Punched Card Era (1950s)
-In the "Alpha" phase, there was no ~model.lp~ or ~model.py~. 
-Data was physical.
+    In the "Alpha" phase, there was no ~model.lp~ or ~model.py~. 
 
-- **Storage**: IBM 80-column punched cards.
-- **Method**: One non-zero coefficient per card.
-- **Hardware**: IBM 026 Keypunch & 056 Verifier.
+    Data was physical.
+
+    - **Storage**: IBM 80-column punched cards.
+    - **Method**: One non-zero coefficient per card.
+    - **Hardware**: IBM 026 Keypunch and 056 Verifier.
 
 
 #+begin_center
@@ -161,51 +177,29 @@ Data was physical.
 
 
 ** Before Modeling Languages: Workflow
-1. **Mathematical Model**: Written on paper.
-2. **Matrix Tabulation**: Coefficients mapped to row/column indices.
-3. **Keypunching**: Manual transcription to cards.
-4. **Verification**: Mechanical "double-checking" of holes.
+   1. **Mathematical Model**: written on paper.
+   2. **Matrix Tabulation**: coefficients mapped to row/column indices.
+   3. **Keypunching**: manual transcription to cards.
+   4. **Verification**: mechanical "double-checking" of holes.
 
 *** Technical Bottleneck
-- A typo in one card meant the Simplex algorithm would diverge or find a wrong solution.
-- There was no "Algebraic" check—only a mechanical one.
-- **Transition**: This pain directly to the creation of *Matrix Generators* in the 1960s.
+    - A typo in one card meant the Simplex algorithm would diverge or find a wrong solution.
+    - There was no "algebraic" check, only a mechanical one.
+    - **Transition**: creation of *Matrix Generators* in the 1960s.
  
-
-** References
-- Bixby, R. E. (2012). A brief history of linear and mixed-integer programming computation. Documenta Mathematica Series, 107–121. https://doi.org/10.4171/dms/6/16
-- Dantzig, G. B. (2020). Impact of linear programming on computer development. Computers in Mathematics, 233–240. https://doi.org/10.1201/9781003072157-6
-- Gass, S. I. (2002). The first linear-programming shoppe. Operations Research, 50(1), 61–68. https://doi.org/10.1287/opre.50.1.61.17781
-
-  
-
-** The Representation Gap: Alpha vs. Machine
-*** From Human Thought to Solver Input
-Before AMLs (like AMPL or JuMP), there was a "lost in translation" phase. 
-To a mathematician, the model is a set of summations; to the computer, it is a flat list of entries.
-
-*** Comparison: The Stigler Diet Problem
-#+ATTR_LATEX: :align |l|p{7cm}|l|
-| Format                   | Representation of $a_{ij}x_j \ge b_i$                      | Readability |
-|--------------------------+------------------------------------------------------------+-------------|
-| **Matrix Generator**     | ~FOR I=1 TO 9: WRITE(6,10) ROW(I), RHS(I)~                 | Zero        |
-| **MPS (Machine)**        | ~COL001    NUTRIENT01  0.0034~                             |             |
-| **Algebraic ($\alpha$)** | $\sum_{j \in J} a_{ij} x_j \ge b_i, \quad \forall i \in I$ | High        |
-
 
 ** The "Middle Ages": Matrix Generators
 *** The "Logic" of 1965
-    - Instead of writing math, you wrote code to print strings and formatted numbers.
-*** Why this was fragile:
-    - **Formatting**: The `130 FORMAT` statement strictly controls the 80-column spacing. One mistake here makes the MPS file unreadable.
-    - **Maintenance**: To add a nutrient, you must change the `DATA` statements, the `DO` loop limits, and potentially the `FORMAT` strings.
+    - Instead of writing math, we wrote code to print strings and formatted numbers.
+      - specialized "printing" programs usually written in FORTRAN.
+    - Any mistake in the code makes the MPS file unreadable/wrong.
+    - **Maintenance**: To add a nutrient, we must change the `DATA` statements, the `DO` loop limits, and potentially the `FORMAT` strings.
       
 
 ** The "Middle Ages"
 :PROPERTIES:
 :BEAMER_OPT: fragile
 :END:
-
 A Matrix Generator (Fortran)
 
 #+begin_export latex
@@ -237,12 +231,21 @@ C       INNER LOOP FETCHES DATA FROM ARRAYS AND FORMATS FOR MPS
 }
 #+end_export
 
+
+** The MPS Format (The Lingua Franca)
+   Standardized by IBM in 1965, it remains the "Assembly Language" of LP.
+   - **Rigid Structure**: 80-column fixed-field layout (inherited from punched cards).
+   - **Sections**: ~NAME~, ~ROWS~, ~COLUMNS~, ~RHS~, ~BOUNDS~.
+   - **Persistence**: Every modern solver (Gurobi, CPLEX, HiGHS) still reads .mps files.
+    
+*** MPS Paradox
+   - Highly efficient for computers to parse.
+   - Nearly impossible for humans to debug.
+   - This "Readability Gap" is what eventually forced the creation of AMLs.
+
   
-
-** The "Machine" Language: MPS Format
-
-Stigler Diet in 80 Columns
-- Before AMLs, this is what a solver "saw." Note the rigid column alignment (Columns 1, 5, 15, 25, 40, 50).
+** MPS Format
+   Example: Stigler Diet in 80 Columns
 
 #+begin_export latex
 {\scriptsize
@@ -268,18 +271,390 @@ ENDATA
 }
 #+end_export
 
+  
+** The Representation Gap
+*** From Human Thought to Solver Input
+    - Before AMLs (like AMPL or JuMP), there was a "lost in translation" phase.
+      - To a mathematician, the model is a set of summations.
+      - To the computer, the model is a flat list of entries.
 
-** Anatomy of a Nightmare
-- **Fixed Width**: If "WHEAT" was shifted one space to the right, the parser would fail.
-- **Flat Structure**: The summation $\sum a_{ij}x_j$ is gone; every $(i, j)$ pair is an individual line.
-  - This is exactly the format that was once physically punched into cards.
-  - Legacy: Gurobi, CPLEX, ... still read this today for benchmarking.
+*** Comparison: The Stigler Diet Problem
+#+ATTR_LATEX: :align |l|p{7cm}|l|
+|----------------------+------------------------------------------------------------+-------------|
+| Format               | Representation of $\sum a_{ij}x_j \ge b_i$                 | Readability |
+|----------------------+------------------------------------------------------------+-------------|
+| **Matrix Generator** | ~FOR I=1 TO 9: WRITE(6,10) ROW(I), RHS(I)~                 | Zero        |
+| **MPS (Machine)**    | ~COL001    NUTRIENT01  0.0034~                             |             |
+| **Algebraic**        | $\sum_{j \in J} a_{ij} x_j \ge b_i, \quad \forall i \in I$ | High        |
+|----------------------+------------------------------------------------------------+-------------|
+
+
+** MPS: "Technical Debt" of the 1970s
+   - In MPS, data and logic are fused:
+     - data ($a_{ij}$) is separate from logic (a sum).
+     - if we add one nutrient to the diet problem, we must recalculate and re-punch the entire file.
+   - Modeling was slow, error-prone, and required "model librarians".
+   - Support for linear programming, with limited extensions added:
+     - 1965: original MPS, linear programming.
+     - 1969: integer variables \to ~INTORG~ and ~INTEND~ markers within the ~COLUMNS~ section.
+     - 1970: limits on the variables \to ~BOUNDS~ section
+     - 1976: piecewise linear functions \to Special Ordered Sets:
+       - ~SOS1~: Only one variable in the set can be non-zero.
+       - ~SOS2~: At most two variables can be non-zero, and they must be adjacent (used for approximating curves).
+     - 1980s: $x^2$ in the objective: ~QCMATRIX~ or ~QUADOBJ~
+   - but format still rather limited...
+
+     
+       
+* Model taxonomy
+
+** Model Taxonomy: Choosing the Right Solver
+*** The "Linear" Foundation
+    - *Linear Programming (LP)*: Continuous variables, linear constraints and objective.
+      - Standard, typically uses simplex or interior point methods.
+    - *Mixed-Integer Programming (MIP)**: Adds discrete choices ($0/1$).
+      - NP-Hard problems, typically solved with Branch-and-Bound.
+     
+*** Beyond Linearity
+    - *Nonlinear Programming (NLP)*: Curved surfaces (e.g., chemical blending, power grids).
+      - Local vs. Global optima, typically requires gradient-based solvers.
+    - *Constraint Programming (CP)*: Logic constraints (e.g., "If A is before B, then C cannot be at 4pm").
+      - Applications: Logic programming, Scheduling, Routing.
+    - *Complementarity problems*: "Either $x=0$ or the constraint is tight."
+      - Applications: Game theory, equilibrium models.
+
+
+
+* The "good" modeling language checklist
+** The Renaissance: GAMS (1976)
+:PROPERTIES:
+:BEAMER_OPT: fragile
+:END:
+*** Algebraic Realism
+In GAMS, the model finally looks like the math. Note the separation of **Sets**, **Data**, and **Equations**.
+
+#+begin_export latex
+{\scriptsize
+#+end_export
+#+begin_example
+Sets
+   i   nutrients  / calories, protein, calcium /
+   j   foods      / wheat, cornmeal, milk / ;
+
+Table a(i,j)  nutritional value
+              wheat  cornmeal  milk
+   calories    3.3     3.0      0.5
+   protein    13.3    10.0      1.0 ;
+
+Variables  x(j)  purchases,  cost ;
+Positive Variable x;
+
+Equations  nbb(i)  nutrient balance,  obj  total cost ;
+
+nbb(i) ..  sum(j, a(i,j) * x(j)) =g= b(i) ;
+obj ..     cost =e= sum(j, c(j) * x(j)) ;
+
+Model diet /all/ ;
+Solve diet using lp minimizing cost ;
+#+end_example
+#+begin_export latex
+}
+#+end_export
+
+
+** The "good" modeling language checklist
+   1. Decoupling data from the model logic
+      - we can change the data and resolve, without touching the model
+   2. Solver independence
+   3. Declarative (vs. Imperative)
+      - tell what the problem is, not how to find a solution
+   4. Readability
+   5. Handling:
+      - presolve phase
+      - indexing
+      - sparsity
+      - solver input/output
+
+
+** Solver Independence
+   - We write the model in a human-readable form (mathematical program).
+   - The AML translates it into the specific binary format required by the solver
+     - CPLEX
+     - IPOPT
+     - Gurobi
+     - SCIP
+     - ...
+   - *Benefit*: We can switch solvers with one command.
+     - e.g., ~option solver = scip;~.
+    
+
+
+* Modern usage: the "Omega" of Optimization
+** Modern usage
+   - Dedicated languages (AMPL, GAMS, ...) vs.
+   - Embedded libraries (Pyomo, JuMP, GurobiPy, ...)
+
+** 
+*** Dedicated AMLs (AMPL, GAMS)
+    - **Nature**: Domain-specific languages (DSL).
+    - **Strengths**:
+      - Syntax is mostly identical to mathematical notation.
+      - High-performance presolving and model generation.
+      - Support for a vast range of solvers.
+    - **Weakness**:
+      - Hard to connect to databases, web APIs, or ML libraries (e.g., scikit-learn).\\
+        (If used as a standalone system)
+     
+*** Embedded Libraries (Pyomo, JuMP, GurobiPy)
+    - **Nature**: Optimization modeling /inside/ a general-purpose language.
+    - **Strength**: Total integration. The model is just an object in a Python/Julia script.
+      - Pull data from a SQL database, solve, and push results to a Dashboard in one script.
+    - **Weakness**: "Language Overhead"
+      - Python can be slower than a dedicated AML for massive model generation.
+      - Limited range of solvers supported.
+
+
+** Syntax Showdown: AMPL vs. Pyomo
+:PROPERTIES:
+:BEAMER_OPT: fragile
+:END:
+*** The Objective Function: $\sum_{j} c_j x_j$
+
+#+begin_export latex
+\scriptsize
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\textbf{AMPL (Dedicated)}
+\begin{verbatim}
+var x {FOODS} >= 0;
+minimize Cost: 
+    sum {j in FOODS} c[j] * x[j];
+\end{verbatim}
+\end{column}
+\begin{column}{0.5\textwidth}
+\textbf{Pyomo (Embedded)}
+\begin{verbatim}
+model.x = Var(model.FOODS, domain=NonNegativeReals)
+def obj_rule(model):
+    return sum(c[j] * model.x[j] for j in model.FOODS)
+model.obj = Objective(rule=obj_rule)
+\end{verbatim}
+\end{column}
+\end{columns}
+#+end_export
+
+*** 
+    - **AMPL** is shorter and closer to paper math.
+    - **Pyomo** is more "verbose" but allows fully using Python language, debuggers, and libraries.
+
+
+** Modern Usage
+*** The Best of Both Worlds
+    The modern landscape is no longer a binary choice between "Dedicated" and "Embedded."
+    - **The Hybrid Approach**: Using a DSL (AMPL/GAMS) *inside* a GPL (Python/Julia).
+    - **The Interface**: Libraries like ~amplpy~ or ~GAMS Transfer~.
+    - **Advantages**: 
+      1. **Modeling**: The math remains clean, concise, and separate from the "plumbing."
+      2. **Execution**: The AMPL engine handles high-speed model generation (C++ core).
+      3. **Integration**: E.g., data comes from Pandas/SQL; results go to Plotly/Dash.
+     
+*** Competitive Advantage
+    - **Readability**: The model looks like a paper (AMPL syntax).
+    - **Scalability**: Avoids Python's "Global Interpreter Lock" (GIL) during model build.
+    - **Deployment**: Easy to containerize (Docker) while keeping the core logic in a DSL.
+
+
+** The Unified Syntax: amplpy
+:PROPERTIES:
+:BEAMER_OPT: fragile
+:END:
+*** From Data Science to Optimization
+    Instead of "translating" math into Python loops, we pass the data into an AMPL environment.
+
+#+begin_export latex
+\scriptsize
+\begin{verbatim}
+from amplpy import AMPL
+import pandas as pd
+
+# 1. The "Alpha": Pure Algebraic Model
+ampl = AMPL()
+ampl.eval("""
+    set FOODS;
+    param cost{FOODS};
+    var x{FOODS} >= 0;
+    minimize TotalCost: sum{j in FOODS} cost[j] * x[j];
+""")
+
+# 2. The "Modern": Python Data Integration
+df = pd.read_sql("SELECT name, price FROM market_data", db_conn)
+ampl.set_data(df, "FOODS")
+
+# 3. The "Solver": Solver Independence
+ampl.set_option('solver', 'gurobi')
+ampl.solve()
+\end{verbatim}
+#+end_export
+
+*** Observations
+    - The **Math** is a string (or .mod file), untouched by Python's syntax rules.
+    - The **Data** is a DataFrame, handled by Python's best-in-class tools.
+
+
+** Modern Tech Stack: A Modeler's Compass
+*** The Selection Criteria
+    Choice depends on **Build Speed**, **Model Complexity**, and **Production Ecosystem**.
+
+#+ATTR_LATEX: :align |l|l|l|p{6cm}|
+\scriptsize
+|------------+-----------------+-------------------+--------------------------------------------------------|
+| Tool       | Category        | Language          | Best For...                                            |
+|------------+-----------------+-------------------+--------------------------------------------------------|
+| **GAMS**   | Standalone DSL  | GAMS              | Massive-scale NLP/Economics; legacy reliability.       |
+| **AMPL**   | Standalone DSL  | AMPL              | Mathematical purity; extremely fast model generation.  |
+| **Pyomo**  | Embedded        | Python            | Academic research; complex custom algorithms.          |
+| **PuLP**   | Wrapper         | Python            | Beginners; quick prototypes; simple Linear models.     |
+| **JuMP**   | Embedded        | Julia             | Performance-critical research; "DSL speed" in a GPL.   |
+| **amplpy** | **Unified API** | **Python + AMPL** | **The Industrial Standard**: DSL speed + Python power. |
+|------------+-----------------+-------------------+--------------------------------------------------------|
+
+*** 
+    - If **Model Generation Time** is the bottleneck (massive matrices) \to **AMPL/amplpy** or **JuMP**.
+    - If **Ease of Integration** with a Flask/Django web app is the goal \to **PuLP** or **amplpy**.
+    - If solving **Non-linear Global Optima** \to **GAMS** and **AMPL** are best for solver support.
 
   
-** The "Technical Debt" of the 1970s
-- **Decoupling**: In the algebraic form, data ($a_{ij}$) is separate from logic ($\sum$).
-- **The MPS Nightmare**: In MPS, data and logic are "fused". 
-- If you add one nutrient to the diet, you must recalculate and re-punch the entire file.
-- **The Result**: Modeling was slow, error-prone, and required "Model Librarians".
+** The Evolution of the Modeling Interface
+*** From Physical Cards to Unified APIs
+    The "Omega" is not just about syntax; it is about how the *Model* communicates with the *Data* and the *Solver*.
+
+#+ATTR_LATEX: :align |l|l|p{4cm}|
+\scriptsize
+|-----------------------+--------------------------------------+-------------------------------------------------|
+| Era                   | Interface Method                     | Primary Pain Point                              |
+|-----------------------+--------------------------------------+-------------------------------------------------|
+| **Middle Ages**       | Punched Cards / MPS                  | Manual typos and physical loss                  |
+| **Renaissance**       | Matrix Gen $\to$ MPS                 | Rigid "File-based" I/O; logic buried in Fortran |
+| **Modern (early)**    | Modeling languages (GAMS, AMPL, ...) | Integration in the deployed system              |
+| **Modern (middle)**   | Pure Python (Pyomo)                  | "Language Overhead" (slower model generation)   |
+| **Unified Approach**  | **API-driven DSL (amplpy)**          | Licensing and environment complexity            |
+|-----------------------+--------------------------------------+-------------------------------------------------|
+
+*** Why "Unified Approach" Wins
+    - The math (~.mod~) is separate from the data (~.csv/SQL/...~).
+    - Speed: The DSL (AMPL) generates the model in optimized C++ routines.
+    - Python handles the "Pre" and "Post" processing (Visualization, ML).
+    - We can stop, modify, and re-solve without writing a single file to disk.
 
 
+** Advanced Topics: Column Generation
+:PROPERTIES:
+:BEAMER_OPT: fragile
+:END:
+*** The "Orchestrator" Pattern
+    Column generation requires solving a **Master Problem** (MP) and a **Subproblem** (SP) iteratively.
+
+#+begin_export latex
+\scriptsize
+\begin{verbatim}
+# 1. Initialize Master and Subproblem in AMPL
+master = AMPL(); master.read("master.mod")
+sub    = AMPL(); sub.read("subproblem.mod")
+
+while True:
+    master.solve()
+    # Extract duals from Master using Python API
+    pi = master.get_con('demand_constraints').dual()
+    
+    # Pass duals as parameters to Subproblem
+    sub.get_parameter('pi').set_values(pi)
+    sub.solve()
+    
+    if sub.get_objective('ReducedCost').value() >= -1e-6:
+        break  # Optimality reached
+        
+    # Generate new column (variable) in Master
+    new_column = sub.get_variable('x_new').get_values()
+    master.eval(f"add var col_{iter} >= 0;") 
+    # Use API to update Master's matrix coefficients
+\end{verbatim}
+#+end_export
+
+*** Why it's "Advanced"
+    - The model structure is **dynamic**: we are adding variables *during* the solve.
+    - **Unified Omega**: Python handles the logic; AMPL handles the algebra.
+
+
+** Advanced Topics: Cutting Planes
+*** Bridging Heuristics and Exact Math
+    In modern usage, "Cuts" are often generated by analyzing the fractional solution of an LP relaxation.
+     
+    - **The Workflow**:
+      1. Solve the **Relaxed Problem** (ignore integrality).
+      2. If the solution is fractional, use a **Separation Algorithm** (in Python).
+      3. Identify a "Violated Constraint" (e.g., a Gomory cut or Cover cut).
+      4. **Inject** that constraint back into the live AMPL object.
+      5. Repeat until the solution is integer or no more cuts are found.
+
+*** Advantage of the API
+    - No need to restart the solver from scratch.
+    - The solver (Gurobi/CPLEX/...) performs a **warm start**, keeping the previous basis.
+    - This capability is only possible via memory-resident APIs (~amplpy~), not file-based MPS.
+
+  
+
+* Real-world deployment
+
+** Real-World Deployment: Beyond the Notebook
+*** The Modern Infrastructure
+    In the 1950s, the "Interface" was a card reader. Today, it is a **Distributed Cloud**.
+
+    - **Cloud Solvers**: Instead of a local license, the API sends the model to a high-performance cluster (Gurobi Cloud, NEOS, Azure/AWS).
+      - *Advantage*: Massive parallelization for MIP or Stochastic models.
+    - **Model-as-a-Service (MaaS)**:
+      - The model is wrapped in a **REST API** (FastAPI/Flask).
+      - The UI (Frontend) sends data $\to$ API solves $\to$ UI displays results.
+
+*** Integration with Data Science Pipelines
+    - **The Workflow**:
+      1. **Pre-processing**: Pandas/SQL clean the "noisy" real-world data.
+      2. **Predictive**: ML models (Scikit-learn/XGBoost) predict parameters (e.g., next week's demand).
+      3. **Prescriptive**: The **Unified Omega** (AMPL/Python) solves for the optimal plan based on those predictions.
+      4. **Post-processing**: Visualization (Plotly/Dash) for the end-user.
+
+     
+
+** Conclusion: From Alpha to Omega
+*** The Journey of Abstraction
+    - **The Alpha**: Mathematical truth remains constant (Dantzig's Simplex).
+    - **The Middle Ages**: Physical struggle (Punched cards, Matrix Generators).
+    - **The Renaissance**: Separation of concerns (GAMS/AMPL, Decoupling).
+    - **The Omega**: The Unified API (DSL + GPL).
+
+*** Takeaways for the Modern Modeler
+    1. **Choose the right taxonomy**: Don't use a MIP solver for a nonlinear problem.
+    2. **Decouple everything**: Keep math (~.mod~) separate from the data (~.csv/...~).
+    3. **Automate the iteration**: Use APIs (~amplpy~) for Column Gen or Cutting Planes.
+    4. **Deploy with purpose**: A model is only useful if it integrates into the "Decision Pipeline."   
+
+
+
+
+** Further Reading and References: The "Alpha" (Foundational Papers)
+   - **Stigler, G. J. (1945)**: "The Cost of Subsistence." *Journal of Farm Economics*. (The Diet Problem).
+   - **Dantzig, G. B. (1947)**: "Maximization of a Linear Function of Variables Subject to Linear Inequalities." (The Simplex Method).
+   - **Benders, J. F. (1962)**: "Partitioning procedures for solving mixed-variables programming problems." *Numerische Mathematik*.
+
+** Further Reading and References: The "Middle Ages" and "Renaissance"
+   - **Orchard-Hays, W. (1968)**: *Advanced Linear-Programming Computing Techniques*. (The MPS Era).
+   - **Bisschop and Meeraus (1982)**: "On the Development of a General Algebraic Modeling System in a Strategic Planning Environment." (Birth of GAMS).
+   - **Dantzig, G. B. (1985):** Impact of linear programming on computer development. Computers in Mathematics, 233–240. https://doi.org/10.1201/9781003072157-6
+   - **Fourer, Gay, and Kernighan (1990)**: "A Modeling Language for Mathematical Programming." (Birth of AMPL).
+   - **Gass, S. I. (2002):** The first linear-programming shoppe. Operations Research, 50(1), 61–68. https://doi.org/10.1287/opre.50.1.61.17781
+   - **Bixby, R. E. (2012):** A brief history of linear and mixed-integer programming computation. Documenta Mathematica Series, 107–121. https://doi.org/10.4171/dms/6/16
+    
+** The "Omega": Modern APIs and Libraries
+   - **Pyomo Documentation**: ~http://www.pyomo.org~
+   - **JuMP (Julia) Portal**: ~https://jump.dev~
+   - **Gurobi/CPLEX Python Guides**: Official developer portals for callback implementation.
+   - **AMPL Python API**: ~https://amplpy.ampl.com~
