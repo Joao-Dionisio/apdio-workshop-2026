@@ -1,4 +1,4 @@
-% Created 2026-03-26 Thu 18:45
+% Created 2026-03-26 Thu 19:35
 % Intended LaTeX compiler: pdflatex
 \documentclass[presentation, aspectratio=169]{beamer}
 \usepackage[utf8]{inputenc}
@@ -46,9 +46,9 @@
 
 
 \section{The "Alpha" of Optimization}
-\label{sec:org1eb9410}
+\label{sec:org685dde7}
 
-\begin{frame}[label={sec:org1a3dd7c}]{Background}
+\begin{frame}[label={sec:orgdd3645c}]{Background}
 \begin{itemize}
 \item We have a system of linear inequalities.
 \item How can we find a feasible solution?
@@ -60,7 +60,7 @@
 \end{frame}
 
 
-\begin{frame}[label={sec:orgff52cfc}]{The Pre-History: Joseph Fourier (1826)}
+\begin{frame}[label={sec:org35b410f}]{The Pre-History: Joseph Fourier (1826)}
 \begin{block}{The Concept of Projection}
 Before the Simplex Method: Fourier devised a method for solving systems of linear inequalities:
 \begin{itemize}
@@ -72,7 +72,7 @@ Before the Simplex Method: Fourier devised a method for solving systems of linea
 \end{frame}
 
 
-\begin{frame}[label={sec:org3c2cfbc}]{Comparing "Projecting" vs. "Walking"}
+\begin{frame}[label={sec:org8dfa38b}]{Comparing "Projecting" vs. "Walking"}
 \begin{itemize}
 \item Fourier (1826):
 \begin{itemize}
@@ -86,7 +86,7 @@ Before the Simplex Method: Fourier devised a method for solving systems of linea
 \end{frame}
 
 
-\begin{frame}[label={sec:org07aaf92}]{Visualizing the Two Approaches}
+\begin{frame}[label={sec:org3303e3b}]{Visualizing the Two Approaches}
 \begin{block}{Vertex Walk vs. Projection}
 \begin{tikzpicture}[scale=1.5]
   % Left side: Simplex (Vertex Walk)
@@ -112,7 +112,7 @@ Before the Simplex Method: Fourier devised a method for solving systems of linea
 \end{frame}
 
 
-\begin{frame}[label={sec:orgc6ecd5b}]{Fourier's Method "Explodes"}
+\begin{frame}[label={sec:orgebce716}]{Fourier's Method "Explodes"}
 \begin{itemize}
 \item \alert{Fourier-Motzkin}: Each variable elimination creates a new set of inequalities.
 \begin{itemize}
@@ -129,7 +129,7 @@ Dantzig noted that had he known Fourier–Motzkin Elimination he might have been
 \end{frame}
 
 
-\begin{frame}[label={sec:orgd0b4527}]{The Stigler Diet Problem (1947)}
+\begin{frame}[label={sec:org44be166}]{The Stigler Diet Problem (1947)}
 \begin{block}{A Problem in the "Alpha" Era}
 George Stigler (1945) sought the minimum cost to feed a 154lb man.
 \begin{itemize}
@@ -157,7 +157,7 @@ calories, protein, calcium, iron, vitamin A, B1, B2, niacin, vitamin C
 \end{frame}
 
 
-\begin{frame}[label={sec:org476f27a}]{The Human "Computer": Jack Laderman's Achievement}
+\begin{frame}[label={sec:org6ba3783}]{The Human "Computer": Jack Laderman's Achievement}
 \begin{block}{Before Machines}
 In 1947, the "Simplex Method" was brand new (Dantzig). There was no "software."
 \begin{itemize}
@@ -177,7 +177,7 @@ In 1947, the "Simplex Method" was brand new (Dantzig). There was no "software."
 \end{frame}
 
 
-\begin{frame}[label={sec:orga720ed8}]{First Machine Implementations: SEAC and IBM 701}
+\begin{frame}[label={sec:org533eaf0}]{First Machine Implementations: SEAC and IBM 701}
 \begin{block}{SEAC (1951) - The First Electronic Solver}
 \begin{itemize}
 \item \alert{\alert{Machine}}: Standards Eastern Automatic Computer (National Bureau of Standards).
@@ -204,7 +204,7 @@ In 1947, the "Simplex Method" was brand new (Dantzig). There was no "software."
 \end{frame}
 
 
-\begin{frame}[label={sec:orgfffe272},fragile]{Before Modeling Languages: Physical Data Entry}
+\begin{frame}[label={sec:org952365c},fragile]{Before Modeling Languages: Physical Data Entry}
  \begin{block}{The Punched Card Era (1950s)}
 In the "Alpha" phase, there was no \texttt{model.lp} or \texttt{model.py}. 
 
@@ -226,7 +226,7 @@ Data was physical.
 \end{frame}
 
 
-\begin{frame}[label={sec:orgc43dcf6}]{Before Modeling Languages: Workflow}
+\begin{frame}[label={sec:org7e83220}]{Before Modeling Languages: Workflow}
 \begin{enumerate}
 \item \alert{\alert{Mathematical Model}}: written on paper.
 \item \alert{\alert{Matrix Tabulation}}: coefficients mapped to row/column indices.
@@ -244,7 +244,7 @@ Data was physical.
 \end{frame}
 
 
-\begin{frame}[label={sec:org2a8741a}]{The "Middle Ages": Matrix Generators}
+\begin{frame}[label={sec:org7e3aa7a}]{The "Middle Ages": Matrix Generators}
 \begin{block}{The "Logic" of 1965}
 \begin{itemize}
 \item Instead of writing math, we wrote code to print strings and formatted numbers.
@@ -258,7 +258,7 @@ Data was physical.
 \end{frame}
 
 
-\begin{frame}[label={sec:orgf1b0690},fragile]{The "Middle Ages"}
+\begin{frame}[label={sec:orgdfa703d},fragile]{The "Middle Ages"}
  A Matrix Generator (Fortran)
 
 {\scriptsize
@@ -288,7 +288,7 @@ C       INNER LOOP FETCHES DATA FROM ARRAYS AND FORMATS FOR MPS
 \end{frame}
 
 
-\begin{frame}[label={sec:orge420a95},fragile]{The MPS Format (The Lingua Franca)}
+\begin{frame}[label={sec:org2164493},fragile]{The MPS Format (The Lingua Franca)}
  Standardized by IBM in 1965, it remains the "Assembly Language" of LP.
 \begin{itemize}
 \item \alert{\alert{Rigid Structure}}: 80-column fixed-field layout (inherited from punched cards).
@@ -306,7 +306,7 @@ C       INNER LOOP FETCHES DATA FROM ARRAYS AND FORMATS FOR MPS
 \end{frame}
 
 
-\begin{frame}[label={sec:orgca066b1},fragile]{MPS Format}
+\begin{frame}[label={sec:org58ec210},fragile]{MPS Format}
  Example: Stigler Diet in 80 Columns
 
 {\scriptsize
@@ -331,7 +331,7 @@ ENDATA
 \end{frame}
 
 
-\begin{frame}[label={sec:orgb1dfb46},fragile]{The Representation Gap}
+\begin{frame}[label={sec:orge7dba39},fragile]{The Representation Gap}
  \begin{block}{From Human Thought to Solver Input}
 \begin{itemize}
 \item Before AMLs (like AMPL or JuMP), there was a "lost in translation" phase.
@@ -358,7 +358,7 @@ Format & Representation of \(\sum a_{ij}x_j \ge b_i\) & Readability\\
 \end{frame}
 
 
-\begin{frame}[label={sec:org9c2896b},fragile]{MPS: "Technical Debt" of the 1970s}
+\begin{frame}[label={sec:orgd3548fd},fragile]{MPS: "Technical Debt" of the 1970s}
  \begin{itemize}
 \item In MPS, data and logic are fused:
 \begin{itemize}
@@ -385,9 +385,9 @@ Format & Representation of \(\sum a_{ij}x_j \ge b_i\) & Readability\\
 
 
 \section{Model taxonomy}
-\label{sec:org1d8e2c0}
+\label{sec:org4d2757f}
 
-\begin{frame}[label={sec:orgbaebdf7}]{Model Taxonomy: Choosing the Right Solver}
+\begin{frame}[label={sec:org9ccacd4}]{Model Taxonomy: Choosing the Right Solver}
 \begin{block}{The "Linear" Foundation}
 \begin{itemize}
 \item \alert{Linear Programming (LP)}: Continuous variables, linear constraints and objective.
@@ -422,8 +422,8 @@ Format & Representation of \(\sum a_{ij}x_j \ge b_i\) & Readability\\
 
 
 \section{The "good" modeling language checklist}
-\label{sec:org0c0e64f}
-\begin{frame}[label={sec:org023bad5},fragile]{The Renaissance: GAMS (1976)}
+\label{sec:org38d6328}
+\begin{frame}[label={sec:orgf3f2321},fragile]{The Renaissance: GAMS (1976)}
  \begin{block}{Algebraic Realism}
 In GAMS, the model finally looks like the math. Note the separation of \alert{\alert{Sets}}, \alert{\alert{Data}}, and \alert{\alert{Equations}}.
 
@@ -454,7 +454,7 @@ Solve diet using lp minimizing cost ;
 \end{frame}
 
 
-\begin{frame}[label={sec:org2f89ec5}]{The "good" modeling language checklist}
+\begin{frame}[label={sec:orgfc7b1cb}]{The "good" modeling language checklist}
 \begin{enumerate}
 \item Decoupling data from the model logic
 \begin{itemize}
@@ -477,7 +477,7 @@ Solve diet using lp minimizing cost ;
 \end{frame}
 
 
-\begin{frame}[label={sec:orgded41ed},fragile]{Solver Independence}
+\begin{frame}[label={sec:orgf431b87},fragile]{Solver Independence}
  \begin{itemize}
 \item We write the model in a human-readable form (mathematical program).
 \item The AML translates it into the specific binary format required by the solver
@@ -498,15 +498,15 @@ Solve diet using lp minimizing cost ;
 
 
 \section{Modern usage: the "Omega" of Optimization}
-\label{sec:org7c5110c}
-\begin{frame}[label={sec:orga666d2f}]{Modern usage}
+\label{sec:org4f5438e}
+\begin{frame}[label={sec:org252db80}]{Modern usage}
 \begin{itemize}
 \item Dedicated languages (AMPL, GAMS, \ldots{}) vs.
 \item Embedded libraries (Pyomo, JuMP, GurobiPy, \ldots{})
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org29d1068}]{}
+\begin{frame}[label={sec:org8e4dfa5}]{}
 \begin{block}{Dedicated AMLs (AMPL, GAMS)}
 \begin{itemize}
 \item \alert{\alert{Nature}}: Domain-specific languages (DSL).
@@ -541,7 +541,7 @@ Solve diet using lp minimizing cost ;
 \end{frame}
 
 
-\begin{frame}[label={sec:org65c0a1b},fragile]{Syntax Showdown: AMPL vs. Pyomo}
+\begin{frame}[label={sec:org0e75d4f},fragile]{Syntax Showdown: AMPL vs. Pyomo}
 \begin{block}{The Objective Function: \(\sum_{j} c_j x_j\)}
 \scriptsize
 \begin{columns}
@@ -574,13 +574,13 @@ model.obj = Objective(rule=obj_rule)
 \end{frame}
 
 
-\begin{frame}[label={sec:org68b9a5e},fragile]{Modern Usage: The Unified "Omega"}
+\begin{frame}[label={sec:org7d02d5e},fragile]{Modern Usage}
  \begin{block}{The Best of Both Worlds}
 The modern landscape is no longer a binary choice between "Dedicated" and "Embedded."
 \begin{itemize}
 \item \alert{\alert{The Hybrid Approach}}: Using a DSL (AMPL/GAMS) \alert{inside} a GPL (Python/Julia).
 \item \alert{\alert{The Interface}}: Libraries like \texttt{amplpy} or \texttt{GAMS Transfer}.
-\item \alert{\alert{Why this is "Omega"}}: 
+\item \alert{\alert{Advantages}}: 
 \begin{enumerate}
 \item \alert{\alert{Modeling}}: The math remains clean, concise, and separate from the "plumbing."
 \item \alert{\alert{Execution}}: The AMPL engine handles high-speed model generation (C++ core).
@@ -589,7 +589,7 @@ The modern landscape is no longer a binary choice between "Dedicated" and "Embed
 \end{itemize}
 \end{block}
 
-\begin{block}{The Competitive Advantage}
+\begin{block}{Competitive Advantage}
 \begin{itemize}
 \item \alert{\alert{Readability}}: The model looks like a paper (AMPL syntax).
 \item \alert{\alert{Scalability}}: Avoids Python's "Global Interpreter Lock" (GIL) during model build.
@@ -599,7 +599,7 @@ The modern landscape is no longer a binary choice between "Dedicated" and "Embed
 \end{frame}
 
 
-\begin{frame}[label={sec:orgcf0904b},fragile]{The Unified Syntax: amplpy}
+\begin{frame}[label={sec:orgcefa12a},fragile]{The Unified Syntax: amplpy}
 \begin{block}{From Data Science to Optimization}
 Instead of "translating" math into Python loops, we pass the data into an AMPL environment.
 
@@ -636,7 +636,7 @@ ampl.solve()
 \end{frame}
 
 
-\begin{frame}[label={sec:org73371d8}]{Modern Tech Stack: A Modeler's Compass}
+\begin{frame}[label={sec:orgc828b98}]{Modern Tech Stack: A Modeler's Compass}
 \begin{block}{The Selection Criteria}
 Choice depends on \alert{\alert{Build Speed}}, \alert{\alert{Model Complexity}}, and \alert{\alert{Production Ecosystem}}.
 
@@ -667,7 +667,7 @@ Tool & Category & Language & Best For\ldots{}\\
 \end{frame}
 
 
-\begin{frame}[label={sec:org35f218a},fragile]{The Evolution of the Modeling Interface}
+\begin{frame}[label={sec:org70236dc},fragile]{The Evolution of the Modeling Interface}
  \begin{block}{From Physical Cards to Unified APIs}
 The "Omega" is not just about syntax; it is about how the \alert{Model} communicates with the \alert{Data} and the \alert{Solver}.
 
@@ -698,7 +698,7 @@ Era & Interface Method & Primary Pain Point\\
 \end{frame}
 
 
-\begin{frame}[label={sec:org21903dc},fragile]{Advanced Topics: Column Generation}
+\begin{frame}[label={sec:orgf145a2d},fragile]{Advanced Topics: Column Generation}
 \begin{block}{The "Orchestrator" Pattern}
 Column generation requires solving a \alert{\alert{Master Problem}} (MP) and a \alert{\alert{Subproblem}} (SP) iteratively.
 
@@ -736,7 +736,7 @@ while True:
 \end{frame}
 
 
-\begin{frame}[label={sec:orgea445c8},fragile]{Advanced Topics: Cutting Planes}
+\begin{frame}[label={sec:orgfabc502},fragile]{Advanced Topics: Cutting Planes}
  \begin{block}{Bridging Heuristics and Exact Math}
 In modern usage, "Cuts" are often generated by analyzing the fractional solution of an LP relaxation.
 
@@ -752,11 +752,11 @@ In modern usage, "Cuts" are often generated by analyzing the fractional solution
 \end{itemize}
 \end{block}
 
-\begin{block}{The Advantage of the API}
+\begin{block}{Advantage of the API}
 \begin{itemize}
-\item We don't restart the solver from scratch.
-\item The solver (Gurobi/CPLEX) performs a \alert{\alert{Warm Start}}, keeping the previous basis.
-\item This "Hot Start" capability is only possible via memory-resident APIs (\texttt{amplpy}), not file-based MPS.
+\item No need to restart the solver from scratch.
+\item The solver (Gurobi/CPLEX/\ldots{}) performs a \alert{\alert{warm start}}, keeping the previous basis.
+\item This capability is only possible via memory-resident APIs (\texttt{amplpy}), not file-based MPS.
 \end{itemize}
 \end{block}
 \end{frame}
@@ -764,9 +764,9 @@ In modern usage, "Cuts" are often generated by analyzing the fractional solution
 
 
 \section{Real-world deployment}
-\label{sec:orgf7b1377}
+\label{sec:org6594a4d}
 
-\begin{frame}[label={sec:org13e6d82}]{Real-World Deployment: Beyond the Notebook}
+\begin{frame}[label={sec:orgad785ea}]{Real-World Deployment: Beyond the Notebook}
 \begin{block}{The Modern Infrastructure}
 In the 1950s, the "Interface" was a card reader. Today, it is a \alert{\alert{Distributed Cloud}}.
 
@@ -798,13 +798,13 @@ In the 1950s, the "Interface" was a card reader. Today, it is a \alert{\alert{Di
 
 
 
-\begin{frame}[label={sec:org397220a},fragile]{Conclusion: From Alpha to Omega}
+\begin{frame}[label={sec:org0029e61},fragile]{Conclusion: From Alpha to Omega}
  \begin{block}{The Journey of Abstraction}
 \begin{itemize}
-\item \alert{\alert{The Alpha (\(\alpha\))}}: Mathematical truth remains constant (Dantzig's Simplex).
+\item \alert{\alert{The Alpha}}: Mathematical truth remains constant (Dantzig's Simplex).
 \item \alert{\alert{The Middle Ages}}: Physical struggle (Punched cards, Matrix Generators).
 \item \alert{\alert{The Renaissance}}: Separation of concerns (GAMS/AMPL, Decoupling).
-\item \alert{\alert{The Omega (\(\omega\))}}: The Unified API (DSL + GPL).
+\item \alert{\alert{The Omega}}: The Unified API (DSL + GPL).
 \end{itemize}
 \end{block}
 
@@ -821,7 +821,7 @@ In the 1950s, the "Interface" was a card reader. Today, it is a \alert{\alert{Di
 
 
 
-\begin{frame}[label={sec:orgf8ebe7d}]{Further Reading and References: The "Alpha" (Foundational Papers)}
+\begin{frame}[label={sec:org9ecc76a}]{Further Reading and References: The "Alpha" (Foundational Papers)}
 \begin{itemize}
 \item \alert{\alert{Stigler, G. J. (1945)}}: "The Cost of Subsistence." \alert{Journal of Farm Economics}. (The Diet Problem).
 \item \alert{\alert{Dantzig, G. B. (1947)}}: "Maximization of a Linear Function of Variables Subject to Linear Inequalities." (The Simplex Method).
@@ -829,7 +829,7 @@ In the 1950s, the "Interface" was a card reader. Today, it is a \alert{\alert{Di
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orga484a07}]{Further Reading and References: The "Middle Ages" and "Renaissance"}
+\begin{frame}[label={sec:org0c4ea3e}]{Further Reading and References: The "Middle Ages" and "Renaissance"}
 \begin{itemize}
 \item \alert{\alert{Orchard-Hays, W. (1968)}}: \alert{Advanced Linear-Programming Computing Techniques}. (The MPS Era).
 \item \alert{\alert{Bisschop and Meeraus (1982)}}: "On the Development of a General Algebraic Modeling System in a Strategic Planning Environment." (Birth of GAMS).
@@ -840,7 +840,7 @@ In the 1950s, the "Interface" was a card reader. Today, it is a \alert{\alert{Di
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org0fb67a7},fragile]{The "Omega": Modern APIs and Libraries}
+\begin{frame}[label={sec:org109619f},fragile]{The "Omega": Modern APIs and Libraries}
  \begin{itemize}
 \item \alert{\alert{Pyomo Documentation}}: \texttt{http://www.pyomo.org}
 \item \alert{\alert{JuMP (Julia) Portal}}: \texttt{https://jump.dev}
