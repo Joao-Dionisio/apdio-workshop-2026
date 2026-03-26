@@ -13,37 +13,47 @@ from subtour import find_subtours
 
 class SubtourElimination(Conshdlr):
 
-    def __init__(self, x_vars, n_nodes):
+    def __init__(self, n_nodes):
         """
         Args:
-            x_vars: dict mapping (i, j) with i < j to SCIP binary edge variables.
             n_nodes: number of cities.
+
+        Edge variables are accessed via self.model.data (set before solving).
         """
-        self.x = x_vars
         self.n = n_nodes
+
+    def _get_edges(self, sol):
+        """Extract edges with positive value from a solution."""
+        x = self.model.data
+        return [
+            (i, j) for (i, j) in x
+            if self.model.isFeasPositive(self.model.getSolVal(sol, x[i, j]))
+        ]
 
     def conscheck(self, constraints, solution, checkintegrality,
                   checklprows, printreason, completely):
         """Check if a solution forms a single Hamiltonian tour."""
-        # EXERCISE 2a: Implement solution checking
-        #
-        # 1. Extract selected edges: use self.model.getSolVal(solution, var) > 0.5
-        # 2. Call find_subtours(selected_edges, self.n)
-        # 3. Return {"result": SCIP_RESULT.FEASIBLE} or INFEASIBLE
+        subtours = find_subtours(self._get_edges(solution), self.n)
 
-        raise NotImplementedError("Exercise 2a: Implement conscheck.")
+        if subtours:
+            return {"result": SCIP_RESULT.INFEASIBLE}
+        return {"result": SCIP_RESULT.FEASIBLE}
 
     def consenfolp(self, constraints, nusefulconss, solinfeasible):
         """Enforce LP solution by adding violated SECs."""
-        # EXERCISE 2b: Implement constraint enforcement
-        #
-        # 1. Extract edges with self.model.getVal(var) > 0.5
-        # 2. Call find_subtours()
-        # 3. For each subtour S, add: sum_{(i,j) in E(S)} x[i,j] <= |S| - 1
-        #    using self.model.addCons(quicksum(...) <= ...)
-        # 4. Return {"result": SCIP_RESULT.CONSADDED} or FEASIBLE
+        x = self.model.data
+        subtours = find_subtours(self._get_edges(None), self.n)
 
-        raise NotImplementedError("Exercise 2b: Add SECs for each subtour found.")
+        if not subtours:
+            return {"result": SCIP_RESULT.FEASIBLE}
+
+        for S in subtours:
+            self.model.addCons(
+                quicksum(x[i, j] for i in S for j in S if j > i)
+                <= len(S) - 1
+            )
+
+        return {"result": SCIP_RESULT.CONSADDED}
 
     def conslock(self, constraint, locktype, nlockspos, nlocksneg):
         pass

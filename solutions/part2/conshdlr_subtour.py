@@ -1,4 +1,4 @@
-"""Solution for Exercise 2: Subtour Elimination Constraint Handler."""
+"""Solution for Exercise 2: Constraint handler for subtour elimination."""
 
 from pyscipopt import Conshdlr, SCIP_RESULT, quicksum
 
@@ -7,39 +7,35 @@ from subtour import find_subtours
 
 class SubtourElimination(Conshdlr):
 
-    def __init__(self, x_vars, n_nodes):
-        self.x = x_vars
+    def __init__(self, n_nodes):
         self.n = n_nodes
+
+    def _get_edges(self, sol):
+        x = self.model.data
+        return [
+            (i, j) for (i, j) in x
+            if self.model.isFeasPositive(self.model.getSolVal(sol, x[i, j]))
+        ]
 
     def conscheck(self, constraints, solution, checkintegrality,
                   checklprows, printreason, completely):
-        selected = [
-            (i, j) for (i, j), var in self.x.items()
-            if self.model.getSolVal(solution, var) > 0.5
-        ]
-        subtours = find_subtours(selected, self.n)
+        subtours = find_subtours(self._get_edges(solution), self.n)
 
-        if not subtours:
-            return {"result": SCIP_RESULT.FEASIBLE}
-        return {"result": SCIP_RESULT.INFEASIBLE}
+        if subtours:
+            return {"result": SCIP_RESULT.INFEASIBLE}
+        return {"result": SCIP_RESULT.FEASIBLE}
 
     def consenfolp(self, constraints, nusefulconss, solinfeasible):
-        selected = [
-            (i, j) for (i, j), var in self.x.items()
-            if self.model.getVal(var) > 0.5
-        ]
-        subtours = find_subtours(selected, self.n)
+        x = self.model.data
+        subtours = find_subtours(self._get_edges(None), self.n)
 
         if not subtours:
             return {"result": SCIP_RESULT.FEASIBLE}
 
         for S in subtours:
             self.model.addCons(
-                quicksum(
-                    self.x[i, j]
-                    for (i, j) in self.x
-                    if i in S and j in S
-                ) <= len(S) - 1
+                quicksum(x[i, j] for i in S for j in S if j > i)
+                <= len(S) - 1
             )
 
         return {"result": SCIP_RESULT.CONSADDED}

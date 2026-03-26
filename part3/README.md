@@ -3,6 +3,9 @@
 > **Good to know:** For a comprehensive reference on branch-and-price, see [*Branch-and-Price*](https://link.springer.com/book/10.1007/978-3-031-96917-1) (Springer, 2025). A companion document on implementing B&P in PySCIPOpt is available at `BnP_in_PySCIPOpt.pdf` in this directory.
 
 ## Introduction
+
+> **Note:** [GCG](https://gcg.or.rwth-aachen.de/) is a tool built on top of SCIP that automates Dantzig-Wolfe decomposition and branch-and-price. In this part, we implement the same ideas by hand to understand how they work.
+
 This section is dedicated to implementing a branch-and-price algorithm in PySCIPOpt. We will use the well-known [bin packing problem](https://www.wikiwand.com/en/articles/Bin_packing_problem) as an example. If you need a refresher, you can also go over the Bin packing exercises in the [modeling section](../part1/README.md). Bin packing is a combinatorial optimization problem where a finite number of items of different sizes must be packed into bins or containers each with a fixed capacity. The goal is to minimize the number of bins used. The problem is NP-hard and has many applications in logistics and resource allocation.
 
 The first two chapters will give a light overview of bin packing, both its compact and extended formulations. Implementation exercises start in Chapter 3.
@@ -90,13 +93,13 @@ Running the test validates the correctness of the code of this particular exerci
 
 Column generation needs an initial set of columns so that the RMP is feasible from the start. The simplest approach is the **one-item-per-bin** strategy: for each item, create a pattern containing only that item. This yields $n$ initial patterns and a trivial (but valid) feasible solution.
 
-**Your task:** Implement `initial_columns()` in `initial_columns.py`. For each item $i$, produce a pattern $p_i$ where $a_i^{p_i} = 1$ and $a_j^{p_i} = 0$ for all $j \neq i$. Return the list of patterns.
+**Your task:** Implement `initial_columns()` in [`initial_columns.py`](initial_columns.py). For each item $i$, produce a pattern $p_i$ where $a_i^{p_i} = 1$ and $a_j^{p_i} = 0$ for all $j \neq i$. Return the list of patterns.
 
 You can test your implementation by running `test_initial_columns.py`.
 
 #### Exercise 1: Pricing
 
-**Your task:** Implement the knapsack pricing problem solver (by implementing a MIP) `solve_knapsack` in `pricing_knapsack.py`.
+**Your task:** Implement the knapsack pricing problem solver (by implementing a MIP) `solve_knapsack` in [`pricing_knapsack.py`](pricing_knapsack.py).
 To check if your implementation is correct you can run the `test_pricing_knapsack.py` file. Make sure to return a tuple where the first entry is the optimal solution value, and the second is a list containing the indices of the items that were chosen. 
 
 SCIP can handle pricing internally with the `pricer` plugin. You can see the basic infrastructure in `pricer.py`. The pricer gets the dual information from the RMP (with `getDualsolLinear`), feeds it into the pricing problem (`pricing_solver`), and decides whether to add the resulting column or not (when checking `if min_red_cost < 0`). For the curious, you can see more details in [here](https://www.scipopt.org/doc/html/PRICER.php).
@@ -128,15 +131,15 @@ Let us look at the example used in `test_fractional_pairs`. There are $3$ packin
 We then use this fractional pair to create the branching constraints. We create two child nodes, one where the two items in the fractional pair must be together (in the same bin) and one where they are apart (in different bins).
 
 #### Exercise 2: Finding Fractional Pairs
-**Your task:** Go to `ryan_foster.py` and fill in the missing implementation of the `all_fractional_pairs` function.
+**Your task:** Go to [`ryan_foster.py`](ryan_foster.py) and fill in the missing implementation of the `all_fractional_pairs` function.
 This function should return a list of all fractional pairs of items (see above for a definition of a fractional pair).
 You can test your implementation by running the `test_fractional_pairs.py` file.
 
 #### Exercise 3: Branching
-**Your task:** Fill in the missing pieces in `ryan_foster.py` (marked with `?`) that save the branching decisions at the child nodes. Recall that the child nodes need to respect the branching decisions of the parent (saved at `parent_together` and `parent_apart`) and add the new pair (`chosen_pair`) either to the together set, or to the apart set.
+**Your task:** Fill in the missing pieces in [`ryan_foster.py`](ryan_foster.py) (marked with `?`) that save the branching decisions at the child nodes. Recall that the child nodes need to respect the branching decisions of the parent (saved at `parent_together` and `parent_apart`) and add the new pair (`chosen_pair`) either to the together set, or to the apart set.
 
 #### Exercise 4: Handling Branching Decisions in Pricing
-**Your task:** Enforce the branching decisions in the pricing problem by implementing the `solve_knapsack_with_constraints` function in `pricing_knapsack.py`. You can start
+**Your task:** Enforce the branching decisions in the pricing problem by implementing the `solve_knapsack_with_constraints` function in [`pricing_knapsack.py`](pricing_knapsack.py). You can start
 by copying the `solve_knapsack` function and modifying it by adding the necessary constraints. 
 Please note that the apart and together constraints don't forbid both items being absent from the packing.
 You can test your implementation by running the `test_knapsack_with_constraints.py` file.
@@ -240,14 +243,14 @@ Additionally, when the pricer generates a new column, it must add the correct co
 
 #### Exercise 5: Subset Row Separator
 
-**Your task:** Implement the `sepaexeclp` method in `subset_row.py`. The separator should:
+**Your task:** Implement the `sepaexeclp` method in [`subset_row.py`](subset_row.py). The separator should:
 1. Parse variable names to determine which items each pattern covers
 2. For each triple of items, compute the LHS of the subset row inequality
 3. If violated, add the cut as a modifiable constraint (so the pricer can extend it)
 
 #### Exercise 6: Pricing with Subset Row Cuts
 
-**Your task:** Implement `solve_knapsack_with_subset_row_cuts` in `pricing_knapsack.py`. This extends the constrained knapsack solver to handle subset row cut duals by adding penalty variables.
+**Your task:** Implement `solve_knapsack_with_subset_row_cuts` in [`pricing_knapsack.py`](pricing_knapsack.py). This extends the constrained knapsack solver to handle subset row cut duals by adding penalty variables.
 
 The wiring in `pricer.py` and `bnp.py` is already provided: the pricer extracts dual values of active cuts and passes them to the pricing solver, and adds coefficients to cut constraints for new columns.
 

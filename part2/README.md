@@ -16,28 +16,22 @@ For symmetric TSP: $d_{ij} = d_{ji}$ (undirected edges).
 
 For symmetric TSP, we use undirected edge variables with degree constraints and subtour elimination constraints (SECs).
 
-### Variables
-- $x_e \in \{0, 1\}$ for each edge $e = \{i, j\}$
-
-### Formulation
+<table><tr><td width="60%" valign="top">
 
 $$
 \begin{align}
 \min \quad & \sum_{e \in E} d_e x_e \\
-\text{s.t.} \quad & \sum_{e \in \delta(i)} x_e = 2 && \forall i \in V \quad \text{(degree constraints)} \\
-& \sum_{e \in E(S)} x_e \leq |S| - 1 && \forall S \subset V, 2 \leq |S| \leq n-1 \quad \text{(SECs)} \\
+\text{s.t.} \quad & \sum_{e \in \delta(i)} x_e = 2 && \forall i \in V \quad \text{(degree)} \\
+& \sum_{e \in E(S)} x_e \leq |S| - 1 && \forall S \subset V \quad \text{(SECs)} \\
 & x_e \in \{0, 1\}
 \end{align}
 $$
 
-Where:
-- $\delta(i)$ = edges incident to node $i$
-- $E(S)$ = edges with both endpoints in $S$
-
-### Properties
 - **Exponentially many SECs**: $O(2^n)$ constraints
-- **Strong LP relaxation**: Much tighter than MTZ
-- **Row generation needed**: Add SECs on-the-fly as violations are found
+- **Strong LP relaxation**: much tighter than MTZ
+- **Row generation**: add SECs on-the-fly as violations are found
+
+</td><td valign="top" width="40%"><img src="media/tour_vs_subtours.png" width="100%"></td></tr></table>
 
 ---
 
@@ -59,17 +53,9 @@ Given an integer solution (selected edges), we need to detect subtours:
 2. Find connected components (using DFS, BFS, or Union-Find)
 3. If multiple components exist, each is a subtour
 
-**Example:**
-
-<p align="center">
-  <img src="media/tour_vs_subtours.png" width="550">
-</p>
-
-A valid tour (left) has a single connected component. Subtours (right) have multiple — each violates an SEC.
-
 #### Exercise 1 (optional): Subtour Detection
 
-Complete `find_subtours()` in `subtour.py`:
+Complete `find_subtours()` in [`subtour.py`](subtour.py):
 
 ```python
 def find_subtours(selected_edges, n_nodes):
@@ -111,7 +97,7 @@ SCIP's constraint handler interface allows adding constraints lazily:
 
 #### Exercise 2: Implement the Constraint Handler
 
-Complete the callbacks in `conshdlr_subtour.py`:
+Complete the callbacks in [`conshdlr_subtour.py`](conshdlr_subtour.py):
 
 **Part A: `conscheck`** — verify an integer solution
 ```python
@@ -125,13 +111,13 @@ def conscheck(self, constraints, solution, ...):
 **Part B: `consenfolp`** — enforce constraints on the LP solution
 ```python
 def consenfolp(self, constraints, nusefulconss, solinfeasible):
-    # 1. Get LP values — use self.model.getVal(var) (no solution argument)
-    # 2. Find subtours in edges with x > 0.5
+    # 1. Get LP values — use self.model.getSolVal(None, var)
+    # 2. Find subtours in edges with value > 0 (use model.isGT for numerical safety)
     # 3. For each subtour S, add SEC with self.model.addCons(...)
     # 4. Return {"result": SCIP_RESULT.CONSADDED} or FEASIBLE
 ```
 
-**Key API differences:** `conscheck` receives a `solution` object and uses `getSolVal(solution, var)`. `consenfolp` works on the current LP and uses `getVal(var)` directly.
+> **Important:** In `consenfolp`, use `getSolVal(None, var)` to get the current LP value (passing `None` as the solution). Include **all edges with positive value** — this ensures subtours are detected in fractional LP solutions too. Use `model.isGT(value, 0)` instead of `value > 0` for numerical safety with SCIP's tolerances.
 
 **Test your implementation:**
 ```bash
@@ -146,20 +132,19 @@ python test_tsp.py
 
 ---
 
-## Exercise 3: Computational Experiments (MTZ vs Row Generation)
+## Computational Experiments & Visualization
 
-Now that both formulations work, compare them experimentally. Complete `experiments.py`:
+Once the exercises are complete, run experiments and visualize solutions:
 
 ```bash
+# Compare MTZ vs Row Generation across instance sizes
 python experiments.py
+
+# Visualize a solution
+python visualize.py --cities 20 --seed 42
+python visualize.py --cities 20 --seed 42 --compact   # MTZ for comparison
+python visualize.py --cities 150 --seed 0              # larger instance
 ```
-
-Solve the same TSP instances with MTZ and row generation across increasing sizes. Print a comparison table with solving time, B&B nodes, and LP bound.
-
-**Questions to answer:**
-- How does the LP relaxation bound compare between the two formulations?
-- At what instance size does the difference in B&B nodes become significant?
-- Which formulation is faster for small instances? For large instances?
 
 ---
 

@@ -217,38 +217,6 @@ $\Rightarrow$ Not just a solver --- a \textbf{framework} for building solvers
 \end{frame}
 
 % ---------------------------------------------------------
-\begin{frame}{Why SCIP?}
-
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\textbf{As a black-box solver}
-\begin{itemize}
-  \item State-of-the-art MINLP performance
-  \item 2000+ tunable parameters
-  \item Rich presolving \& heuristics
-  \item Reads standard formats
-  \item Supports main programming languages
-\end{itemize}
-\end{column}
-\begin{column}{0.48\textwidth}
-\textbf{As a framework}
-\begin{itemize}
-  \item Branch-and-price
-  \item Row generation
-  \item Benders decomposition
-  \item Custom branching rules
-  \item Event-driven callbacks
-  \item Per-plugin statistics: see exactly which components contribute and by how much
-\end{itemize}
-\end{column}
-\end{columns}
-
-\bigskip
-\textbf{You implement the problem-specific logic; SCIP handles the rest.}
-
-\end{frame}
-
-% ---------------------------------------------------------
 \begin{frame}{Today's Workshop}
 \begin{enumerate}
   \item \textbf{Part 1 --- Modeling:} build and solve MINLPs in PySCIPOpt

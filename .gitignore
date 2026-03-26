@@ -6,6 +6,9 @@ __pycache__/
 
 # LaTeX build artifacts
 slides/aux/
+**/media/aux/
+*.aux
+*.log
 *.fls
 *.fdb_latexmk
 *.synctex.gz

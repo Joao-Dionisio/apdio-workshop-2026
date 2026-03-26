@@ -64,22 +64,33 @@ def tsp_rowgen(distances):
             name=f"degree_{i}"
         )
 
+    # Disable dual reductions — with lazy constraints SCIP doesn't know
+    # the full problem upfront, so dual-based variable fixings can be wrong
+    model.setBoolParam("misc/allowstrongdualreds", 0)
+    model.setBoolParam("misc/allowweakdualreds", 0)
+
+    # Store edge variables on the model so the constraint handler can access them
+    model.data = x
+
     # Include the subtour elimination constraint handler
-    conshdlr = SubtourElimination(x, n)
+    from pyscipopt import SCIP_PRESOLTIMING, SCIP_PROPTIMING
+    conshdlr = SubtourElimination(n)
     model.includeConshdlr(
         conshdlr,
         "subtour",
         "Lazy subtour elimination constraints",
-        sepapriority=0,       # Separation priority
-        enfopriority=-1,      # Enforcement priority (negative = called late)
-        chckpriority=-1,      # Checking priority
-        sepafreq=-1,          # Separation frequency (-1 = only at root)
-        propfreq=-1,          # Propagation frequency (-1 = disabled)
-        eagerfreq=-1,         # Eager evaluation frequency
-        maxprerounds=0,       # Max presolving rounds
-        delaysepa=False,      # Delay separation
-        delayprop=False,      # Delay propagation
-        needscons=False       # Handler doesn't need explicit constraints
+        sepapriority=-1,
+        enfopriority=-1,
+        chckpriority=-1,
+        sepafreq=-1,
+        propfreq=-1,
+        eagerfreq=-1,
+        maxprerounds=0,
+        delaysepa=False,
+        delayprop=False,
+        needscons=False,
+        presoltiming=SCIP_PRESOLTIMING.FAST,
+        proptiming=SCIP_PROPTIMING.BEFORELP,
     )
 
     return model, x

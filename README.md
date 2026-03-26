@@ -86,31 +86,30 @@ For background on SCIP itself, see the overview presentation in `slides/scip_pre
 
 ## Running Tests
 
+Each test verifies the corresponding exercise file (linked below).
+
 ```bash
-# Part 1: Modeling
-cd part1
-python ex01_first_model/test_first_model.py
-python ex02_solving/test_solving.py
-python ex03_parameters/test_parameters.py
-python ex04_transportation/test_transportation.py
-python ex05_knapsack/test_knapsack.py
-python ex06_tsp_mtz/test_tsp_mtz.py
-python ex07_graph_coloring/test_graph_coloring.py
-python ex08_blending/test_blending.py
-python ex09_indicators/test_indicators.py
-python ex10_benchmarking/test_benchmarking.py
+# Part 1: Modeling (cd part1)
+python ex01_first_model/test_first_model.py      # → first_model.py
+python ex02_solving/test_solving.py               # → solving.py
+python ex03_parameters/test_parameters.py         # → parameters.py
+python ex04_transportation/test_transportation.py # → transportation.py
+python ex05_knapsack/test_knapsack.py             # → knapsack.py
+python ex06_tsp_mtz/test_tsp_mtz.py               # → tsp_mtz.py
+python ex07_graph_coloring/test_graph_coloring.py # → graph_coloring.py
+python ex08_blending/test_blending.py             # → blending.py
+python ex09_indicators/test_indicators.py         # → indicators.py
+python ex10_benchmarking/test_benchmarking.py     # → benchmarking.py
 
-# Part 2: Row Generation
-cd part2
-python test_subtour.py
-python test_tsp.py
+# Part 2: Row Generation (cd part2)
+python test_subtour.py                            # → subtour.py
+python test_tsp.py                                # → conshdlr_subtour.py
 
-# Part 3: Branch-and-Price
-cd part3
-python test_initial_columns.py
-python test_pricing_knapsack.py
-python test_fractional_pairs.py
-python test_knapsack_with_constraints.py
-python test_bnp.py
-python test_bpc.py
+# Part 3: Branch-and-Price (cd part3)
+python test_initial_columns.py                    # → initial_columns.py
+python test_pricing_knapsack.py                   # → pricing_knapsack.py
+python test_fractional_pairs.py                   # → ryan_foster.py
+python test_knapsack_with_constraints.py          # → pricing_knapsack.py
+python test_bnp.py                                # → (integration test)
+python test_bpc.py                                # → subset_row.py
 ```

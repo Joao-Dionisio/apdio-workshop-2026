@@ -6,6 +6,8 @@ find all connected components. If there's more than one,
 each represents a subtour that violates an SEC.
 """
 
+from collections import defaultdict
+
 
 def find_subtours(selected_edges, n_nodes):
     """
@@ -24,15 +26,30 @@ def find_subtours(selected_edges, n_nodes):
         >>> find_subtours([(0,1), (1,2), (2,3), (3,0)], 4)
         []
     """
-    # EXERCISE 1: Implement subtour detection
-    #
-    # Hint: Build an adjacency list, then use DFS/BFS to find components.
-    # Or use networkx: networkx.connected_components(networkx.Graph(selected_edges))
+    adj = defaultdict(set)
+    for i, j in selected_edges:
+        adj[i].add(j)
+        adj[j].add(i)
 
-    import networkx as nx
-    G = nx.Graph()
-    G.add_nodes_from(range(n_nodes))
-    G.add_edges_from(selected_edges)
-    components = list(nx.connected_components(G))
+    visited = set()
+    components = []
 
-    return components if len(components) > 1 else []
+    for node in range(n_nodes):
+        if node in visited:
+            continue
+        component = set()
+        stack = [node]
+        while stack:
+            v = stack.pop()
+            if v in visited:
+                continue
+            visited.add(v)
+            component.add(v)
+            for neighbor in adj[v]:
+                if neighbor not in visited:
+                    stack.append(neighbor)
+        components.append(component)
+
+    if len(components) == 1:
+        return []
+    return components
