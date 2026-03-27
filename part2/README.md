@@ -16,7 +16,7 @@ For symmetric TSP: $d_{ij} = d_{ji}$ (undirected edges).
 
 For symmetric TSP, we use undirected edge variables with degree constraints and subtour elimination constraints (SECs).
 
-<table><tr><td width="60%" valign="top">
+<p align="center"><img src="media/tour_vs_subtours.png" width="350"></p>
 
 $$
 \begin{align}
@@ -30,8 +30,6 @@ $$
 - **Exponentially many SECs**: $O(2^n)$ constraints
 - **Strong LP relaxation**: much tighter than MTZ
 - **Row generation**: add SECs on-the-fly as violations are found
-
-</td><td valign="top" width="40%"><img src="media/tour_vs_subtours.png" width="100%"></td></tr></table>
 
 ---
 
