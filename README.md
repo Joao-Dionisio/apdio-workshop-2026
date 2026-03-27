@@ -8,6 +8,8 @@ An APDIO-organized workshop on Optimization using [PySCIPOpt](https://github.com
 
 ## Setup
 
+### Option A: pip
+
 ```bash
 python -m pip install pyscipopt
 ```
@@ -18,6 +20,13 @@ On some Linux distributions (e.g. Debian/Ubuntu), installing packages globally w
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install pyscipopt
+```
+
+### Option B: conda
+
+```bash
+conda create -n apdio -c conda-forge pyscipopt
+conda activate apdio
 ```
 
 Verify installation:
