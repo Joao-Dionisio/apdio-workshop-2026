@@ -10,6 +10,7 @@ bilinear terms that make it a nonconvex NLP.
          l * sum_s x[s] = sum_s q_s * x[s]                    (pool quality)
          l * y[p] + sum_s q_s * z[s,p] <= max_q_p * d[p]      for all p
          d[p] = y[p] + sum_s z[s,p]                            for all p
+         d[p] <= demand_p                                      for all p
 
 PySCIPOpt handles bilinear terms (l * x[s]) natively.
 """
@@ -22,7 +23,7 @@ def blending(sources, products):
 
     Args:
         sources:  list of dicts with keys "cost" and "quality".
-        products: list of dicts with keys "revenue" and "max_quality".
+        products: list of dicts with keys "revenue", "max_quality", and "demand".
 
     Variables: x[s] (source→pool), y[p] (pool→product), z[s,p] (bypass),
               l (pool quality), d[p] (total delivery).

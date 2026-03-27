@@ -18,8 +18,8 @@ SOURCES = [
 ]
 
 PRODUCTS = [
-    {"revenue": 5.0, "max_quality": 2.5},
-    {"revenue": 4.0, "max_quality": 1.5},
+    {"revenue": 5.0, "max_quality": 2.5, "demand": 10.0},
+    {"revenue": 4.0, "max_quality": 1.5, "demand": 15.0},
 ]
 
 
