@@ -78,9 +78,8 @@ click \textbf{Code} $\rightarrow$ \textbf{Download ZIP}, and extract it.
 
 \begin{block}{2. Install dependencies}
 \begin{lstlisting}
-pip install -r requirements.txt
+pip install pyscipopt
 \end{lstlisting}
-This installs \texttt{pyscipopt} (Python interface to SCIP) and \texttt{matplotlib}.
 \end{block}
 
 \begin{block}{3. Verify installation}
@@ -353,7 +352,7 @@ for mixed-integer programming. Collect: status, objective, time, nodes, gap.
 \begin{lstlisting}
 model = Model()
 model.readProblem(
-    "miplib_data/p0033.mps.gz")
+    "miplib_data/pk1.mps.gz")
 model.setParam("limits/time", 120)
 model.optimize()
 \end{lstlisting}
@@ -367,12 +366,12 @@ model.optimize()
 \toprule
 \textbf{Instance} & \textbf{Type} & \textbf{Vars} & \textbf{Conss} \\
 \midrule
-\texttt{p0033}     & IP  &  33 &  16 \\
-\texttt{flugpl}    & MIP &  18 &  18 \\
-\texttt{enigma}    & IP  & 100 &  21 \\
-\texttt{misc03}    & MIP & 160 &  96 \\
-\texttt{stein27}   & IP  &  27 & 118 \\
-\texttt{gen-ip054} & IP  &  30 &  27 \\
+\texttt{pk1}        & MIP &  86 &  45 \\
+\texttt{neos5}      & MIP &  63 &  63 \\
+\texttt{mas76}      & MIP & 151 &  12 \\
+\texttt{assign1-5-8}& MIP & 156 & 161 \\
+\texttt{gen-ip002}  & IP  &  41 &  24 \\
+\texttt{gen-ip054}  & IP  &  30 &  27 \\
 \bottomrule
 \end{tabular}
 }
