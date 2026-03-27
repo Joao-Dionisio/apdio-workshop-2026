@@ -36,4 +36,6 @@ def load_and_solve(filepath, params=None):
     """
     # EXERCISE 3b: Load from file and solve
 
-    raise NotImplementedError("Exercise 3b: Load a model from file and solve.")
+    model = Model()
+    model.readProblem(filepath)
+    return solve_with_params(model, params or {})

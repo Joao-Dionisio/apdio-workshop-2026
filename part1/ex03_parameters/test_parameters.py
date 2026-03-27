@@ -141,16 +141,16 @@ def test_load_no_params():
 
 def test_load_miplib():
     """Load a MIPLIB instance if available."""
-    miplib_path = os.path.join(os.path.dirname(__file__), "miplib_data", "p0033.mps.gz")
+    miplib_path = os.path.join(os.path.dirname(__file__), "miplib_data", "pk1.mps.gz")
     if not os.path.exists(miplib_path):
-        print("[93mSKIP:[0m test_load_miplib - miplib_data/p0033.mps.gz not found")
+        print("[93mSKIP:[0m test_load_miplib - miplib_data/pk1.mps.gz not found")
         return
 
     result = load_and_solve(miplib_path, params={"limits/time": 30})
     assert result["status"] in ("optimal", "timelimit"), (
         f"Unexpected status: {result['status']}"
     )
-    assert result["objective"] is not None, "p0033 should find a solution"
+    assert result["objective"] is not None, "pk1 should find a solution"
     print("[92mPASS:[0m test_load_miplib")
 
 

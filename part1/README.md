@@ -128,14 +128,14 @@ Each function returns a dictionary with the relevant statistics (status, objecti
 
 [MIPLIB](https://miplib.zib.de) is the standard benchmark library for mixed-integer programming. Six small instances are included in `ex03_parameters/miplib_data/`:
 
-| Instance | Rows | Cols | Description |
-|----------|------|------|-------------|
-| `p0033` | 16 | 33 | Capital budgeting |
-| `enigma` | 21 | 100 | Puzzle |
-| `flugpl` | 18 | 18 | Flight planning |
-| `misc03` | 96 | 160 | Miscellaneous |
-| `stein27` | 118 | 27 | Steiner triple |
-| `gen-ip054` | 30 | 30 | General IP |
+| Instance | Cons | Vars | Type |
+|----------|------|------|------|
+| `pk1` | 45 | 86 | MIP |
+| `neos5` | 63 | 63 | MIP |
+| `mas76` | 12 | 151 | MIP |
+| `assign1-5-8` | 161 | 156 | MIP |
+| `gen-ip002` | 24 | 41 | IP |
+| `gen-ip054` | 27 | 30 | IP |
 
 **Your task:** Use `model.readProblem()` and `load_and_solve()` from Exercise 3 to load and solve these instances. Collect status, objective, time, nodes, and gap for each.
 
