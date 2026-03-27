@@ -17,12 +17,4 @@ def first_model():
     """
     # EXERCISE 1: Build the model and return model, x, y
 
-    m = Model()
-    x = m.addVar(vtype="B", obj=3)
-    y = m.addVar(vtype="B", obj=2)
-    m.addCons(x + y <= 1)
-    m.addCons(2 * x + y <= 2)
-    m.setMaximize()
-
-    return m, x, y
     raise NotImplementedError("Exercise 1: Build a small binary IP.")
