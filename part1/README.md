@@ -25,10 +25,10 @@ PySCIPOpt supports three main variable types:
 | Binary | `"B"` | Takes value 0 or 1 |
 | Integer | `"I"` | Takes any integer value within bounds |
 
-Variables are created with `model.addVar()`, constraints with `model.addCons()`, and sums over indexed expressions with the `quicksum()` helper. Here is a minimal example:
+Variables are created with `model.addVar()`, constraints with `model.addCons()`. Here is a minimal example:
 
 ```python
-from pyscipopt import Model, quicksum
+from pyscipopt import Model
 
 model = Model("Example")
 x = model.addVar(name="x", vtype="B", obj=3)
