@@ -147,10 +147,10 @@ The transportation problem is one of the earliest applications of linear program
 
 $$
 \begin{align*}
-    \min \quad & \sum_{i \in S} \sum_{j \in D} c_{ij} \, x_{ij} \\
-    \text{subject to} \quad & \sum_{j \in D} x_{ij} \leq s_i, \quad & \forall \, i \in S \\
-    & \sum_{i \in S} x_{ij} \geq d_j, \quad & \forall \, j \in D \\
-    & x_{ij} \geq 0, \quad & \forall \, i \in S, \, j \in D
+    \min \quad & \sum_{i \in S} \sum_{j \in D} c_{ij} x_{ij} \\
+    \text{subject to} \quad & \sum_{j \in D} x_{ij} \leq s_i, \quad & \forall i \in S \\
+    & \sum_{i \in S} x_{ij} \geq d_j, \quad & \forall j \in D \\
+    & x_{ij} \geq 0, \quad & \forall i \in S, j \in D
 \end{align*}
 $$
 
@@ -174,9 +174,9 @@ The 0-1 knapsack problem is perhaps the most studied problem in combinatorial op
 
 $$
 \begin{align*}
-    \max \quad & \sum_{i} v_i \, x_i \\
-    \text{subject to} \quad & \sum_{i} w_i \, x_i \leq C \\
-    & x_i \in \{0, 1\}, \quad & \forall \, i
+    \max \quad & \sum_{i} v_i x_i \\
+    \text{subject to} \quad & \sum_{i} w_i x_i \leq C \\
+    & x_i \in \{0, 1\}, \quad & \forall i
 \end{align*}
 $$
 
@@ -200,10 +200,10 @@ The Traveling Salesman Problem (TSP) asks for the shortest tour that visits each
 
 $$
 \begin{align*}
-    \min \quad & \sum_{i \neq j} d_{ij} \, x_{ij} \\
-    \text{subject to} \quad & \sum_{j \neq i} x_{ij} = 1 \quad \forall \, i \\
-    & \sum_{i \neq j} x_{ij} = 1 \quad \forall \, j \\
-    & u_i - u_j + n \, x_{ij} \leq n - 1 \quad \forall \, i, j \neq 0 \\
+    \min \quad & \sum_{i \neq j} d_{ij} x_{ij} \\
+    \text{subject to} \quad & \sum_{j \neq i} x_{ij} = 1 \quad \forall i \\
+    & \sum_{i \neq j} x_{ij} = 1 \quad \forall j \\
+    & u_i - u_j + n x_{ij} \leq n - 1 \quad \forall i, j \neq 0 \\
     & x_{ij} \in \{0, 1\}
 \end{align*}
 $$
@@ -229,8 +229,8 @@ We introduce binary variables $x_{vk}$ (node $v$ receives color $k$) and $w_k$ (
 $$
 \begin{align*}
     \min \quad & \sum_{k=1}^{K} w_k \\
-    \text{subject to} \quad & \sum_{k=1}^{K} x_{vk} = 1, \quad & \forall \, v \in V \\
-    & x_{uk} + x_{vk} \leq w_k, \quad & \forall \, (u, v) \in E, \, \forall \, k \\
+    \text{subject to} \quad & \sum_{k=1}^{K} x_{vk} = 1, \quad & \forall v \in V \\
+    & x_{uk} + x_{vk} \leq w_k, \quad & \forall (u, v) \in E, \forall k \\
     & x_{vk}, w_k \in \{0, 1\}
 \end{align*}
 $$
@@ -249,21 +249,23 @@ Return `(model, x, w)` — the unsolved model, a dict `x` mapping `(v, k)` to bi
 
 ## Section 8. Nonlinear Blending (Pooling Problem)
 
-The pooling problem is a classic nonlinear optimization problem from the process industry. Raw materials with known qualities are blended through a mixing pool to produce products that must meet quality specifications.
+The pooling problem is a classic nonlinear optimization problem from the process industry. A set of raw material sources, each with a known quality $q_s$ and unit cost $c_s$, can be sent through a shared mixing pool or shipped directly (bypass) to products. Each product $p$ has a revenue $r_p$ per unit and a maximum quality specification $\bar{q}_p$. The goal is to maximize profit (revenue minus raw material cost) while respecting quality limits.
+
+The key difficulty is the pool: when sources mix, the pool quality $\lambda$ is the flow-weighted average of incoming qualities. This creates **bilinear terms** ($\lambda \cdot x_s$, $\lambda \cdot y_p$) that make the problem nonconvex. SCIP solves these globally via spatial branch-and-bound.
 
 <p align="center"><img src="media/blending.png" width="350"></p>
 
+**Variables:** $x_s$ = flow from source $s$ into the pool, $y_p$ = flow from the pool to product $p$, $z_{sp}$ = direct bypass flow from source $s$ to product $p$, $\lambda$ = pool quality, $d_p$ = total delivery to product $p$.
+
 $$
 \begin{align*}
-    \max \quad & \sum_{p} r_p \, d_p - \sum_{s} c_s \left( x_s + \sum_{p} z_{sp} \right) \\
+    \max \quad & \sum_{p} r_p d_p - \sum_{s} c_s \left( x_s + \sum_{p} z_{sp} \right) \\
     \text{s.t.} \quad & \sum_{s} x_s = \sum_{p} y_p && \text{(balance)} \\
-    & \lambda \sum_{s} x_s = \sum_{s} q_s \, x_s && \text{(pool quality)} \\
-    & \lambda \, y_p + \sum_{s} q_s \, z_{sp} \leq \bar{q}_p \, d_p && \forall \, p \\
-    & d_p = y_p + \sum_{s} z_{sp} && \forall \, p
+    & \lambda \sum_{s} x_s = \sum_{s} q_s x_s && \text{(pool quality)} \\
+    & \lambda y_p + \sum_{s} q_s z_{sp} \leq \bar{q}_p d_p && \forall p \quad \text{(product quality)} \\
+    & d_p = y_p + \sum_{s} z_{sp} && \forall p \quad \text{(demand)}
 \end{align*}
 $$
-
-The terms $\lambda \cdot x_s$ and $\lambda \cdot y_p$ are **bilinear** (nonconvex). SCIP solves these globally via spatial branch-and-bound.
 
 ### Exercise 8: Blending
 
@@ -285,10 +287,10 @@ We model a generator scheduling problem: a set of generators must meet a total e
 
 $$
 \begin{align*}
-    \min \quad & \sum_{i} f_i \, y_i + \sum_{i} c_i \, p_i \\
+    \min \quad & \sum_{i} f_i y_i + \sum_{i} c_i p_i \\
     \text{s.t.} \quad & \sum_{i} p_i \geq D \\
-    & p_i \leq \bar{p}_i \, y_i \quad & \forall \, i \\
-    & y_i = 1 \implies p_i \geq \underline{p}_i \quad & \forall \, i \\
+    & p_i \leq \bar{p}_i y_i \quad & \forall i \\
+    & y_i = 1 \implies p_i \geq \underline{p}_i \quad & \forall i \\
     & y_i \in \{0, 1\}, \; p_i \geq 0
 \end{align*}
 $$
@@ -297,7 +299,7 @@ $$
 
 **Your task:** Implement both formulations in [`ex09_indicators/indicators.py`](ex09_indicators/indicators.py):
 
-- `generator_scheduling_bigm(...)` — use big-M constraints: $p_i \geq \underline{p}_i \, y_i$
+- `generator_scheduling_bigm(...)` — use big-M constraints: $p_i \geq \underline{p}_i y_i$
 - `generator_scheduling_indicator(...)` — use `model.addConsIndicator()` for the minimum output constraint
 
 Both functions return `(model, y, p)` — the unsolved model, binary on/off dicts, and continuous output dicts.

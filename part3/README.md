@@ -26,7 +26,7 @@ $$
     \min_{x,y} & \quad \sum_{b \in \mathcal{B}} y_b \\
     \textrm{subject to} & \quad \sum_{b \in \mathcal{B}} x_{ib} = 1, \quad & \forall i \in \mathcal{I} \\
                         & \quad \sum_{i \in \mathcal{I}} s_ix_{ib} \leq Cy_b, \quad & \forall b \in \mathcal{B}\\
-                        & \quad x_{ib} \in \{0,1\}, \quad & \forall i \in \mathcal{I} \, \forall b \in \mathcal{B}\\
+                        & \quad x_{ib} \in \{0,1\}, \quad & \forall i \in \mathcal{I}, \forall b \in \mathcal{B}\\
                         & \quad y_b \in \{0,1\}, \quad &\forall b \in \mathcal{B}
 \end{align*}
 $$
