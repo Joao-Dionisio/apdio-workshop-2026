@@ -13,7 +13,14 @@ from pyscipopt import Model
 def first_model():
     """Build and return (model, x, y) for the binary IP above.
 
-    Use: Model(), addVar(vtype="B", obj=...), addCons(), setMaximize()
+    Steps:
+        1. Create a Model:          model = Model("first")
+        2. Add binary variables:    x = model.addVar(name="x", vtype="B")
+                                    (do the same for y)
+        3. Set the objective:       model.setObjective(3*x + 2*y, "maximize")
+        4. Add the two constraints: model.addCons(x + y <= 1)
+                                    (do the same for the second constraint)
+        5. Return:                  return model, x, y
     """
     # EXERCISE 1: Build the model and return model, x, y
 

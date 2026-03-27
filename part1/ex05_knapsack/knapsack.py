@@ -13,7 +13,12 @@ def knapsack(weights, values, capacity):
     """Build and return a 0-1 knapsack IP.
 
     Returns:
-        (model, x) — model and dict mapping item index to binary variable.
+        (model, x) where x is a dict mapping item index to a binary variable,
+        e.g. x[0], x[1], ..., x[n_items-1].
+
+    Hints:
+        - Use vtype="B" for binary variables.
+        - Use quicksum() to build the capacity constraint and objective.
     """
     # EXERCISE 5: Build the knapsack IP (maximization)
 

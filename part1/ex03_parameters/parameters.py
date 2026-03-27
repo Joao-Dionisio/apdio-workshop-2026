@@ -16,10 +16,22 @@ def solve_with_params(model, params):
         params: Dict mapping parameter names to values, e.g.
                 {"limits/time": 60, "limits/gap": 0.01}
 
-    Returns:
-        dict with keys: "status", "objective", "gap", "n_nodes", "time"
-
-    Use: model.setParam(name, value), getNSols() to check before getObjVal()
+    Steps:
+        1. Apply each parameter:  for name, val in params.items():
+                                      model.setParam(name, val)
+        2. Solve:                 model.optimize()
+        3. CAREFUL: calling model.getObjVal() when the model is infeasible
+           (or no solution was found) will crash. Check first:
+              if model.getNSols() > 0:  objective = model.getObjVal()
+              else:                     objective = None
+        4. Return a dict:
+              {
+                  "status":    model.getStatus(),        # str
+                  "objective": <from step 3>,             # float or None
+                  "gap":       model.getGap(),            # float
+                  "n_nodes":   model.getNNodes(),         # int
+                  "time":      model.getSolvingTime(),    # float (seconds)
+              }
     """
     # EXERCISE 3a: Apply parameters and solve
 
