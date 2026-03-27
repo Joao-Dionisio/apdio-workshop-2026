@@ -107,19 +107,17 @@ Key methods:
 
 - `model.setParam("limits/time", seconds)` — stop after a time limit
 - `model.setParam("limits/gap", gap)` — stop when the relative optimality gap is small enough
-- `model.setEmphasis(emphasis)` — set a solving emphasis (e.g. `"OPTIMALITY"`, `"FEASIBILITY"`)
+- `model.setParam("emphasis/feasibility", 1)` — set a solving emphasis (also `"emphasis/optimality"`)
 - `model.readProblem(filepath)` — load a model from an MPS or LP file
 - `model.getGap()` — get the relative gap between primal and dual bound
 
 ### Exercise 3: Parameters
 
-**Your task:** Implement the four functions in [`ex03_parameters/parameters.py`](ex03_parameters/parameters.py):
+**Your task:** Implement the two functions in [`ex03_parameters/parameters.py`](ex03_parameters/parameters.py):
 
 | Function | What it does |
 |----------|-------------|
-| `solve_with_time_limit(model, time_limit)` | Set a time limit and solve |
-| `solve_with_gap_limit(model, gap)` | Set a gap limit and solve |
-| `solve_with_emphasis(model, emphasis)` | Set an emphasis and solve |
+| `solve_with_params(model, params)` | Apply a dict of SCIP parameters and solve |
 | `load_and_solve(filepath, params)` | Load a model from file and solve with optional parameters |
 
 Each function returns a dictionary with the relevant statistics (status, objective, gap, time, n_nodes).
@@ -145,7 +143,7 @@ Each function returns a dictionary with the relevant statistics (status, objecti
 
 The transportation problem is one of the earliest applications of linear programming. A set of suppliers, each with a limited supply, must ship goods to a set of customers, each with a specific demand. Shipping one unit from supplier $i$ to customer $j$ costs $c_{ij}$. The goal is to satisfy all demands at minimum total shipping cost.
 
-<table><tr><td width="60%" valign="top">
+<p align="center"><img src="media/transportation.png" height="200"></p>
 
 $$
 \begin{align*}
@@ -157,8 +155,6 @@ $$
 $$
 
 where $s_i$ is the supply at source $i$ and $d_j$ is the demand at customer $j$.
-
-</td><td valign="top" width="40%"><img src="media/transportation.png" height="200"></td></tr></table>
 
 > This is a pure LP (no integer variables). The constraint matrix of a transportation problem has a special structure (it is totally unimodular), so the LP relaxation always gives an integer optimal solution.
 
@@ -174,7 +170,7 @@ Return `(model, x)` — the unsolved model and a dict mapping `(i, j)` to contin
 
 The 0-1 knapsack problem is perhaps the most studied problem in combinatorial optimization. Given a set of items, each with a weight $w_i$ and a value $v_i$, and a knapsack with capacity $C$, select items to maximize total value without exceeding the capacity.
 
-<table><tr><td width="60%" valign="top">
+<p align="center"><img src="media/knapsack.png" height="250"></p>
 
 $$
 \begin{align*}
@@ -185,8 +181,6 @@ $$
 $$
 
 Applications: capital budgeting, cargo loading, resource allocation, and as a subproblem in column generation (Part 3).
-
-</td><td valign="top" width="40%"><img src="media/knapsack.png" height="250"></td></tr></table>
 
 > The LP relaxation of the knapsack problem has a simple greedy solution: sort items by value-to-weight ratio and pack greedily. The gap between the LP relaxation and the IP optimum is typically small, making branch-and-bound very effective.
 
@@ -202,7 +196,7 @@ Return `(model, x)` — the unsolved model and a dict mapping item index to its 
 
 The Traveling Salesman Problem (TSP) asks for the shortest tour that visits each city exactly once and returns to the start. The Miller-Tucker-Zemlin (MTZ) formulation uses position variables $u_i$ to eliminate subtours with a polynomial number of constraints:
 
-<table><tr><td width="60%" valign="top">
+<p align="center"><img src="media/tsp_mtz.png" width="350"></p>
 
 $$
 \begin{align*}
@@ -216,8 +210,6 @@ $$
 
 Simple to implement but has a weak LP relaxation. Part 2 shows a stronger approach with row generation.
 
-</td><td valign="top" width="40%"><img src="media/tsp_mtz.png" width="100%"></td></tr></table>
-
 ### Exercise 6: TSP (MTZ)
 
 **Your task:** Implement the function `tsp_mtz(distances)` in [`ex06_tsp_mtz/tsp_mtz.py`](ex06_tsp_mtz/tsp_mtz.py).
@@ -230,7 +222,7 @@ Return `(model, x)` — the unsolved model and a dict mapping `(i, j)` to binary
 
 Given an undirected graph $G = (V, E)$, the graph coloring problem asks for an assignment of colors to nodes such that no two adjacent nodes share the same color, using the minimum number of colors. This minimum is called the chromatic number $\chi(G)$.
 
-<table><tr><td width="60%" valign="top">
+<p align="center"><img src="media/graph_coloring.png" height="250"></p>
 
 We introduce binary variables $x_{vk}$ (node $v$ receives color $k$) and $w_k$ (color $k$ is used), with $K$ as an upper bound on the number of colors:
 
@@ -244,8 +236,6 @@ $$
 $$
 
 **Symmetry breaking:** $w_k \geq w_{k+1}$ forces colors to be used in order.
-
-</td><td valign="top" width="40%"><img src="media/graph_coloring.png" height="250"></td></tr></table>
 
 > Graph coloring is NP-hard and notoriously difficult for IP solvers due to the inherent symmetry. Symmetry-breaking constraints are essential for practical performance.
 
@@ -261,7 +251,7 @@ Return `(model, x, w)` — the unsolved model, a dict `x` mapping `(v, k)` to bi
 
 The pooling problem is a classic nonlinear optimization problem from the process industry. Raw materials with known qualities are blended through a mixing pool to produce products that must meet quality specifications.
 
-<table><tr><td width="60%" valign="top">
+<p align="center"><img src="media/blending.png" width="350"></p>
 
 $$
 \begin{align*}
@@ -274,8 +264,6 @@ $$
 $$
 
 The terms $\lambda \cdot x_s$ and $\lambda \cdot y_p$ are **bilinear** (nonconvex). SCIP solves these globally via spatial branch-and-bound.
-
-</td><td valign="top" width="40%"><img src="media/blending.png" width="100%"></td></tr></table>
 
 ### Exercise 8: Blending
 
@@ -293,7 +281,7 @@ SCIP supports indicator constraints natively via `model.addConsIndicator()`, avo
 
 We model a generator scheduling problem: a set of generators must meet a total electricity demand. Each generator $i$ has a fixed startup cost $f_i$, a variable cost $c_i$ per MW, and minimum/maximum output levels $[\underline{p}_i, \bar{p}_i]$.
 
-<table><tr><td width="60%" valign="top">
+<p align="center"><img src="media/generator_scheduling.png" width="350"></p>
 
 $$
 \begin{align*}
@@ -304,8 +292,6 @@ $$
     & y_i \in \{0, 1\}, \; p_i \geq 0
 \end{align*}
 $$
-
-</td><td valign="top" width="40%"><img src="media/generator_scheduling.png" width="100%"></td></tr></table>
 
 ### Exercise 9: Indicator Constraints
 
