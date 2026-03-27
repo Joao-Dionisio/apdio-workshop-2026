@@ -264,7 +264,7 @@ COLUMNS
     CORNMEAL  PROTEIN         10.0      CALCIUM        2.0
 RHS
     RHS1      CALORIES        3.0       PROTEIN        70.0
-    RHS1      CALCALCIUM      0.8
+    RHS1      CALCIUM         0.8
 ENDATA
 #+end_example
 #+begin_export latex
@@ -618,8 +618,8 @@ while True:
 *** Integration with Data Science Pipelines
     - **The Workflow**:
       1. **Pre-processing**: Pandas/SQL clean the "noisy" real-world data.
-      2. **Predictive**: ML models (Scikit-learn/XGBoost) predict parameters (e.g., next week's demand).
-      3. **Prescriptive**: The **Unified Omega** (AMPL/Python) solves for the optimal plan based on those predictions.
+      2. **Predictive**: ML models (Scikit-learn/XGBoost) predict parameters (e.g., future demand).
+      3. **Prescriptive**: AMPL/Python solves for the optimal plan based on those predictions.
       4. **Post-processing**: Visualization (Plotly/Dash) for the end-user.
 
      
@@ -638,6 +638,19 @@ while True:
     4. **Deploy with purpose**: A model is only useful if it integrates into the "Decision Pipeline."   
 
 
+** Beyond the Black Box
+*** The Limit of High-Level APIs
+    - *High-Level*: send a model $\to$ get a solution.
+    - No concerns on /how to solve/
+    - In some cases, we must dig into the solution method:
+      - Dantzig-Wolfe decomposition: add variables *during* the branch-and-bound search.
+    - Standard APIs usually require /stopping the solver, adding a column, and re-starting./
+      - this destroys the solver's internal state
+
+*** SCIP: The "Transparent" Solver
+    - Allows writing a **pricer** in C or Python \to called *internally* every time a node is processed.
+    - Can manage the /master and subproblem/ coordination natively without ever exiting the search process.
+    - Next: *Moving from "What to solve" to "How to solve."*
 
 
 ** Further Reading and References: The "Alpha" (Foundational Papers)
