@@ -4,6 +4,8 @@ Part 1 of this workshop introduces PySCIPOpt through a series of progressively m
 
 Each section explains the problem and its mathematical formulation, then points to an exercise file where you must implement the model. Every exercise includes a test script to verify correctness.
 
+> **Documentation:** PySCIPOpt tutorials are available at [pyscipopt.readthedocs.io](https://pyscipopt.readthedocs.io/en/latest/tutorials/index.html).
+
 ## Section 1. Getting Started with PySCIPOpt
 
 The fundamental workflow in PySCIPOpt follows a simple lifecycle:

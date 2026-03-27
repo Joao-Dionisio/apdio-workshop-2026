@@ -2,6 +2,8 @@
 
 An APDIO-organized workshop on Optimization using [PySCIPOpt](https://github.com/scipopt/PySCIPOpt), the Python interface to the [SCIP](https://www.scipopt.org/) solver. More information about the event [here](https://www.apdio.pt/2026/03/03/2026-apdio-workshop-optimization-software-practice/).
 
+> **Documentation:** PySCIPOpt tutorials are available at [pyscipopt.readthedocs.io](https://pyscipopt.readthedocs.io/en/latest/tutorials/index.html).
+
 > **Tip:** The READMEs contain syntax that only renders properly in a viewer. On GitHub they render automatically. In VS Code, press `Ctrl+Shift+V` (`Cmd+Shift+V` on Mac) to open the Markdown preview. In PyCharm, click the split editor icon (top-right of the editor) or right-click the file and select *Open Preview*.
 
 ## Setup
