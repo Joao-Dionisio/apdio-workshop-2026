@@ -19,7 +19,12 @@ def transportation(supply, demand, costs):
         costs:  matrix (list of lists) — costs[i][j] is the shipping cost.
 
     Returns:
-        (model, x) where x is a dict mapping (i, j) to variables.
+        (model, x) where x is a dict mapping (i, j) tuples to continuous
+        variables, e.g. x[0, 2] is the shipment from supplier 0 to customer 2.
+
+    Hints:
+        - Use vtype="C" for continuous variables.
+        - Use quicksum() to build constraint left-hand sides.
     """
     # EXERCISE 4: Build the LP — variables, supply/demand constraints, objective
 
