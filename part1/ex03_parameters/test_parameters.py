@@ -10,7 +10,7 @@ import os
 import tempfile
 import traceback
 
-from pyscipopt import Model
+from pyscipopt import Model, SCIP_PARAMEMPHASIS
 from parameters import solve_with_params, load_and_solve
 
 
@@ -58,14 +58,13 @@ def test_gap_limit():
 
 
 def test_emphasis():
-    """Emphasis settings should work (passed as a regular parameter)."""
-    for emphasis in ["OPTIMALITY", "FEASIBILITY"]:
+    """Emphasis settings should work via model.setEmphasis()."""
+    for emph in [SCIP_PARAMEMPHASIS.OPTIMALITY, SCIP_PARAMEMPHASIS.FEASIBILITY]:
         model = _build_simple_model()
-        result = solve_with_params(
-            model, {"limits/time": 30, "emphasis/" + emphasis.lower(): 1}
-        )
+        model.setEmphasis(emph)
+        result = solve_with_params(model, {"limits/time": 30})
         assert result["status"] == "optimal", (
-            f"Expected optimal with {emphasis} emphasis, got {result['status']}"
+            f"Expected optimal with emphasis {emph}, got {result['status']}"
         )
     print("[92mPASS:[0m test_emphasis")
 
